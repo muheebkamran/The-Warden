@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CommitmentCard from "@/components/CommitmentCard";
 import CommitmentModal from "@/components/CommitmentModal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDateEditability } from "@/lib/dateEngine";
+import { saveReflection, getReflection } from "@/app/actions";
 
 type TodayDashboardProps = {
   commitments: any[];
@@ -19,6 +20,9 @@ type TodayDashboardProps = {
 export default function TodayDashboard({ commitments, records, streakState, todayStr, yesterdayStr }: TodayDashboardProps) {
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [reflectionText, setReflectionText] = useState("");
+  const [isSavingReflection, setIsSavingReflection] = useState(false);
+  const [reflectionLoaded, setReflectionLoaded] = useState(false);
 
   const activeCommitments = commitments.filter(c => c.isActive);
   const total = activeCommitments.length;
@@ -33,6 +37,36 @@ export default function TodayDashboard({ commitments, records, streakState, toda
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
+
+  useEffect(() => {
+    async function loadReflection() {
+      setReflectionLoaded(false);
+      try {
+        const ref = await getReflection(selectedDate);
+        setReflectionText(ref?.text || "");
+      } catch (err) {
+        setReflectionText("");
+      } finally {
+        setReflectionLoaded(true);
+      }
+    }
+    loadReflection();
+  }, [selectedDate]);
+
+  const handleSaveReflection = async () => {
+    setIsSavingReflection(true);
+    try {
+      await saveReflection(selectedDate, reflectionText);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSavingReflection(false);
+    }
+  };
+
+  // Consistency calculations
+  const totalKept = records.filter(r => r.status === 'complete' || r.status === 'showed_up').length;
+  const consistencyRate = records.length > 0 ? Math.round((totalKept / records.length) * 100) : 0;
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col gap-8 pb-20 animate-fade-in">
@@ -74,11 +108,20 @@ export default function TodayDashboard({ commitments, records, streakState, toda
               </h1>
             </>
           ) : (
-            <div className="flex items-baseline gap-4">
-              <h1 className="font-serif text-5xl md:text-6xl text-[var(--text-ivory)] uppercase">
-                DAY {streakState.currentStreak}
-              </h1>
-              <div className="w-2 h-2 rounded-full bg-[var(--accent-gold)]" />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-baseline gap-4">
+                <h1 className="font-serif text-5xl md:text-6xl text-[var(--text-ivory)] uppercase">
+                  {streakState.currentStreak} DAYS
+                </h1>
+                <div className="w-2 h-2 rounded-full bg-[var(--accent-gold)]" />
+              </div>
+              
+              {/* Consistency Summary */}
+              <div className="flex items-center gap-4 text-sm text-[var(--text-stone)]">
+                <div>Total Kept: <span className="text-[var(--text-ivory)]">{totalKept}</span></div>
+                <div className="w-1 h-1 rounded-full bg-[var(--border-default)]" />
+                <div>Consistency Rate: <span className="text-[var(--text-ivory)]">{consistencyRate}%</span></div>
+              </div>
             </div>
           )}
         </div>
@@ -103,6 +146,36 @@ export default function TodayDashboard({ commitments, records, streakState, toda
           </div>
         </div>
       </header>
+
+      {/* Daily Reflection Section */}
+      <section className="bg-[var(--bg-elevated)] border border-[var(--border-default)] p-4 rounded-[var(--radius-md)] flex flex-col gap-3">
+        <h3 className="font-serif text-[var(--text-ivory)] tracking-[0.1em] uppercase text-sm">Daily Reflection</h3>
+        {reflectionLoaded ? (
+          <>
+            <textarea
+              value={reflectionText}
+              onChange={(e) => setReflectionText(e.target.value)}
+              disabled={!editable || isSavingReflection}
+              placeholder="Reflect on your day, challenges, or thoughts..."
+              className="w-full h-24 bg-[var(--bg-surface)] border border-[var(--border-default)] text-[var(--text-ivory)] placeholder:text-[var(--text-muted)] p-3 rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--accent-gold)] transition-colors resize-none text-sm"
+            />
+            {editable && (
+              <div className="flex justify-end">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={handleSaveReflection}
+                  disabled={isSavingReflection}
+                >
+                  {isSavingReflection ? "Saving..." : "Save Reflection"}
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="h-24 w-full bg-[var(--bg-surface)] animate-pulse rounded-[var(--radius-sm)]" />
+        )}
+      </section>
 
       {positive >= required && total > 0 && (
         <div className="text-[var(--accent-gold)] font-serif italic text-lg animate-fade-in text-center">

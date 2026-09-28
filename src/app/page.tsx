@@ -12,21 +12,19 @@ export default async function HomePage() {
   const todayStr = getTodayStr();
   const yesterdayStr = getYesterdayStr();
 
-  const [commitments, todayRecords, yesterdayRecords, streakState] = await Promise.all([
+  const [commitments, allRecords, streakState] = await Promise.all([
     db.commitment.findMany({
       where: { userId },
       orderBy: { createdAt: 'asc' },
     }),
     db.dailyRecord.findMany({
-      where: { userId, date: todayStr },
-    }),
-    db.dailyRecord.findMany({
-      where: { userId, date: yesterdayStr },
+      where: { userId },
+      orderBy: { date: 'asc' }
     }),
     getStreakState(userId),
   ]);
 
-  const records = [...todayRecords, ...yesterdayRecords];
+  const records = allRecords;
 
   return (
     <AppShell>

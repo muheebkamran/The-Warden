@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { evaluateCommitment, evaluateDay, getRequiredThreshold } from '../lib/evaluation';
+import { evaluateCommitment, evaluateDay, getRequiredThreshold } from '../lib/evaluation.ts';
 
 describe('Evaluation Lib', () => {
   describe('evaluateCommitment', () => {

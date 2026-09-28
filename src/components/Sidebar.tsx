@@ -6,7 +6,11 @@ import { usePathname } from "next/navigation";
 import { Calendar, Target, BarChart3, Settings, BookOpen, Wallet, LogOut } from "lucide-react";
 import { logout } from "@/app/actions";
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+}
+
+export default function Sidebar({ isOpen = true }: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -22,17 +26,12 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[260px] hidden md:flex flex-col bg-[var(--bg-obsidian)] border-r border-[var(--border-default)]">
-      <div className="px-6 pt-8 pb-6">
-        <h1 className="font-serif text-lg tracking-[0.2em] uppercase text-[var(--text-ivory)]">
-          The Warden
-        </h1>
-        <p className="font-sans text-[10px] text-[var(--text-stone)] tracking-wider uppercase mt-1">
-          Keep Your Word
-        </p>
-      </div>
-
-      <nav className="flex-1 px-3 space-y-1">
+    <aside 
+      className={`fixed left-0 top-14 md:top-16 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] w-[260px] flex-col bg-[var(--bg-obsidian)] border-r border-[var(--border-default)] transition-transform duration-300 z-50 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      } flex`}
+    >
+      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;

@@ -141,6 +141,8 @@ export async function updateCommitment(formData: FormData) {
   const targetValue = Number(formData.get("targetValue"));
   const unit = formData.get("unit") as string;
 
+  if (!title || title.trim() === "") throw new Error("Title is required");
+
   const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
   if (!commitment) throw new Error("Not found");
 
@@ -318,4 +320,38 @@ export async function exportUserData() {
   const records = await db.dailyRecord.findMany({ where: { userId } });
 
   return JSON.stringify({ commitments, records }, null, 2);
+}
+
+// 16. deleteMyData
+export async function deleteMyData() {
+  const { userId } = await requireAuth();
+  
+  await db.dailyRecord.deleteMany({ where: { userId } });
+  await db.commitment.deleteMany({ where: { userId } });
+  await db.streakState.delete({ where: { userId } }).catch(() => {});
+  await db.dailyReflection.deleteMany({ where: { userId } });
+
+  revalidatePath('/');
+}
+
+// 17. saveReflection
+export async function saveReflection(date: string, text: string) {
+  const { userId } = await requireAuth();
+  assertDateAllowed(date, 'Save reflection');
+
+  await db.dailyReflection.upsert({
+    where: { userId_date: { userId, date } },
+    update: { text },
+    create: { userId, date, text },
+  });
+
+  revalidatePath('/');
+}
+
+// 18. getReflection
+export async function getReflection(date: string) {
+  const { userId } = await requireAuth();
+  return db.dailyReflection.findUnique({
+    where: { userId_date: { userId, date } },
+  });
 }

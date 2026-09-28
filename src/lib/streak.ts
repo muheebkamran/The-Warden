@@ -1,17 +1,6 @@
-/**
- * Streak Evaluation Engine — THE WARDEN (Server-Side Only)
- *
- * Implements the streak state machine with Grace Day mechanics.
- *
- * State transitions:
- *   Pass (prev was Pass)  → current_streak += 1, grace = false
- *   Pass (prev was Miss/Grace) → current_streak += 1, grace = false
- *   Miss (first miss)      → grace_day_active = true, streak holds
- *   Miss (second consec.)  → current_streak = 0, grace = false, streak ends
- */
-
 import { db } from '@/lib/db';
 import { evaluateCommitment, evaluateDay, type CommitmentType } from '@/lib/evaluation';
+import { getTodayStr, formatDateStr, addDays } from '@/lib/dateEngine';
 
 export interface StreakEvalResult {
   currentStreak: number;
@@ -21,90 +10,104 @@ export interface StreakEvalResult {
   streakBroken: boolean;
 }
 
-/**
- * Evaluates a specific date and updates the streak state machine.
- * Must be called server-side only.
- */
-export async function evaluateAndUpdateStreak(
-  userId: string,
-  dateStr: string
-): Promise<StreakEvalResult> {
-  // 1. Get all active commitments for the user
+export async function recalculateStreak(userId: string): Promise<StreakEvalResult> {
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error("User not found");
+
   const commitments = await db.commitment.findMany({
-    where: { userId, isActive: true },
+    where: { userId },
   });
 
-  if (commitments.length === 0) {
-    return {
-      currentStreak: 0,
-      longestStreak: 0,
-      graceDayActive: false,
-      dayPassed: false,
-      streakBroken: false,
-    };
-  }
-
-  // 2. Get all daily records for this date
   const records = await db.dailyRecord.findMany({
-    where: { userId, date: dateStr },
-  });
-
-  // 3. Count positive outcomes (complete + showed_up)
-  let positiveCount = 0;
-  for (const record of records) {
-    if (record.status === 'complete' || record.status === 'showed_up') {
-      positiveCount++;
-    }
-  }
-
-  // 4. Evaluate day
-  const dayPassed = evaluateDay(commitments.length, positiveCount);
-
-  // 5. Get or create streak state
-  let streakState = await db.streakState.findUnique({
     where: { userId },
+    orderBy: { date: 'asc' },
   });
 
-  if (!streakState) {
-    streakState = await db.streakState.create({
-      data: { userId },
-    });
+  let startDate = formatDateStr(user.createdAt);
+  if (records.length > 0 && records[0].date < startDate) {
+    startDate = records[0].date;
   }
 
-  // 6. Apply state machine transitions
-  let { currentStreak, longestStreak, graceDayActive } = streakState;
+  const todayStr = getTodayStr();
+
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let graceDayActive = false;
   let streakBroken = false;
+  let todayPassed = false;
 
-  if (dayPassed) {
-    // Day passed: increment streak, clear grace
-    currentStreak += 1;
-    graceDayActive = false;
-  } else {
-    // Day missed
-    if (graceDayActive) {
-      // Second consecutive miss: streak breaks
-      currentStreak = 0;
-      graceDayActive = false;
-      streakBroken = true;
-    } else {
-      // First miss: activate grace day, streak holds
-      graceDayActive = true;
+  let currentDate = startDate;
+
+  while (currentDate <= todayStr) {
+    const isToday = currentDate === todayStr;
+    const dayRecords = records.filter(r => r.date === currentDate);
+    
+    const activeCommitmentsOnDay = commitments.filter(c => {
+      const cCreatedDate = formatDateStr(c.createdAt);
+      if (cCreatedDate > currentDate) return false;
+      if (c.isActive) return true;
+      return dayRecords.some(r => r.commitmentId === c.id);
+    });
+
+    const numCommitments = activeCommitmentsOnDay.length;
+
+    let positiveCount = 0;
+    for (const record of dayRecords) {
+      if (record.status === 'complete' || record.status === 'showed_up') {
+        positiveCount++;
+      }
     }
+
+    // A day is passed if evaluateDay returns true and there's at least 1 commitment.
+    // Actually evaluateDay(0, 0) might return true or false, let's assume if 0 commitments, it passes if we want?
+    // Wait, original streak code: `if (commitments.length === 0) return ... 0 streak`. 
+    // So if 0 commitments, day doesn't pass.
+    let dayPassed = false;
+    if (numCommitments > 0) {
+      dayPassed = evaluateDay(numCommitments, positiveCount);
+    }
+
+    if (dayPassed) {
+      currentStreak += 1;
+      graceDayActive = false;
+      streakBroken = false;
+      if (isToday) todayPassed = true;
+    } else {
+      if (!isToday) {
+        if (graceDayActive) {
+          currentStreak = 0;
+          graceDayActive = false;
+          streakBroken = true;
+        } else {
+          graceDayActive = true;
+          streakBroken = false;
+        }
+      } else {
+        todayPassed = false;
+      }
+    }
+
+    if (currentStreak > longestStreak) {
+      longestStreak = currentStreak;
+    }
+
+    currentDate = addDays(currentDate, 1);
   }
 
-  // Update longest streak
-  if (currentStreak > longestStreak) {
-    longestStreak = currentStreak;
-  }
-
-  // 7. Persist state
-  await db.streakState.update({
+  await db.streakState.upsert({
     where: { userId },
-    data: {
+    create: {
+      userId,
       currentStreak,
       longestStreak,
       graceDayActive,
-      lastEvaluatedDate: dateStr,
+      lastEvaluatedDate: todayStr,
+    },
+    update: {
+      currentStreak,
+      longestStreak,
+      graceDayActive,
+      lastEvaluatedDate: todayStr,
     },
   });
 
@@ -112,31 +115,30 @@ export async function evaluateAndUpdateStreak(
     currentStreak,
     longestStreak,
     graceDayActive,
-    dayPassed,
+    dayPassed: todayPassed,
     streakBroken,
   };
 }
 
-/**
- * Gets the current streak state for a user without modifying it.
- */
-export async function getStreakState(userId: string) {
-  let state = await db.streakState.findUnique({
-    where: { userId },
-  });
-
-  if (!state) {
-    state = await db.streakState.create({
-      data: { userId },
-    });
-  }
-
-  return state;
+export async function evaluateAndUpdateStreak(
+  userId: string,
+  dateStr: string
+): Promise<StreakEvalResult> {
+  return recalculateStreak(userId);
 }
 
-/**
- * Resets the streak state for a user (danger zone action).
- */
+export async function getStreakState(userId: string) {
+  // Always recalculate to keep in sync
+  const result = await recalculateStreak(userId);
+  return {
+    userId,
+    currentStreak: result.currentStreak,
+    longestStreak: result.longestStreak,
+    graceDayActive: result.graceDayActive,
+    lastEvaluatedDate: getTodayStr(),
+  };
+}
+
 export async function resetStreak(userId: string) {
   await db.streakState.upsert({
     where: { userId },

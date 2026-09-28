@@ -50,12 +50,6 @@ interface ProgressViewProps {
 export function ProgressView({ commitments, allRecords, streakState, todayStr }: ProgressViewProps) {
   const [currentMonthDate, setCurrentMonthDate] = useState(new Date(todayStr));
 
-  // --- 1. Long-term stats ---
-  const totalKept = allRecords.filter(r => r.status === 'complete').length;
-  const consistencyRate = allRecords.length > 0 
-    ? Math.round((allRecords.filter(r => r.status === 'complete' || r.status === 'showed_up').length / allRecords.length) * 100)
-    : 0;
-
   // --- 2. Daily Breakdown (Today) ---
   const todayRecords = allRecords.filter(r => r.date === todayStr);
 
@@ -102,37 +96,6 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
 
   return (
     <div className="space-y-8 animate-fade-in">
-      
-      {/* 1. LONG-TERM STATS */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="flex flex-col items-center justify-center p-6">
-          <div className={`font-serif text-4xl mb-1 ${streakState && streakState.currentStreak > 0 ? 'text-[var(--accent-gold)]' : 'text-[var(--text-ivory)]'}`}>
-            {streakState?.currentStreak || 0}
-          </div>
-          <div className="text-[var(--text-stone)] text-xs tracking-wider uppercase">Current Streak</div>
-        </Card>
-        
-        <Card className="flex flex-col items-center justify-center p-6">
-          <div className="font-serif text-4xl mb-1 text-[var(--text-stone)]">
-            {streakState?.longestStreak || 0}
-          </div>
-          <div className="text-[var(--text-stone)] text-xs tracking-wider uppercase">Longest Streak</div>
-        </Card>
-
-        <Card className="flex flex-col items-center justify-center p-6">
-          <div className="font-serif text-4xl mb-1 text-[var(--text-ivory)]">
-            {totalKept}
-          </div>
-          <div className="text-[var(--text-stone)] text-xs tracking-wider uppercase">Total Kept</div>
-        </Card>
-
-        <Card className="flex flex-col items-center justify-center p-6">
-          <div className="font-serif text-4xl mb-1 text-[var(--text-ivory)]">
-            {consistencyRate}%
-          </div>
-          <div className="text-[var(--text-stone)] text-xs tracking-wider uppercase">Consistency</div>
-        </Card>
-      </section>
 
       {/* 2. DAILY BREAKDOWN */}
       <section>
