@@ -74,8 +74,8 @@ export function Sidebar({
               <Sparkles className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-white tracking-wide uppercase">
-                Accountability OS
+              <p className="text-xs font-black text-white tracking-widest uppercase">
+                THE WARDEN
               </p>
               <p className="text-[11px] text-zinc-400 truncate">
                 Keep Your Word
