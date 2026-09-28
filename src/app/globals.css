@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-app: #f4f6fa;
+  --sidebar-bg: #1a1f2c;
+  --sidebar-border: #262e3d;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  --brand: #2563eb;
+  --brand-hover: #1d4ed8;
+  --brand-light: #eff6ff;
+  --brand-border: #bfdbfe;
+}
+
+@theme inline {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Remove ALL number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+/* Global interactive transition */
+button, a, input, select, textarea {
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Selection */
+::selection { background: #dbeafe; color: #1e40af; }
+
+/* Focus states */
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* Micro-interaction Keyframes */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-card-in {
+  animation: cardEntrance 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-check-pop {
+  animation: checkPop 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Respect user's reduced motion system preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Completely hide Next.js dev badge / node small positional icon */
+nextjs-portal,
+[data-nextjs-dev-tools-button],
+[data-nextjs-toast],
+div[data-next-badge],
+div[class*="nextjs-dev-tools"],
+div[class*="dev-overlay"],
+#next-route-announcer {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

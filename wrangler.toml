@@ -1,0 +1,11 @@
+name = "accountability-app"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare D1 Database Binding
+# In development: Wrangler separates local and remote data by default.
+# Local SQLite data remains isolated in .wrangler/state/v3/d1 or prisma/dev.db.
+[[d1_databases]]
+binding = "DB"
+database_name = "accountability-db"
+database_id = "YOUR_CLOUDFLARE_D1_DATABASE_ID"
