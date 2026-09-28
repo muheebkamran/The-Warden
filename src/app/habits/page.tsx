@@ -1,26 +1,28 @@
 import { db } from "@/lib/db";
-import { AppLayout } from "@/components/AppLayout";
-import { HabitsManager } from "@/components/HabitsManager";
-import { getUserSettings } from "@/app/actions";
+import AppShell from "@/components/AppShell";
+import HabitsManager from "@/components/HabitsManager";
+import { requireAuth } from "@/app/actions";
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function HabitsPage() {
-  const [goals, records, userSettings] = await Promise.all([
-    db.goal.findMany({
-      where: { active: true },
-      orderBy: { createdAt: "asc" },
-    }),
-    db.dailyRecord.findMany({
-      include: { goals: true },
-      orderBy: { date: "asc" },
-    }),
-    getUserSettings(),
-  ]);
+  const { userId } = await requireAuth();
+  const commitments = await db.commitment.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+  });
 
   return (
-    <AppLayout goals={goals} userSettings={userSettings}>
-      <HabitsManager goals={goals} records={records} />
-    </AppLayout>
+    <AppShell>
+      <div className="w-full max-w-3xl mx-auto mb-8 animate-fade-in">
+        <h1 className="uppercase tracking-[0.2em] text-xs font-sans text-[var(--text-stone)] mb-2">
+          HABITS
+        </h1>
+        <p className="font-serif italic text-2xl text-[var(--text-ivory)]">
+          Manage your commitments.
+        </p>
+      </div>
+      <HabitsManager commitments={commitments} />
+    </AppShell>
   );
 }

@@ -1,43 +1,42 @@
 import { db } from "@/lib/db";
-import { AppLayout } from "@/components/AppLayout";
-import { HomeCommandCenter } from "@/components/HomeCommandCenter";
-import { getLocalTodayStr } from "@/lib/dateRules";
-import { getUserSettings } from "@/app/actions";
+import AppShell from "@/components/AppShell";
+import TodayDashboard from "@/components/TodayDashboard";
+import { getTodayStr, getYesterdayStr } from "@/lib/dateEngine";
+import { getStreakState } from "@/lib/streak";
+import { requireAuth } from "@/app/actions";
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const todayStr = getLocalTodayStr();
+  const { userId } = await requireAuth();
+  const todayStr = getTodayStr();
+  const yesterdayStr = getYesterdayStr();
 
-  const [goals, records, promises, identityStats, userSettings] =
-    await Promise.all([
-      db.goal.findMany({
-        where: { active: true },
-        orderBy: { createdAt: "asc" },
-      }),
-      db.dailyRecord.findMany({
-        include: { goals: true },
-        orderBy: { date: "asc" },
-      }),
-      db.promise.findMany({
-        orderBy: { createdAt: "desc" },
-      }),
-      db.identityStats.findUnique({
-        where: { id: "singleton" },
-      }),
-      getUserSettings(),
-    ]);
+  const [commitments, todayRecords, yesterdayRecords, streakState] = await Promise.all([
+    db.commitment.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    }),
+    db.dailyRecord.findMany({
+      where: { userId, date: todayStr },
+    }),
+    db.dailyRecord.findMany({
+      where: { userId, date: yesterdayStr },
+    }),
+    getStreakState(userId),
+  ]);
+
+  const records = [...todayRecords, ...yesterdayRecords];
 
   return (
-    <AppLayout goals={goals} userSettings={userSettings}>
-      <HomeCommandCenter
-        goals={goals}
+    <AppShell>
+      <TodayDashboard 
+        commitments={commitments}
         records={records}
-        promises={promises}
-        identityStats={identityStats}
-        userName={userSettings?.name || "Muheeb"}
-        currentDateStr={todayStr}
+        streakState={streakState}
+        todayStr={todayStr}
+        yesterdayStr={yesterdayStr}
       />
-    </AppLayout>
+    </AppShell>
   );
 }

@@ -2,349 +2,320 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import fs from "fs/promises";
-import path from "path";
-import { assertEntryDateAllowed } from "@/lib/dateRules";
+import { assertDateAllowed } from "@/lib/dateEngine";
+import { evaluateCommitment, CommitmentType } from "@/lib/evaluation";
+import { evaluateAndUpdateStreak, getStreakState, resetStreak } from "@/lib/streak";
+import { createSession, deleteSession, getSession } from "@/lib/auth";
+import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
 
-// ─── Goal / Habit Actions ────────────────────────────────────────────────────
-
-
-export async function createGoal(formData: FormData) {
-  const name = String(formData.get("name") ?? "").trim();
-  const targetMinutes = Number(formData.get("targetMinutes"));
-  if (!name || !Number.isFinite(targetMinutes) || targetMinutes <= 0) return;
-  await db.goal.create({ data: { name, targetMinutes } });
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
-}
-
-export async function updateGoal(formData: FormData) {
-  const goalId = String(formData.get("goalId") ?? "").trim();
-  const name = String(formData.get("name") ?? "").trim();
-  const targetMinutes = Number(formData.get("targetMinutes"));
-  if (!goalId || !name || !Number.isFinite(targetMinutes) || targetMinutes <= 0) return;
-
-  await db.goal.update({
-    where: { id: goalId },
-    data: { name, targetMinutes },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
-}
-
-export async function deleteGoal(goalId: string) {
-  if (!goalId) return;
-  await db.goal.delete({ where: { id: goalId } });
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
-}
-
-export async function saveDailyRecord(formData: FormData) {
-  const date = String(formData.get("date") ?? "").trim();
-  if (!date) return;
-  assertEntryDateAllowed(date, "Daily debrief");
-
-  const sleepTime = String(formData.get("sleepTime") ?? "").trim() || null;
-  const wakeTime = String(formData.get("wakeTime") ?? "").trim() || null;
-  const reflection = String(formData.get("reflection") ?? "").trim() || null;
-
-  const phoneHours = Math.max(0, Number(formData.get("phoneHours")) || 0);
-  const phoneMins = Math.max(0, Number(formData.get("phoneMins")) || 0);
-  const phoneMinutes = phoneHours * 60 + phoneMins;
-
-  const goals = await db.goal.findMany({ where: { active: true } });
-
-  const dailyRecord = await db.dailyRecord.upsert({
-    where: { date },
-    create: { date, sleepTime, wakeTime, phoneMinutes, reflection },
-    update: { sleepTime, wakeTime, phoneMinutes, reflection },
-  });
-
-  for (const goal of goals) {
-    const actualMinutes = Math.max(0, Number(formData.get(`actual_${goal.id}`)) || 0);
-    const showedUp = formData.get(`showedUp_${goal.id}`) === "on";
-    await db.goalRecord.upsert({
-      where: { dailyRecordId_goalId: { dailyRecordId: dailyRecord.id, goalId: goal.id } },
-      create: { dailyRecordId: dailyRecord.id, goalId: goal.id, targetMinutes: goal.targetMinutes, actualMinutes, showedUp },
-      update: { actualMinutes, showedUp, targetMinutes: goal.targetMinutes },
-    });
+// 1. requireAuth
+export async function requireAuth() {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
   }
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
+  return session;
 }
 
-export async function logHabitCell(formData: FormData) {
-  const goalId = String(formData.get("goalId") ?? "").trim();
-  const date = String(formData.get("date") ?? "").trim();
-  const hours = Math.max(0, Number(formData.get("hours")) || 0);
-  const minutes = Math.max(0, Number(formData.get("minutes")) || 0);
-  const showedUp = formData.get("showedUp") === "true";
-  const actualMinutes = hours * 60 + minutes;
+// Auth Actions
+export async function login(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-  if (!goalId || !date) return;
-  assertEntryDateAllowed(date, "Habit cell log");
+  if (!email || !password) throw new Error("Missing email or password");
 
-  const goal = await db.goal.findUnique({ where: { id: goalId } });
-  if (!goal) return;
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user) throw new Error("Invalid credentials");
 
-  const dailyRecord = await db.dailyRecord.upsert({
-    where: { date },
-    create: { date },
-    update: {},
-  });
+  const isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) throw new Error("Invalid credentials");
 
-  await db.goalRecord.upsert({
-    where: { dailyRecordId_goalId: { dailyRecordId: dailyRecord.id, goalId: goal.id } },
-    create: { dailyRecordId: dailyRecord.id, goalId: goal.id, targetMinutes: goal.targetMinutes, actualMinutes, showedUp: showedUp || actualMinutes > 0 },
-    update: { actualMinutes, showedUp: showedUp || actualMinutes > 0 },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
+  await createSession(user.id);
+  redirect("/");
 }
 
-export async function clearHabitCell(goalId: string, date: string) {
-  if (!goalId || !date) return;
-  assertEntryDateAllowed(date, "Clear habit cell");
+export async function register(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const inviteCode = formData.get("inviteCode") as string;
 
-  const dailyRecord = await db.dailyRecord.findUnique({ where: { date } });
-  if (!dailyRecord) return;
-  await db.goalRecord.deleteMany({ where: { dailyRecordId: dailyRecord.id, goalId } });
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
+  if (!email || !password || !inviteCode) {
+    throw new Error("Missing required fields");
+  }
+
+  const invite = await db.invite.findUnique({ where: { code: inviteCode, isUsed: false } });
+  if (!invite) throw new Error("Invalid or used invite code");
+
+  const existingUser = await db.user.findUnique({ where: { email } });
+  if (existingUser) throw new Error("Email already registered");
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = await db.user.create({
+    data: {
+      email,
+      passwordHash,
+      commitments: {
+        create: [
+          { title: "Read", type: "duration", targetValue: 30, unit: "min", frequency: "daily" },
+          { title: "Watch a lecture", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          { title: "Be in the office", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          { title: "Physical activity", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+        ]
+      }
+    }
+  });
+
+  await db.invite.update({
+    where: { id: invite.id },
+    data: { isUsed: true }
+  });
+
+  await createSession(user.id);
+  redirect("/");
 }
 
-export async function toggleHabitDay(goalId: string, date: string) {
-  if (!goalId || !date) return;
-  assertEntryDateAllowed(date, "Toggle habit day");
+export async function logout() {
+  await deleteSession();
+  redirect("/login");
+}
 
-  const goal = await db.goal.findUnique({ where: { id: goalId } });
-  if (!goal) return;
-
-  const dailyRecord = await db.dailyRecord.upsert({
-    where: { date },
-    create: { date },
-    update: {},
+// 2. getCommitments
+export async function getCommitments() {
+  const { userId } = await requireAuth();
+  return db.commitment.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
   });
+}
 
-  const existing = await db.goalRecord.findUnique({
-    where: { dailyRecordId_goalId: { dailyRecordId: dailyRecord.id, goalId } },
+// 3. getActiveCommitments
+export async function getActiveCommitments() {
+  const { userId } = await requireAuth();
+  return db.commitment.findMany({
+    where: { userId, isActive: true },
+    orderBy: { createdAt: 'asc' },
   });
+}
 
-  if (existing && (existing.showedUp || existing.actualMinutes > 0)) {
-    await db.goalRecord.update({
-      where: { id: existing.id },
-      data: { showedUp: false, actualMinutes: 0 },
-    });
-  } else if (existing) {
-    await db.goalRecord.update({
-      where: { id: existing.id },
-      data: { showedUp: true, actualMinutes: goal.targetMinutes },
-    });
+// 4. createCommitment
+export async function createCommitment(formData: FormData) {
+  const { userId } = await requireAuth();
+  const title = formData.get("title") as string;
+  const type = formData.get("type") as CommitmentType;
+  let targetValue = Number(formData.get("targetValue"));
+  let unit = formData.get("unit") as string;
+
+  if (!title) throw new Error("Title is required");
+  if (!['duration', 'quantity', 'count', 'binary'].includes(type)) throw new Error("Invalid type");
+
+  if (type === 'binary') {
+    targetValue = 1;
+    unit = 'check';
   } else {
-    await db.goalRecord.create({
-      data: {
-        dailyRecordId: dailyRecord.id,
-        goalId: goal.id,
-        targetMinutes: goal.targetMinutes,
-        actualMinutes: goal.targetMinutes,
-        showedUp: true,
-      },
-    });
+    if (targetValue <= 0) throw new Error("Target value must be greater than 0");
   }
 
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/matrix");
-}
-
-
-// ─── Notes Actions ────────────────────────────────────────────────────────────
-
-export async function addNote(formData: FormData) {
-  const content = String(formData.get("content") ?? "").trim();
-  const goalId = String(formData.get("goalId") ?? "").trim() || null;
-  if (!content) return;
-  await db.note.create({
-    data: { content, goalId },
-  });
-  revalidatePath("/");
-}
-
-export async function deleteNote(noteId: string) {
-  if (!noteId) return;
-  await db.note.delete({ where: { id: noteId } });
-  revalidatePath("/");
-}
-
-
-// ─── Promise / Commitment Actions ────────────────────────────────────────────
-
-export async function createPromise(formData: FormData) {
-  const text = String(formData.get("text") ?? "").trim();
-  const date = String(formData.get("date") ?? "").trim();
-  const targetMinutesRaw = Number(formData.get("targetMinutes"));
-  const targetMinutes = Number.isFinite(targetMinutesRaw) && targetMinutesRaw > 0 ? targetMinutesRaw : null;
-
-  if (!text || !date) return;
-  assertEntryDateAllowed(date, "Create promise");
-
-  await db.promise.create({
-    data: { text, date, targetMinutes, status: "pending" },
+  await db.commitment.create({
+    data: {
+      userId,
+      title,
+      type,
+      targetValue,
+      unit,
+      frequency: 'daily',
+      isActive: true,
+    }
   });
 
-  await db.identityStats.upsert({
-    where: { id: "singleton" },
-    create: { id: "singleton", totalPromised: 1, totalKept: 0, longestStreak: 0 },
-    update: { totalPromised: { increment: 1 } },
+  revalidatePath('/');
+  revalidatePath('/habits');
+}
+
+// 5. updateCommitment
+export async function updateCommitment(formData: FormData) {
+  const { userId } = await requireAuth();
+  const commitmentId = formData.get("commitmentId") as string;
+  const title = formData.get("title") as string;
+  const targetValue = Number(formData.get("targetValue"));
+  const unit = formData.get("unit") as string;
+
+  const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
+  if (!commitment) throw new Error("Not found");
+
+  await db.commitment.update({
+    where: { id: commitmentId },
+    data: { title, targetValue, unit },
   });
 
-  revalidatePath("/");
-  revalidatePath("/vault");
+  revalidatePath('/');
+  revalidatePath('/habits');
 }
 
-export async function keepPromise(formData: FormData) {
-  const promiseId = String(formData.get("promiseId") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim() || null;
-  const actualMinutes = Math.max(0, Number(formData.get("actualMinutes")) || 0);
+// 6. toggleCommitmentActive
+export async function toggleCommitmentActive(commitmentId: string) {
+  const { userId } = await requireAuth();
+  const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
+  if (!commitment) return;
 
-  if (!promiseId) return;
-  const existing = await db.promise.findUnique({ where: { id: promiseId } });
-  if (!existing) return;
-  assertEntryDateAllowed(existing.date, "Fulfill promise");
-
-  const status = "kept";
-
-  await db.promise.update({
-    where: { id: promiseId },
-    data: { status, actualMinutes, notes, keptAt: new Date() },
+  await db.commitment.update({
+    where: { id: commitmentId },
+    data: { isActive: !commitment.isActive },
   });
 
-  await db.identityStats.upsert({
-    where: { id: "singleton" },
-    create: { id: "singleton", totalPromised: 1, totalKept: 1, longestStreak: 1 },
-    update: { totalKept: { increment: 1 } },
+  revalidatePath('/');
+  revalidatePath('/habits');
+}
+
+// 7. deleteCommitment
+export async function deleteCommitment(commitmentId: string) {
+  const { userId } = await requireAuth();
+  const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
+  if (!commitment) return;
+
+  await db.commitment.delete({ where: { id: commitmentId } });
+  revalidatePath('/');
+  revalidatePath('/habits');
+  revalidatePath('/progress');
+}
+
+// 8. recordCommitment
+export async function recordCommitment(formData: FormData) {
+  const { userId } = await requireAuth();
+  const commitmentId = formData.get("commitmentId") as string;
+  const date = formData.get("date") as string;
+  const actualValue = Number(formData.get("actualValue"));
+  const note = formData.get("note") as string | null;
+
+  assertDateAllowed(date, 'Record commitment');
+
+  const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
+  if (!commitment) throw new Error("Commitment not found");
+
+  const status = evaluateCommitment(commitment.type as CommitmentType, commitment.targetValue, actualValue);
+
+  await db.dailyRecord.upsert({
+    where: {
+      commitmentId_date: { commitmentId, date },
+    },
+    update: {
+      actualValue,
+      status,
+      note,
+      targetValue: commitment.targetValue,
+    },
+    create: {
+      userId,
+      commitmentId,
+      date,
+      targetValue: commitment.targetValue,
+      actualValue,
+      status,
+      note,
+    },
   });
 
-  revalidatePath("/");
-  revalidatePath("/vault");
+  await evaluateAndUpdateStreak(userId, date);
+  revalidatePath('/');
+  revalidatePath('/progress');
 }
 
-export async function missPromise(promiseId: string) {
-  if (!promiseId) return;
-  const existing = await db.promise.findUnique({ where: { id: promiseId } });
-  if (!existing) return;
-  assertEntryDateAllowed(existing.date, "Mark promise missed");
+// 9. quickComplete
+export async function quickComplete(commitmentId: string, date: string) {
+  const { userId } = await requireAuth();
+  assertDateAllowed(date, 'Quick complete');
 
-  await db.promise.update({ where: { id: promiseId }, data: { status: "missed" } });
-  revalidatePath("/");
-  revalidatePath("/vault");
+  const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
+  if (!commitment) throw new Error("Commitment not found");
+
+  const actualValue = commitment.targetValue;
+  const status = evaluateCommitment(commitment.type as CommitmentType, commitment.targetValue, actualValue);
+
+  await db.dailyRecord.upsert({
+    where: {
+      commitmentId_date: { commitmentId, date },
+    },
+    update: {
+      actualValue,
+      status,
+      targetValue: commitment.targetValue,
+    },
+    create: {
+      userId,
+      commitmentId,
+      date,
+      targetValue: commitment.targetValue,
+      actualValue,
+      status,
+    },
+  });
+
+  await evaluateAndUpdateStreak(userId, date);
+  revalidatePath('/');
+  revalidatePath('/progress');
 }
 
-export async function deletePromise(promiseId: string) {
-  if (!promiseId) return;
-  const existing = await db.promise.findUnique({ where: { id: promiseId } });
-  if (!existing) return;
-  assertEntryDateAllowed(existing.date, "Delete promise");
+// 10. clearRecord
+export async function clearRecord(commitmentId: string, date: string) {
+  const { userId } = await requireAuth();
+  assertDateAllowed(date, 'Clear record');
 
-  await db.promise.delete({ where: { id: promiseId } });
-  revalidatePath("/");
-  revalidatePath("/vault");
+  const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
+  if (!commitment) throw new Error("Commitment not found");
+
+  await db.dailyRecord.delete({
+    where: {
+      commitmentId_date: { commitmentId, date },
+    },
+  }).catch(() => { /* ignore if not found */ });
+
+  await evaluateAndUpdateStreak(userId, date);
+  revalidatePath('/');
+  revalidatePath('/progress');
 }
 
-
-// ─── Book Actions ─────────────────────────────────────────────────────────────
-
-export async function uploadBook(formData: FormData) {
-  const file = formData.get("file") as File;
-  if (!file || file.size === 0) return;
-
-  const title = (formData.get("title") as string)?.trim() || file.name.replace(/\.[^/.]+$/, "");
-  const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const booksDir = path.join(process.cwd(), "public", "books");
-  await fs.mkdir(booksDir, { recursive: true });
-  const filePath = path.join(booksDir, sanitizedFileName);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(filePath, buffer);
-  const fileUrl = `/books/${encodeURIComponent(sanitizedFileName)}`;
-
-  const existing = await db.book.findFirst({ where: { fileName: sanitizedFileName } });
-  if (existing) {
-    await db.book.update({ where: { id: existing.id }, data: { title, fileUrl, updatedAt: new Date() } });
-  } else {
-    await db.book.create({ data: { title, fileName: sanitizedFileName, fileUrl, currentPage: 1 } });
-  }
-  revalidatePath("/reader");
-}
-
-export async function updateBookProgress(bookId: string, page: number) {
-  if (!bookId || page < 1) return;
-  await db.book.update({
-    where: { id: bookId },
-    data: { currentPage: Math.max(1, Math.round(page)), updatedAt: new Date() },
+// 11. getDailyRecords
+export async function getDailyRecords(date: string) {
+  const { userId } = await requireAuth();
+  return db.dailyRecord.findMany({
+    where: { userId, date },
   });
 }
 
-export async function deleteBook(bookId: string) {
-  if (!bookId) return;
-  const book = await db.book.findUnique({ where: { id: bookId } });
-  if (book) {
-    try {
-      const filePath = path.join(process.cwd(), "public", "books", book.fileName);
-      await fs.unlink(filePath);
-    } catch {}
-    await db.book.delete({ where: { id: bookId } });
-  }
-  revalidatePath("/reader");
+// 12. getStreakData
+export async function getStreakData() {
+  const { userId } = await requireAuth();
+  return getStreakState(userId);
 }
 
-// ─── User Settings & Preferences Actions ─────────────────────────────────────
-
-export async function getUserSettings() {
-  let settings = await db.userSettings.findUnique({
-    where: { id: "singleton" },
-  });
-  if (!settings) {
-    settings = await db.userSettings.create({
-      data: {
-        id: "singleton",
-        name: "Muheeb",
-        accentColor: "#2563eb",
-        backgroundColor: "#f4f6fa",
-      },
-    });
-  }
-  return settings;
+// 13. resetStreakAction
+export async function resetStreakAction() {
+  const { userId } = await requireAuth();
+  await resetStreak(userId);
+  revalidatePath('/');
+  revalidatePath('/progress');
 }
 
+// 14. updateUserSettings
 export async function updateUserSettings(formData: FormData) {
-  const name = String(formData.get("name") ?? "").trim() || "Muheeb";
-  const accentColor = String(formData.get("accentColor") ?? "").trim() || "#2563eb";
-  const backgroundColor = String(formData.get("backgroundColor") ?? "").trim() || "#f4f6fa";
+  const { userId } = await requireAuth();
+  const email = formData.get("email") as string;
+  const timezone = formData.get("timezone") as string;
 
-  await db.userSettings.upsert({
-    where: { id: "singleton" },
-    create: { id: "singleton", name, accentColor, backgroundColor },
-    update: { name, accentColor, backgroundColor },
+  await db.user.update({
+    where: { id: userId },
+    data: { email, timezone },
   });
 
-  revalidatePath("/");
-  revalidatePath("/habits");
-  revalidatePath("/dashboard");
-  revalidatePath("/settings");
-  revalidatePath("/matrix");
+  revalidatePath('/settings');
+}
+
+// 15. exportUserData
+export async function exportUserData() {
+  const { userId } = await requireAuth();
+  const commitments = await db.commitment.findMany({ where: { userId } });
+  const records = await db.dailyRecord.findMany({ where: { userId } });
+
+  return JSON.stringify({ commitments, records }, null, 2);
 }
