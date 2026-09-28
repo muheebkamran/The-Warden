@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { updateUserSettings, exportUserData, resetStreakAction } from '@/app/actions';
+import { updateUserSettings, exportUserData, resetStreakAction, deleteMyData } from '@/app/actions';
 
 interface User {
   id: string;
@@ -69,10 +69,11 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
 
   const handleDeleteData = () => {
     if (deleteConfirmText === 'DELETE') {
-      // Call delete action here
-      // e.g. deleteAllDataAction();
-      setDeleteModalOpen(false);
-      setDeleteConfirmText('');
+      startTransition(() => {
+        deleteMyData();
+        setDeleteModalOpen(false);
+        setDeleteConfirmText('');
+      });
     }
   };
 

@@ -100,30 +100,21 @@ export default function TodayDashboard({ commitments, records, streakState, toda
         </div>
 
         <div>
-          {(!streakState || streakState.currentStreak === 0) ? (
-            <>
-              <div className="text-[var(--text-stone)] text-xs tracking-[0.2em] font-sans uppercase mb-2">GOOD MORNING.</div>
-              <h1 className="font-serif italic text-2xl md:text-3xl text-[var(--text-ivory)]">
-                You have {total} commitments today.
+          <div className="flex flex-col gap-2">
+            <div className="flex items-baseline gap-4">
+              <h1 className="font-serif text-5xl md:text-6xl text-[var(--text-ivory)] uppercase">
+                {streakState ? streakState.currentStreak : 0} DAYS
               </h1>
-            </>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-baseline gap-4">
-                <h1 className="font-serif text-5xl md:text-6xl text-[var(--text-ivory)] uppercase">
-                  {streakState.currentStreak} DAYS
-                </h1>
-                <div className="w-2 h-2 rounded-full bg-[var(--accent-gold)]" />
-              </div>
-              
-              {/* Consistency Summary */}
-              <div className="flex items-center gap-4 text-sm text-[var(--text-stone)]">
-                <div>Total Kept: <span className="text-[var(--text-ivory)]">{totalKept}</span></div>
-                <div className="w-1 h-1 rounded-full bg-[var(--border-default)]" />
-                <div>Consistency Rate: <span className="text-[var(--text-ivory)]">{consistencyRate}%</span></div>
-              </div>
+              <div className="w-2 h-2 rounded-full bg-[var(--accent-gold)]" />
             </div>
-          )}
+            
+            {/* Consistency Summary */}
+            <div className="flex items-center gap-4 text-sm text-[var(--text-stone)]">
+              <div>Total Kept: <span className="text-[var(--text-ivory)]">{totalKept}</span></div>
+              <div className="w-1 h-1 rounded-full bg-[var(--border-default)]" />
+              <div>Consistency Rate: <span className="text-[var(--text-ivory)]">{consistencyRate}%</span></div>
+            </div>
+          </div>
         </div>
 
         {streakState?.graceDayActive && selectedDate === todayStr && (
