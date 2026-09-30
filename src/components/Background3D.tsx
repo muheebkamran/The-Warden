@@ -3,6 +3,7 @@
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
+// @ts-ignore
 import * as random from "maath/random/dist/maath-random.esm";
 import * as THREE from "three";
 
