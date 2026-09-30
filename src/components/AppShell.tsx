@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import BottomBar from "./BottomBar";
+import Background3D from "./Background3D";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +11,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-obsidian">
+    <div className="flex min-h-screen bg-obsidian relative">
+      <Background3D />
+      
       {/* Top Navigation */}
-      <header className="fixed top-0 left-0 right-0 h-14 md:h-16 bg-obsidian/95 backdrop-blur-md border-b border-border flex items-center px-4 z-40 transition-colors">
+      <header className="fixed top-0 left-0 right-0 h-14 md:h-16 bg-obsidian/80 backdrop-blur-md border-b border-border flex items-center px-4 z-40 transition-colors">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-2 text-stone hover:text-ivory hover:bg-surface transition-colors rounded-sm"
@@ -31,7 +34,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       
       <main 
         className={cn(
-          "flex-1 min-w-0 pt-14 md:pt-16 pb-[80px] md:pb-0 transition-all duration-300",
+          "flex-1 min-w-0 pt-14 md:pt-16 pb-[80px] md:pb-0 transition-all duration-300 relative z-10",
           sidebarOpen ? "md:ml-[260px]" : "ml-0"
         )}
       >
