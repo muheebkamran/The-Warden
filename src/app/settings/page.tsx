@@ -16,15 +16,6 @@ export default async function SettingsPage() {
 
   return (
     <AppShell>
-      <header className="mb-8 animate-fade-in">
-        <h1 className="font-sans uppercase tracking-[0.2em] text-xs text-[var(--text-stone)] mb-2">
-          Settings
-        </h1>
-        <p className="font-serif italic text-2xl text-[var(--text-ivory)]">
-          Configure your system.
-        </p>
-      </header>
-      
       <SettingsView user={user} streakState={streakState} />
     </AppShell>
   );

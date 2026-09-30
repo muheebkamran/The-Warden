@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { quickComplete, recordCommitment, clearRecord } from "@/app/actions";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type CommitmentCardProps = {
   commitment: { id: string; title: string; type: string; targetValue: number; unit: string };
@@ -61,7 +62,7 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
   };
 
   const renderStatus = () => {
-    if (!record) return <span className="text-[var(--text-muted)]">—</span>;
+    if (!record) return <span className="text-muted">—</span>;
     switch (record.status) {
       case "missed":
         return <Badge variant="missed">MISSED</Badge>;
@@ -75,23 +76,26 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
           </Badge>
         );
       default:
-        return <span className="text-[var(--text-muted)]">—</span>;
+        return <span className="text-muted">—</span>;
     }
   };
 
   return (
-    <Card className="flex flex-col p-4 mb-3 border-[var(--border-default)] bg-[var(--bg-surface)]">
+    <Card className={cn(
+      "flex flex-col p-5 group transition-colors duration-300",
+      record?.status === "complete" ? "border-success/30 bg-success/5" : "hover:border-stone/40"
+    )}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
-          <span className="font-medium text-sm font-sans text-[var(--text-ivory)]">
+          <span className="font-medium text-sm font-sans text-ivory">
             {commitment.title}
           </span>
-          <span className="text-xs text-[var(--text-stone)] mt-1">
+          <span className="text-xs text-stone mt-1.5 font-medium">
             Target: {commitment.targetValue} {commitment.unit}
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className="text-right">{renderStatus()}</div>
 
           {editable && (
@@ -100,13 +104,14 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
                 <button
                   onClick={handleToggleBinary}
                   disabled={isPending}
-                  className={`w-6 h-6 rounded-full border-[var(--border-default)] flex items-center justify-center transition-colors ${
+                  className={cn(
+                    "w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-surface",
                     record?.status === "complete"
-                      ? "bg-[var(--status-success)] border-[var(--status-success)]"
-                      : "bg-[var(--bg-elevated)]"
-                  }`}
+                      ? "bg-success border-success text-obsidian"
+                      : "bg-surface border-border hover:border-gold hover:bg-elevated"
+                  )}
                 >
-                  {record?.status === "complete" && <Check className="w-4 h-4 text-white" />}
+                  {record?.status === "complete" && <Check className="w-4 h-4" strokeWidth={3} />}
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
@@ -117,7 +122,7 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
                     onBlur={handleSaveValue}
                     onKeyDown={(e) => e.key === "Enter" && handleSaveValue()}
                     placeholder="Val"
-                    className="w-20 text-center"
+                    className="w-20 text-center font-mono"
                     disabled={isPending}
                     min="0"
                   />
@@ -137,10 +142,10 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
       </div>
 
       {(showNote || record?.note) && (
-        <div className="mt-3 w-full">
+        <div className="mt-4 w-full animate-fade-in">
           {editable ? (
             <textarea
-              className="w-full bg-[var(--bg-elevated)] text-[var(--text-ivory)] border border-[var(--border-default)] rounded-[var(--radius-sm)] p-2 text-xs"
+              className="w-full bg-obsidian/50 text-ivory border border-border rounded-sm p-3 text-xs placeholder:text-muted focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all duration-300 resize-none hover:border-stone/50"
               placeholder="Add a note..."
               value={noteValue}
               onChange={(e) => setNoteValue(e.target.value)}
@@ -149,7 +154,7 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
               rows={2}
             />
           ) : (
-            <p className="text-xs text-[var(--text-stone)] italic bg-[var(--bg-elevated)] p-2 rounded-[var(--radius-sm)]">
+            <p className="text-xs text-stone italic bg-obsidian/50 p-3 rounded-sm border border-border/50">
               {record?.note}
             </p>
           )}
@@ -157,12 +162,12 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
       )}
 
       {editable && !showNote && !record?.note && (
-        <div className="mt-2">
+        <div className="mt-3">
           <button
             onClick={() => setShowNote(true)}
-            className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-gold)] transition-colors"
+            className="text-[11px] font-medium text-muted hover:text-gold transition-colors"
           >
-            + note
+            + Add note
           </button>
         </div>
       )}

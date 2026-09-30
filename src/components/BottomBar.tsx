@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, Target, BarChart3, Settings, LogOut } from "lucide-react";
 import { logout } from "@/app/actions";
+import { cn } from "@/lib/utils";
 
 export default function BottomBar() {
   const pathname = usePathname();
@@ -17,7 +18,7 @@ export default function BottomBar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 w-full h-[64px] flex md:hidden bg-[var(--bg-obsidian)] border-t border-[var(--border-default)] z-40 px-2">
+    <nav className="fixed bottom-0 w-full h-[64px] flex md:hidden bg-obsidian/95 backdrop-blur-md border-t border-border z-40 px-2 pb-[env(safe-area-inset-bottom)]">
       <div className="flex w-full items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -27,17 +28,22 @@ export default function BottomBar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors ${
-                isActive
-                  ? "text-[var(--text-ivory)]"
-                  : "text-[var(--text-muted)]"
-              }`}
+              className="relative flex flex-col items-center justify-center gap-1 w-16 h-14 group"
             >
+              {isActive && (
+                <div className="absolute inset-0 top-1 bottom-1 bg-surface rounded-md -z-10 transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]" />
+              )}
               <Icon 
-                size={20} 
-                className={isActive ? "text-[var(--accent-gold)]" : "text-[var(--text-muted)]"} 
+                size={22} 
+                className={cn(
+                  "transition-colors duration-300",
+                  isActive ? "text-gold" : "text-stone group-hover:text-ivory"
+                )} 
               />
-              <span className="text-[10px] font-medium">
+              <span className={cn(
+                "text-[9px] font-medium transition-colors duration-300",
+                isActive ? "text-ivory" : "text-stone"
+              )}>
                 {item.name}
               </span>
             </Link>
@@ -45,10 +51,10 @@ export default function BottomBar() {
         })}
         <button
           onClick={() => logout()}
-          className="flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors text-[var(--text-muted)]"
+          className="relative flex flex-col items-center justify-center gap-1 w-16 h-14 group"
         >
-          <LogOut size={20} className="text-[var(--text-muted)]" />
-          <span className="text-[10px] font-medium">Logout</span>
+          <LogOut size={22} className="text-stone group-hover:text-error transition-colors duration-300" />
+          <span className="text-[9px] font-medium text-stone group-hover:text-error transition-colors duration-300">Logout</span>
         </button>
       </div>
     </nav>

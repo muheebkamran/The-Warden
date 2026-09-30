@@ -55,16 +55,16 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
 
   return (
     <Modal open={open} onClose={onClose} title="Add New Commitment">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {activeCount >= 7 && (
-          <div className="bg-[var(--status-warning)] bg-opacity-20 text-[var(--status-warning)] p-3 rounded-[var(--radius-sm)] text-sm">
+          <div className="bg-warning/10 text-warning border border-warning/20 p-4 rounded-md text-sm font-medium">
             You already have 7+ active commitments. Consider whether adding more will dilute your focus.
           </div>
         )}
 
         <div>
-          <label className="block text-sm text-[var(--text-stone)] mb-1">Title</label>
           <Input 
+            label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Read Philosophy, Deep Work"
@@ -72,17 +72,17 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
           />
         </div>
 
-        <div>
-          <label className="block text-sm text-[var(--text-stone)] mb-2">Type</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs text-stone font-medium">Type</label>
           <div className="grid grid-cols-4 gap-2">
             {(['duration', 'quantity', 'count', 'binary'] as CommitmentType[]).map((t) => (
               <Button
                 key={t}
                 type="button"
-                variant={type === t ? 'primary' : 'ghost'}
+                variant={type === t ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => handleTypeSelect(t)}
-                className="capitalize text-xs"
+                className="capitalize text-xs font-semibold"
               >
                 {t}
               </Button>
@@ -93,8 +93,8 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
         {type !== 'binary' && (
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm text-[var(--text-stone)] mb-1">Target Value</label>
               <Input 
+                label="Target Value"
                 type="number"
                 min="1"
                 value={targetValue}
@@ -103,8 +103,8 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm text-[var(--text-stone)] mb-1">Unit</label>
               <Input 
+                label="Unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 placeholder="e.g. pages, times"

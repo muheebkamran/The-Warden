@@ -25,15 +25,6 @@ export default async function ProgressPage() {
 
   return (
     <AppShell>
-      <header className="mb-8 animate-fade-in">
-        <h1 className="font-sans uppercase tracking-[0.2em] text-xs text-[var(--text-stone)] mb-2">
-          Progress
-        </h1>
-        <p className="font-serif italic text-2xl text-[var(--text-ivory)]">
-          Your consistency over time.
-        </p>
-      </header>
-      
       <ProgressView 
         commitments={activeCommitments} 
         allRecords={allRecords as { id: string; commitmentId: string; date: string; targetValue: number; actualValue: number; status: 'missed' | 'showed_up' | 'complete'; note: string | null }[]} 

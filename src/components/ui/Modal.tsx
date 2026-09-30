@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface ModalProps {
   open: boolean;
@@ -30,19 +31,19 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-lg rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-elevated)] p-6 shadow-xl animate-scale-in mx-4">
-        <div className="flex items-center justify-between mb-4">
+      <div className="relative z-10 w-full max-w-lg rounded-md border border-border/60 bg-elevated p-6 shadow-2xl animate-scale-in mx-4">
+        <div className="flex items-center justify-between mb-6">
           {title && (
-            <h2 className="font-sans font-semibold text-[var(--text-ivory)] text-lg">
+            <h2 className="font-sans font-semibold text-ivory text-lg tracking-tight">
               {title}
             </h2>
           )}
           <button
             onClick={onClose}
-            className="text-[var(--text-stone)] hover:text-[var(--text-ivory)] transition-colors focus:outline-none"
+            className="text-stone hover:text-ivory hover:bg-surface p-1.5 rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gold"
           >
             <X size={20} />
           </button>
