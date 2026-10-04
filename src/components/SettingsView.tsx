@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { updateUserSettings, exportUserData, resetStreakAction, deleteMyData } from '@/app/actions';
 import { ThemeSelector } from '@/components/settings/ThemeSelector';
+import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { cn } from '@/lib/utils';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -16,6 +17,7 @@ interface User {
   email?: string | null;
   timezone?: string | null;
   preferredTheme?: string | null;
+  avatarUrl?: string | null;
   createdAt: Date;
 }
 
@@ -106,6 +108,9 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
       <section className="settings-section">
         <Card className="p-6 md:p-8 space-y-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-2">Account Configuration</h2>
+          <div className="pb-2 border-b border-border/40">
+            <AvatarUpload currentAvatarUrl={user.avatarUrl} />
+          </div>
           <form onSubmit={handleSaveAccount} className="space-y-6">
             <Input 
               label="Email Address" 

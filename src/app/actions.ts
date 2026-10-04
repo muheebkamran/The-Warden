@@ -356,3 +356,45 @@ export async function saveUserTheme(themeId: string) {
   });
   revalidatePath('/settings');
 }
+
+// 20. updateUserAvatar
+export async function updateUserAvatar(avatarUrl: string) {
+  const { userId } = await requireAuth();
+  await db.user.update({
+    where: { id: userId },
+    data: { avatarUrl },
+  });
+  revalidatePath('/settings');
+}
+
+// 21. attachProofPhoto
+export async function attachProofPhoto(commitmentId: string, date: string, photoUrl: string) {
+  const { userId } = await requireAuth();
+  assertDateAllowed(date, 'Attach proof photo');
+
+  const commitment = await db.commitment.findFirst({
+    where: { id: commitmentId, userId },
+  });
+  if (!commitment) throw new Error('Commitment not found');
+
+  await db.dailyRecord.upsert({
+    where: {
+      commitmentId_date: { commitmentId, date },
+    },
+    update: {
+      photoUrl,
+    },
+    create: {
+      userId,
+      commitmentId,
+      date,
+      targetValue: commitment.targetValue,
+      actualValue: 0,
+      status: 'missed',
+      photoUrl,
+    },
+  });
+
+  revalidatePath('/');
+  revalidatePath('/progress');
+}

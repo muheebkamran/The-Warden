@@ -15,6 +15,7 @@ model User {
   passwordHash String
   timezone     String        @default("UTC")
   preferredTheme String      @default("midnight-galaxy")
+  avatarUrl    String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   commitments  Commitment[]
@@ -61,6 +62,7 @@ model DailyRecord {
   actualValue   Float      @default(0)
   status        String     @default("missed") // 'missed' | 'showed_up' | 'complete'
   note          String?
+  photoUrl      String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 

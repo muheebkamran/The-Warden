@@ -6,12 +6,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { quickComplete, recordCommitment, clearRecord } from "@/app/actions";
+import { ProofPhotoUpload } from "@/components/ProofPhotoUpload";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CommitmentCardProps = {
   commitment: { id: string; title: string; type: string; targetValue: number; unit: string };
-  record?: { id: string; actualValue: number; status: string; note: string | null } | null;
+  record?: { id: string; actualValue: number; status: string; note: string | null; photoUrl?: string | null } | null;
   dateStr: string;
   editable: boolean;
 };
@@ -161,16 +162,25 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
         </div>
       )}
 
-      {editable && !showNote && !record?.note && (
-        <div className="mt-3">
-          <button
-            onClick={() => setShowNote(true)}
-            className="text-[11px] font-medium text-muted hover:text-gold transition-colors"
-          >
-            + Add note
-          </button>
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/30 pt-2.5">
+        <div>
+          {editable && !showNote && !record?.note && (
+            <button
+              onClick={() => setShowNote(true)}
+              className="text-[11px] font-medium text-muted hover:text-gold transition-colors"
+            >
+              + Add note
+            </button>
+          )}
         </div>
-      )}
+
+        <ProofPhotoUpload
+          commitmentId={commitment.id}
+          date={dateStr}
+          existingPhotoUrl={record?.photoUrl}
+          editable={editable}
+        />
+      </div>
     </Card>
   );
 }
