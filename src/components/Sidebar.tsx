@@ -18,13 +18,12 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
     { name: "Today", href: "/", icon: Calendar },
     { name: "Habits", href: "/habits", icon: Target },
     { name: "Reading Room", href: "/reader", icon: BookOpen },
+    { name: "Finance", href: "/finance", icon: Wallet },
     { name: "Progress", href: "/progress", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
-  const upcomingItems = [
-    { name: "Finance", icon: Wallet },
-  ];
+  const upcomingItems: { name: string; icon: any }[] = [];
 
   return (
     <aside 

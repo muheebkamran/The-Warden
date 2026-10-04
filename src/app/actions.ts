@@ -560,3 +560,179 @@ export async function deleteBook(bookId: string) {
   });
   revalidatePath('/reader');
 }
+
+// ─── Financial Discipline Chamber Server Actions ─────────────────────────────
+
+// 26. updateFinanceBudget
+export async function updateFinanceBudget(monthlyBudget: number, currency: string = "$") {
+  const { userId } = await requireAuth();
+  await db.financeProfile.upsert({
+    where: { userId },
+    create: {
+      userId,
+      monthlyBudget: Math.max(0, monthlyBudget),
+      currency: currency || "$",
+    },
+    update: {
+      monthlyBudget: Math.max(0, monthlyBudget),
+      currency: currency || "$",
+    },
+  });
+  revalidatePath("/finance");
+}
+
+// 27. addTransaction
+export async function addTransaction(data: {
+  amount: number;
+  category: string;
+  type?: "expense" | "income";
+  date: string;
+  description: string;
+}) {
+  const { userId } = await requireAuth();
+  await db.transaction.create({
+    data: {
+      userId,
+      amount: Math.abs(data.amount),
+      category: data.category || "other",
+      type: data.type || "expense",
+      date: data.date,
+      description: data.description.trim(),
+    },
+  });
+  revalidatePath("/finance");
+}
+
+// 28. deleteTransaction
+export async function deleteTransaction(transactionId: string) {
+  const { userId } = await requireAuth();
+  await db.transaction.deleteMany({
+    where: { id: transactionId, userId },
+  });
+  revalidatePath("/finance");
+}
+
+// 29. createImpulseLock
+export async function createImpulseLock(data: {
+  itemName: string;
+  amount: number;
+  category?: string;
+  urgencyRationale?: string;
+  hoursDelay?: number;
+}) {
+  const { userId } = await requireAuth();
+  const delay = data.hoursDelay && data.hoursDelay > 0 ? data.hoursDelay : 48;
+  const coolsAt = new Date(Date.now() + delay * 60 * 60 * 1000);
+
+  await db.impulseLock.create({
+    data: {
+      userId,
+      itemName: data.itemName.trim(),
+      amount: Math.abs(data.amount),
+      category: data.category || "impulse",
+      urgencyRationale: data.urgencyRationale?.trim() || null,
+      coolsAt,
+      status: "cooling",
+    },
+  });
+  revalidatePath("/finance");
+}
+
+// 30. resolveImpulseLock
+export async function resolveImpulseLock(lockId: string, resolution: "killed" | "purchased") {
+  const { userId } = await requireAuth();
+  const lock = await db.impulseLock.findFirst({
+    where: { id: lockId, userId },
+  });
+
+  if (!lock) throw new Error("Lock not found");
+
+  await db.impulseLock.update({
+    where: { id: lockId },
+    data: {
+      status: resolution,
+      resolvedAt: new Date(),
+    },
+  });
+
+  // If user decides to purchase after the cooling period, automatically log the expense!
+  if (resolution === "purchased") {
+    const today = new Date().toISOString().split("T")[0];
+    await db.transaction.create({
+      data: {
+        userId,
+        amount: lock.amount,
+        category: lock.category || "shopping",
+        type: "expense",
+        date: today,
+        description: `${lock.itemName} (Approved post-cooling)`,
+      },
+    });
+  }
+
+  revalidatePath("/finance");
+}
+
+// 31. deleteImpulseLock
+export async function deleteImpulseLock(lockId: string) {
+  const { userId } = await requireAuth();
+  await db.impulseLock.deleteMany({
+    where: { id: lockId, userId },
+  });
+  revalidatePath("/finance");
+}
+
+// 32. createFinancialGoal
+export async function createFinancialGoal(data: {
+  title: string;
+  targetAmount: number;
+  currentAmount?: number;
+  category?: string;
+  targetDate?: string;
+}) {
+  const { userId } = await requireAuth();
+  const current = Math.max(0, data.currentAmount || 0);
+  const target = Math.max(1, data.targetAmount);
+
+  await db.financialGoal.create({
+    data: {
+      userId,
+      title: data.title.trim(),
+      targetAmount: target,
+      currentAmount: current,
+      category: data.category || "fortress",
+      targetDate: data.targetDate || null,
+      isCompleted: current >= target,
+    },
+  });
+  revalidatePath("/finance");
+}
+
+// 33. updateFinancialGoalProgress
+export async function updateFinancialGoalProgress(goalId: string, addedOrNewAmount: number, isDelta: boolean = false) {
+  const { userId } = await requireAuth();
+  const goal = await db.financialGoal.findFirst({
+    where: { id: goalId, userId },
+  });
+
+  if (!goal) throw new Error("Goal not found");
+
+  const newAmount = Math.max(0, isDelta ? goal.currentAmount + addedOrNewAmount : addedOrNewAmount);
+  await db.financialGoal.update({
+    where: { id: goalId },
+    data: {
+      currentAmount: newAmount,
+      isCompleted: newAmount >= goal.targetAmount,
+    },
+  });
+  revalidatePath("/finance");
+}
+
+// 34. deleteFinancialGoal
+export async function deleteFinancialGoal(goalId: string) {
+  const { userId } = await requireAuth();
+  await db.financialGoal.deleteMany({
+    where: { id: goalId, userId },
+  });
+  revalidatePath("/finance");
+}

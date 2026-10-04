@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Target, BarChart3, Settings, BookOpen, LogOut } from "lucide-react";
+import { Calendar, Target, BarChart3, Settings, BookOpen, Wallet, LogOut } from "lucide-react";
 import { logout } from "@/app/actions";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,7 @@ export default function BottomBar() {
     { name: "Today", href: "/", icon: Calendar },
     { name: "Habits", href: "/habits", icon: Target },
     { name: "Reading", href: "/reader", icon: BookOpen },
+    { name: "Finance", href: "/finance", icon: Wallet },
     { name: "Progress", href: "/progress", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
   ];

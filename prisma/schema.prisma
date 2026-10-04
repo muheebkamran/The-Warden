@@ -23,6 +23,10 @@ model User {
   dailyReflections DailyReflection[]
   streakState  StreakState?
   books        Book[]
+  financeProfile FinanceProfile?
+  transactions   Transaction[]
+  impulseLocks   ImpulseLock[]
+  financialGoals FinancialGoal[]
 }
 
 // ─── Invites ───────────────────────────────────────────────────────────────────
@@ -142,3 +146,67 @@ model ReadingSession {
   @@index([userId, date])
   @@index([bookId])
 }
+
+// ─── Financial Discipline Chamber ──────────────────────────────────────────────
+
+model FinanceProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  monthlyBudget Float     @default(2000)
+  currency      String    @default("$")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id          String    @id @default(cuid())
+  userId      String
+  amount      Float
+  category    String    // 'needs' | 'wants' | 'food' | 'transport' | 'entertainment' | 'bills' | 'other'
+  type        String    @default("expense") // 'expense' | 'income'
+  date        String    // YYYY-MM-DD
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, category])
+}
+
+model ImpulseLock {
+  id               String    @id @default(cuid())
+  userId           String
+  itemName         String
+  amount           Float
+  category         String    @default("impulse")
+  urgencyRationale String?
+  coolsAt          DateTime  // Timestamp when 48h cooling ends
+  status           String    @default("cooling") // 'cooling' | 'killed' | 'purchased'
+  createdAt        DateTime  @default(now())
+  resolvedAt       DateTime?
+
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model FinancialGoal {
+  id            String    @id @default(cuid())
+  userId        String
+  title         String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  category      String    @default("fortress") // 'emergency_fund' | 'debt_freedom' | 'investment' | 'fortress'
+  targetDate    String?   // YYYY-MM-DD
+  isCompleted   Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
