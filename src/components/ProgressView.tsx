@@ -16,6 +16,9 @@ import {
   getMonthDates
 } from '@/lib/dateEngine';
 import { ChevronLeft, ChevronRight, Activity } from 'lucide-react';
+import { WeeklyVelocityChart } from '@/components/charts/WeeklyVelocityChart';
+import { ConsistencyTrendChart } from '@/components/charts/ConsistencyTrendChart';
+import { getWeeklyVelocityData, get30DayConsistencyData } from '@/lib/chartData';
 
 interface Commitment {
   id: string;
@@ -156,6 +159,16 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
           )}
         </Card>
       </section>
+      
+      {/* 2.5 ANALYTICS & TRENDS CHARTS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <section className="progress-section">
+          <WeeklyVelocityChart data={getWeeklyVelocityData(allRecords, commitments)} />
+        </section>
+        <section className="progress-section">
+          <ConsistencyTrendChart data={get30DayConsistencyData(allRecords, commitments)} />
+        </section>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* 3. WEEKLY REVIEW */}
