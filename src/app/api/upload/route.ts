@@ -19,15 +19,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify MIME type is an image
-    if (!contentType.startsWith('image/')) {
+    // Verify MIME type is an image or PDF
+    if (!contentType.startsWith('image/') && contentType !== 'application/pdf') {
       return NextResponse.json(
-        { error: 'Only image files are allowed' },
+        { error: 'Only image files or PDFs are allowed' },
         { status: 400 }
       );
     }
 
-    const targetFolder = folder === 'proofs' ? 'proofs' : 'avatars';
+    const validFolders = ['proofs', 'bills', 'books', 'avatars'];
+    const targetFolder = validFolders.includes(folder) ? folder : 'uploads';
     const result = await getPresignedUploadUrl(targetFolder, filename, contentType);
 
     return NextResponse.json(result);

@@ -27,6 +27,7 @@ model User {
   transactions   Transaction[]
   impulseLocks   ImpulseLock[]
   financialGoals FinancialGoal[]
+  bills          Bill[]
 }
 
 // ─── Invites ───────────────────────────────────────────────────────────────────
@@ -209,4 +210,22 @@ model FinancialGoal {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-}
+}
+
+model Bill {
+  id        String   @id @default(cuid())
+  userId    String
+  billName  String
+  amount    Float
+  date      String   // YYYY-MM-DD
+  photoUrl  String?
+  paid      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, paid])
+}
+

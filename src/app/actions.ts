@@ -735,4 +735,73 @@ export async function deleteFinancialGoal(goalId: string) {
     where: { id: goalId, userId },
   });
   revalidatePath("/finance");
-}
+}
+
+// ─── Bill & OCR Server Actions ──────────────────────────────────────────────
+
+// 35. addBill
+export async function addBill(data: {
+  billName: string;
+  amount: number;
+  date: string;
+  photoUrl?: string;
+  paid?: boolean;
+}) {
+  const { userId } = await requireAuth();
+  const bill = await db.bill.create({
+    data: {
+      userId,
+      billName: data.billName.trim(),
+      amount: Math.abs(data.amount),
+      date: data.date,
+      photoUrl: data.photoUrl || null,
+      paid: data.paid ?? false,
+    },
+  });
+  revalidatePath("/finance");
+  return bill;
+}
+
+// 36. toggleBillPaid
+export async function toggleBillPaid(billId: string) {
+  const { userId } = await requireAuth();
+  const bill = await db.bill.findFirst({
+    where: { id: billId, userId },
+  });
+  if (!bill) throw new Error("Bill not found");
+
+  const updated = await db.bill.update({
+    where: { id: billId },
+    data: { paid: !bill.paid },
+  });
+  revalidatePath("/finance");
+  return updated;
+}
+
+// 37. deleteBill
+export async function deleteBill(billId: string) {
+  const { userId } = await requireAuth();
+  await db.bill.deleteMany({
+    where: { id: billId, userId },
+  });
+  revalidatePath("/finance");
+}
+
+// 38. ocrBill
+export async function ocrBill(
+  imageBase64: string,
+  mediaType: "image/jpeg" | "image/png" | "image/webp" = "image/jpeg"
+) {
+  await requireAuth();
+  const { parseBillWithClaude } = await import("@/lib/billOcr");
+  return await parseBillWithClaude(imageBase64, mediaType);
+}
+
+// 39. extractPdfInfo
+export async function extractPdfInfo(pdfBase64: string, fallbackFilename?: string) {
+  await requireAuth();
+  const { extractPdfMetadata } = await import("@/lib/pdfMetadata");
+  const buffer = Buffer.from(pdfBase64, "base64");
+  return await extractPdfMetadata(buffer, fallbackFilename);
+}
+

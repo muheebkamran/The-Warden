@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition } from 'react';
 import { BookOpen, Plus, Trash2, CheckCircle2, ChevronRight, X } from 'lucide-react';
-import { addBook, deleteBook } from '@/app/actions';
+import { deleteBook } from '@/app/actions';
+import { AddBookModal } from './AddBookModal';
 import { cn } from '@/lib/utils';
 
 export interface BookItem {
@@ -27,24 +28,7 @@ export function BookshelfSidebar({
   onSelectBook,
 }: BookshelfSidebarProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newAuthor, setNewAuthor] = useState('');
-  const [newFileUrl, setNewFileUrl] = useState('');
-  const [newPages, setNewPages] = useState('100');
   const [isPending, startTransition] = useTransition();
-
-  const handleAddBook = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle || !newFileUrl) return;
-
-    startTransition(async () => {
-      await addBook(newTitle, newAuthor || null, newFileUrl, parseInt(newPages, 10) || 100);
-      setIsAddModalOpen(false);
-      setNewTitle('');
-      setNewAuthor('');
-      setNewFileUrl('');
-    });
-  };
 
   const handleDelete = (e: React.MouseEvent, bookId: string) => {
     e.stopPropagation();
@@ -80,16 +64,10 @@ export function BookshelfSidebar({
           <div className="p-6 text-center text-xs text-stone space-y-3 bg-surface/50 rounded border border-border/30">
             <p>Your bookshelf is quiet.</p>
             <button
-              onClick={() => {
-                setNewTitle('Meditations — Marcus Aurelius');
-                setNewAuthor('Marcus Aurelius');
-                setNewFileUrl('https://www.gutenberg.org/files/2680/2680-pdf.pdf');
-                setNewPages('180');
-                setIsAddModalOpen(true);
-              }}
+              onClick={() => setIsAddModalOpen(true)}
               className="text-gold underline text-[11px] hover:text-ivory transition-colors"
             >
-              Load Stoic Classics Demo
+              Add a Book to Shelf
             </button>
           </div>
         ) : (
@@ -151,92 +129,11 @@ export function BookshelfSidebar({
         )}
       </div>
 
-      {/* Add Book Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-obsidian/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-elevated border border-border p-6 rounded-lg max-w-md w-full shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-border/60 pb-3">
-              <h3 className="font-serif text-base text-ivory font-semibold">
-                Add Book to Shelf
-              </h3>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="text-stone hover:text-ivory"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddBook} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs text-stone font-medium">Book Title *</label>
-                <input
-                  type="text"
-                  required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Deep Work, Meditations"
-                  className="w-full bg-surface border border-border text-ivory text-xs p-2.5 rounded focus:outline-none focus:border-gold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs text-stone font-medium">Author (Optional)</label>
-                <input
-                  type="text"
-                  value={newAuthor}
-                  onChange={(e) => setNewAuthor(e.target.value)}
-                  placeholder="e.g. Cal Newport"
-                  className="w-full bg-surface border border-border text-ivory text-xs p-2.5 rounded focus:outline-none focus:border-gold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs text-stone font-medium">PDF File URL *</label>
-                <input
-                  type="url"
-                  required
-                  value={newFileUrl}
-                  onChange={(e) => setNewFileUrl(e.target.value)}
-                  placeholder="https://.../book.pdf or Cloudflare R2 link"
-                  className="w-full bg-surface border border-border text-ivory text-xs p-2.5 rounded focus:outline-none focus:border-gold font-mono"
-                />
-                <p className="text-[10px] text-muted">
-                  Paste any public PDF URL or your Cloudflare R2 upload link.
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs text-stone font-medium">Total Pages</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={newPages}
-                  onChange={(e) => setNewPages(e.target.value)}
-                  className="w-full bg-surface border border-border text-ivory text-xs p-2.5 rounded focus:outline-none focus:border-gold font-mono"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-3 py-1.5 text-xs text-stone hover:text-ivory"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-1.5 text-xs bg-gold text-obsidian font-semibold rounded hover:bg-gold-hover transition-colors"
-                >
-                  {isPending ? 'Adding...' : 'Add Book'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Add Book Modal with Drag-Drop & Auto-Metadata Extraction */}
+      <AddBookModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
     </aside>
   );
 }
