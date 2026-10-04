@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
@@ -18,53 +16,24 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const { contextSafe } = useGSAP({ scope: buttonRef });
-
-  const handlePointerDown = contextSafe(() => {
-    if (disabled) return;
-    gsap.to(buttonRef.current, {
-      scale: 0.95,
-      duration: 0.15,
-      ease: "power2.out",
-      overwrite: true,
-    });
-  });
-
-  const handlePointerUp = contextSafe(() => {
-    if (disabled) return;
-    gsap.to(buttonRef.current, {
-      scale: 1,
-      duration: 0.4,
-      ease: "elastic.out(1.2, 0.4)",
-      overwrite: true,
-    });
-  });
-
   const variants = {
-    primary: "bg-gold text-obsidian hover:bg-gold-hover hover:shadow-[0_0_12px_rgba(200,169,107,0.3)] shadow-none transition-shadow",
-    secondary: "bg-transparent border border-border text-ivory hover:bg-elevated",
-    ghost: "bg-transparent text-stone hover:bg-surface hover:text-ivory",
-    danger: "bg-transparent border border-error/50 text-error hover:bg-error/10",
+    primary: "bg-[#c8a96b] text-[#0b0c0e] font-semibold hover:bg-[#d4b87a] hover:scale-[1.02] active:scale-[0.98]",
+    secondary: "bg-transparent border border-[#3a3244] text-[#f2f0ea] hover:border-[#f2f0ea] hover:bg-[#1a1d22] hover:scale-[1.02] active:scale-[0.98]",
+    ghost: "bg-transparent text-[#9a9a96] hover:text-[#f2f0ea] hover:bg-[#1a1d22] hover:scale-[1.02] active:scale-[0.98]",
+    danger: "bg-transparent border border-[#b56b6b]/40 text-[#b56b6b] hover:bg-[#b56b6b]/10 hover:border-[#b56b6b] hover:scale-[1.02] active:scale-[0.98]",
   };
   
   const sizes = {
-    sm: "px-3 py-1.5 text-xs",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-2.5 text-sm",
-    icon: "p-2",
+    sm: "px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm",
+    md: "px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-md",
+    lg: "px-6 py-2.5 text-sm font-mono uppercase tracking-wider rounded-md",
+    icon: "p-2 rounded-sm",
   };
 
   return (
     <button
-      ref={buttonRef}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-      onPointerCancel={handlePointerUp}
       className={cn(
-        "inline-flex items-center justify-center rounded-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian disabled:opacity-50 disabled:cursor-not-allowed select-none",
+        "inline-flex items-center justify-center transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c8a96b] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 select-none shadow-none cursor-pointer",
         variants[variant],
         sizes[size],
         className

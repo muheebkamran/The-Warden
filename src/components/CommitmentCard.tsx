@@ -63,7 +63,7 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
   };
 
   const renderStatus = () => {
-    if (!record) return <span className="text-muted">—</span>;
+    if (!record) return <span className="font-mono text-xs text-[#62646a]">—</span>;
     switch (record.status) {
       case "missed":
         return <Badge variant="missed">MISSED</Badge>;
@@ -71,32 +71,32 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
         return <Badge variant="showed_up">SHOWED UP: {record.actualValue}</Badge>;
       case "complete":
         return (
-          <Badge variant="complete" className="animate-check-pop">
+          <Badge variant="complete" className="animate-fade-in">
             <Check className="w-3 h-3 mr-1 inline" />
             COMPLETE: {record.actualValue}
           </Badge>
         );
       default:
-        return <span className="text-muted">—</span>;
+        return <span className="font-mono text-xs text-[#62646a]">—</span>;
     }
   };
 
   return (
     <Card className={cn(
-      "flex flex-col p-5 group transition-colors duration-300",
-      record?.status === "complete" ? "border-success/30 bg-success/5" : "hover:border-stone/40"
+      "flex flex-col p-5 group transition-colors duration-200 border-[#3a3244]",
+      record?.status === "complete" ? "border-[#7fa889]/40 bg-[#7fa889]/5" : "hover:border-[#c8a96b]/40"
     )}>
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start gap-4">
         <div className="flex flex-col">
-          <span className="font-medium text-sm font-sans text-ivory">
+          <span className="font-sans font-medium text-sm text-[#f2f0ea]">
             {commitment.title}
           </span>
-          <span className="text-xs text-stone mt-1.5 font-medium">
+          <span className="font-mono text-xs text-[#9a9a96] mt-1 font-normal">
             Target: {commitment.targetValue} {commitment.unit}
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="text-right">{renderStatus()}</div>
 
           {editable && (
@@ -106,11 +106,12 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
                   onClick={handleToggleBinary}
                   disabled={isPending}
                   className={cn(
-                    "w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-surface",
+                    "w-7 h-7 rounded-sm border flex items-center justify-center transition-all duration-150 shadow-none focus:outline-none hover:scale-105 active:scale-95 cursor-pointer",
                     record?.status === "complete"
-                      ? "bg-success border-success text-obsidian"
-                      : "bg-surface border-border hover:border-gold hover:bg-elevated"
+                      ? "bg-[#7fa889] border-[#7fa889] text-[#0b0c0e]"
+                      : "bg-[#0b0c0e] border-[#292c32] hover:border-[#c8a96b] text-[#f2f0ea]"
                   )}
+                  aria-label="Toggle commitment status"
                 >
                   {record?.status === "complete" && <Check className="w-4 h-4" strokeWidth={3} />}
                 </button>
@@ -123,7 +124,7 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
                     onBlur={handleSaveValue}
                     onKeyDown={(e) => e.key === "Enter" && handleSaveValue()}
                     placeholder="Val"
-                    className="w-20 text-center font-mono"
+                    className="w-20 text-center font-mono py-1.5 text-xs"
                     disabled={isPending}
                     min="0"
                   />
@@ -146,8 +147,8 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
         <div className="mt-4 w-full animate-fade-in">
           {editable ? (
             <textarea
-              className="w-full bg-obsidian/50 text-ivory border border-border rounded-sm p-3 text-xs placeholder:text-muted focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all duration-300 resize-none hover:border-stone/50"
-              placeholder="Add a note..."
+              className="w-full bg-[#0b0c0e] text-[#f2f0ea] border border-[#292c32] rounded-sm p-3 text-xs placeholder:text-[#62646a] focus:outline-none focus:border-[#c8a96b] focus:ring-1 focus:ring-[#c8a96b]/30 transition-all duration-150 resize-none hover:border-[#3a3244]"
+              placeholder="Add telemetry note..."
               value={noteValue}
               onChange={(e) => setNoteValue(e.target.value)}
               onBlur={handleSaveValue}
@@ -155,19 +156,19 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
               rows={2}
             />
           ) : (
-            <p className="text-xs text-stone italic bg-obsidian/50 p-3 rounded-sm border border-border/50">
+            <p className="text-xs font-mono text-[#9a9a96] italic bg-[#0b0c0e] p-3 rounded-sm border border-[#292c32]">
               {record?.note}
             </p>
           )}
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/30 pt-2.5">
+      <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-[#292c32]/60 pt-3">
         <div>
           {editable && !showNote && !record?.note && (
             <button
               onClick={() => setShowNote(true)}
-              className="text-[11px] font-medium text-muted hover:text-gold transition-colors"
+              className="font-mono text-[11px] text-[#9a9a96] hover:text-[#c8a96b] transition-colors cursor-pointer"
             >
               + Add note
             </button>

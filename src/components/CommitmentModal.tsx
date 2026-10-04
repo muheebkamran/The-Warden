@@ -57,8 +57,8 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
     <Modal open={open} onClose={onClose} title="Add New Commitment">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {activeCount >= 7 && (
-          <div className="bg-warning/10 text-warning border border-warning/20 p-4 rounded-md text-sm font-medium">
-            You already have 7+ active commitments. Consider whether adding more will dilute your focus.
+          <div className="bg-[#1a1d22] text-[#c99a54] border border-[#c99a54]/30 p-4 rounded-md font-mono text-xs">
+            [FOCUS ADVISORY] You have 7+ active protocols. Adding more risks dilution.
           </div>
         )}
 
@@ -73,7 +73,7 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-stone font-medium">Type</label>
+          <label className="font-mono text-[11px] uppercase tracking-wider text-[#9a9a96]">Type</label>
           <div className="grid grid-cols-4 gap-2">
             {(['duration', 'quantity', 'count', 'binary'] as CommitmentType[]).map((t) => (
               <Button
@@ -82,7 +82,7 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
                 variant={type === t ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => handleTypeSelect(t)}
-                className="capitalize text-xs font-semibold"
+                className="capitalize text-xs"
               >
                 {t}
               </Button>
@@ -91,8 +91,8 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
         </div>
 
         {type !== 'binary' && (
-          <div className="flex gap-4">
-            <div className="flex-1">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <Input 
                 label="Target Value"
                 type="number"
@@ -102,19 +102,19 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
                 required
               />
             </div>
-            <div className="flex-1">
+            <div>
               <Input 
                 label="Unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                placeholder="e.g. pages, times"
+                placeholder="e.g. min, pages"
                 required
               />
             </div>
           </div>
         )}
 
-        <div className="flex justify-end gap-3 mt-4">
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[#292c32]">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>

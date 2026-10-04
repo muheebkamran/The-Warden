@@ -62,8 +62,8 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
     
     gsap.fromTo(
       sections,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "back.out(1.1)" }
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.08, ease: "power2.out" }
     );
   }, { scope: containerRef });
 
@@ -110,16 +110,23 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
   const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   return (
-    <div className="space-y-8 animate-fade-in pt-4 px-4 md:px-0 max-w-4xl mx-auto pb-20" ref={containerRef}>
+    <div className="space-y-10 animate-fade-in max-w-4xl mx-auto pb-20" ref={containerRef}>
 
-      <header className="progress-section flex items-center justify-between mb-4">
-        <h1 className="font-serif text-3xl text-ivory tracking-tight">Progress</h1>
+      <header className="progress-section flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#f2f0ea] tracking-tight">Progress Telemetry</h1>
+          <p className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider mt-1">Consistency analytics &amp; velocity metrics</p>
+        </div>
       </header>
 
       {/* 2. DAILY BREAKDOWN */}
       <section className="progress-section">
-        <Card className="p-6 md:p-8">
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-6">Today's Breakdown</h2>
+        <Card className="p-6 md:p-8 border-[#3a3244]">
+          <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#292c32]">
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Today&apos;s Breakdown</h2>
+            <span className="font-mono text-[10px] text-[#9a9a96] uppercase">{commitments.length} PROTOCOLS</span>
+          </div>
+
           {commitments.length === 0 ? (
             <EmptyState title="No active commitments" description="Create one to see your breakdown." icon={Activity} />
           ) : (
@@ -130,17 +137,17 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
                 const percentage = c.targetValue > 0 ? Math.min(100, Math.round((actual / c.targetValue) * 100)) : (actual > 0 ? 100 : 0);
                 
                 return (
-                  <div key={c.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-md bg-obsidian border border-border/50 gap-3">
+                  <div key={c.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-md bg-[#0b0c0e] border border-[#292c32] gap-3">
                     <div className="flex-1 w-full">
-                      <div className="text-ivory text-sm font-medium mb-1.5">{c.title}</div>
+                      <div className="text-[#f2f0ea] text-sm font-medium mb-1.5">{c.title}</div>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-1.5 bg-surface rounded-full overflow-hidden shadow-inner">
+                        <div className="flex-1 h-1.5 bg-[#1a1d22] rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-gold transition-all duration-700 ease-out" 
+                            className="h-full bg-[#c8a96b] transition-all duration-500 ease-out rounded-full" 
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        <span className="text-[10px] text-stone font-mono w-14 text-right">
+                        <span className="text-[10px] text-[#9a9a96] font-mono w-16 text-right">
                           {actual} / {c.targetValue} {c.unit}
                         </span>
                       </div>
@@ -149,7 +156,7 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
                       {record ? (
                         <Badge variant={record.status}>{record.status.replace('_', ' ')}</Badge>
                       ) : (
-                        <span className="text-[10px] text-muted uppercase tracking-wider font-semibold border border-border/50 px-2 py-0.5 rounded-full">Pending</span>
+                        <span className="font-mono text-[9px] text-[#62646a] uppercase tracking-wider border border-[#292c32] px-2 py-0.5 rounded-xs">Pending</span>
                       )}
                     </div>
                   </div>
@@ -173,34 +180,31 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* 3. WEEKLY REVIEW */}
         <section className="progress-section">
-          <Card className="p-6 md:p-8 h-full flex flex-col">
-            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-8">Last 7 Days</h2>
+          <Card className="p-6 md:p-8 h-full flex flex-col border-[#3a3244]">
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em] mb-8">Last 7 Days</h2>
             <div className="flex justify-between items-end flex-1">
               {weeklyData.map((day, i) => (
                 <div key={i} className="flex flex-col items-center gap-3">
-                  <span className="text-[10px] font-semibold text-stone uppercase">{day.dayName}</span>
+                  <span className="font-mono text-[10px] font-semibold text-[#9a9a96] uppercase">{day.dayName}</span>
                   <div className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300",
+                    "flex items-center justify-center w-8 h-8 rounded-sm border transition-all duration-150",
                     day.isToday 
-                      ? "ring-2 ring-gold ring-offset-2 ring-offset-surface border-gold bg-elevated" 
-                      : "border-border bg-obsidian"
+                      ? "border-[#c8a96b] bg-[#1a1d22] text-[#c8a96b]" 
+                      : "border-[#292c32] bg-[#0b0c0e] text-[#9a9a96]"
                   )}>
-                    <span className={cn(
-                      "text-[10px] font-medium",
-                      day.isToday ? "text-gold" : "text-stone"
-                    )}>{day.dayNumber}</span>
+                    <span className="font-mono text-[10px] font-medium">{day.dayNumber}</span>
                   </div>
                   <div className="mt-1 w-2 h-2 rounded-full flex items-center justify-center">
                     {day.isGrace ? (
-                      <div className="w-2 h-2 rounded-full bg-warning shadow-[0_0_8px_rgba(201,154,84,0.5)]" />
+                      <div className="w-2 h-2 rounded-full bg-[#c99a54] animate-pulse" />
                     ) : day.hasData ? (
                       day.isPass ? (
-                        <div className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_rgba(127,168,137,0.5)]" />
+                        <div className="w-2 h-2 rounded-full bg-[#7fa889]" />
                       ) : (
-                        <div className="w-2 h-2 rounded-full bg-error" />
+                        <div className="w-2 h-2 rounded-full bg-[#b56b6b]" />
                       )
                     ) : (
-                      <div className="w-1 h-1 rounded-full bg-border" />
+                      <div className="w-1 h-1 rounded-full bg-[#292c32]" />
                     )}
                   </div>
                 </div>
@@ -211,45 +215,44 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
 
         {/* 4. MONTHLY HEATMAP */}
         <section className="progress-section">
-          <Card className="p-6 md:p-8 h-full">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">Heatmap</h2>
-              <div className="flex items-center gap-4 bg-obsidian rounded-full border border-border/50 p-1 px-2">
-                <button onClick={handlePrevMonth} className="text-stone hover:text-ivory transition-colors p-1">
-                  <ChevronLeft className="w-4 h-4" />
+          <Card className="p-6 md:p-8 h-full border-[#3a3244]">
+            <div className="flex items-center justify-between mb-8 pb-3 border-b border-[#292c32]">
+              <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Heatmap</h2>
+              <div className="flex items-center gap-3 bg-[#0b0c0e] rounded-full border border-[#292c32] p-1 px-3">
+                <button onClick={handlePrevMonth} className="text-[#9a9a96] hover:text-[#f2f0ea] transition-colors p-0.5 cursor-pointer" aria-label="Previous Month">
+                  <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
-                <span className="text-xs font-semibold text-ivory w-24 text-center tracking-wide uppercase">{monthName}</span>
-                <button onClick={handleNextMonth} className="text-stone hover:text-ivory transition-colors p-1">
-                  <ChevronRight className="w-4 h-4" />
+                <span className="font-mono text-[11px] font-semibold text-[#f2f0ea] w-24 text-center tracking-wider uppercase">{monthName}</span>
+                <button onClick={handleNextMonth} className="text-[#9a9a96] hover:text-[#f2f0ea] transition-colors p-0.5 cursor-pointer" aria-label="Next Month">
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
             <div className="grid grid-cols-7 gap-2 mb-3">
               {weekDays.map((d, i) => (
-                <div key={i} className="text-center text-[10px] text-stone font-semibold">{d}</div>
+                <div key={i} className="text-center font-mono text-[10px] text-[#62646a] font-semibold">{d}</div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-1.5 md:gap-2">
-              {/* Leading empty cells for alignment */}
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
               {Array.from({ length: new Date(currentYear, currentMonth - 1, 1).getDay() }).map((_, i) => (
                 <div key={`empty-${i}`} className="w-full aspect-square" />
               ))}
-              {monthDates.map((dateStr, i) => {
+              {monthDates.map((dateStr) => {
                 const isToday = dateStr === todayStr;
                 
                 const dayRecords = allRecords.filter(r => r.date === dateStr);
                 const hasData = dayRecords.length > 0;
-                let bgClass = "bg-obsidian";
+                let bgClass = "bg-[#0b0c0e]";
                 
                 if (hasData) {
                   const positiveCount = dayRecords.filter(r => r.status === 'complete' || r.status === 'showed_up').length;
                   const isPass = evaluateDay(dayRecords.length, positiveCount);
                   if (isPass) {
-                    bgClass = "bg-gold/20";
+                    bgClass = "bg-[#c8a96b]/20 text-[#f2f0ea]";
                   } else {
-                    bgClass = "bg-surface";
+                    bgClass = "bg-[#131519] text-[#9a9a96]";
                   }
                 }
 
@@ -257,13 +260,13 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
                   <div 
                     key={dateStr}
                     className={cn(
-                      "w-full aspect-square rounded-sm flex items-center justify-center transition-colors duration-300",
+                      "w-full aspect-square rounded-xs flex items-center justify-center transition-colors duration-150 font-mono text-[10px]",
                       bgClass,
-                      isToday ? "border-gold border shadow-[inset_0_0_8px_rgba(200,169,107,0.2)]" : "border-border/50 border hover:border-stone"
+                      isToday ? "border border-[#c8a96b] text-[#c8a96b]" : "border border-[#292c32] hover:border-[#3a3244]"
                     )}
                     title={formatDisplayDate(dateStr)}
                   >
-                    <span className="text-[10px] text-stone/70 font-medium">{getDayNumber(dateStr)}</span>
+                    <span>{getDayNumber(dateStr)}</span>
                   </div>
                 );
               })}

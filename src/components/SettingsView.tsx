@@ -99,18 +99,24 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in max-w-2xl mx-auto pt-4 px-4 md:px-0 pb-20" ref={containerRef}>
-      <header className="settings-section mb-6">
-        <h1 className="font-serif text-3xl text-ivory tracking-tight">Settings</h1>
+    <div className="space-y-10 animate-fade-in max-w-2xl mx-auto pb-20" ref={containerRef}>
+      <header className="settings-section">
+        <h1 className="font-serif text-3xl sm:text-4xl text-[#f2f0ea] tracking-tight">System Settings</h1>
+        <p className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider mt-1">Ledger identity &amp; atmosphere controls</p>
       </header>
 
       {/* 1. ACCOUNT */}
       <section className="settings-section">
-        <Card className="p-6 md:p-8 space-y-6">
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-2">Account Configuration</h2>
-          <div className="pb-2 border-b border-border/40">
+        <Card className="p-6 md:p-8 space-y-6 border-[#3a3244]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#292c32]">
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Account Configuration</h2>
+            <span className="font-mono text-[10px] text-[#9a9a96]">AUTH PROTOCOL</span>
+          </div>
+          
+          <div className="pb-2 border-b border-[#292c32]">
             <AvatarUpload currentAvatarUrl={user.avatarUrl} />
           </div>
+
           <form onSubmit={handleSaveAccount} className="space-y-6">
             <Input 
               label="Email Address" 
@@ -121,13 +127,13 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
             />
             
             <div className="space-y-1.5 flex flex-col">
-              <label className="text-xs text-stone font-medium">
-                Timezone
+              <label className="font-mono text-[11px] uppercase tracking-wider text-[#9a9a96]">
+                Operational Timezone
               </label>
               <select 
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
-                className="w-full bg-surface border border-border text-ivory text-sm rounded-sm px-3 py-2.5 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all duration-200 hover:border-stone/50 hover:bg-elevated"
+                className="w-full bg-[#0b0c0e] border border-[#292c32] text-[#f2f0ea] text-sm rounded-md px-3.5 py-2.5 focus:outline-none focus:border-[#c8a96b] focus:ring-2 focus:ring-[#c8a96b]/20 transition-all duration-150 hover:border-[#3a3244]"
               >
                 <option value="UTC">UTC</option>
                 <option value="America/New_York">America/New_York</option>
@@ -141,32 +147,32 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
                 <option value="Australia/Sydney">Australia/Sydney</option>
                 <option value="Pacific/Auckland">Pacific/Auckland</option>
               </select>
-              <p className="text-xs text-muted mt-1 font-medium">
-                Important note: Timezone affects your midnight streak evaluation.
+              <p className="font-mono text-[10px] text-[#62646a] mt-1">
+                Note: Evaluates daily 70% threshold locks at local midnight.
               </p>
             </div>
 
-            <div className="pt-4 mt-2 border-t border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <span className="text-xs text-stone font-medium">
-                Member since {new Date(user.createdAt).toLocaleDateString()}
+            <div className="pt-4 border-t border-[#292c32] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <span className="font-mono text-xs text-[#9a9a96]">
+                Enlisted on {new Date(user.createdAt).toLocaleDateString()}
               </span>
               <Button type="submit" variant="primary" disabled={isPending}>
-                {isPending ? 'Saving...' : 'Save Changes'}
+                {isPending ? 'Saving...' : 'Save Settings'}
               </Button>
             </div>
           </form>
         </Card>
       </section>
 
-      {/* 2. APPEARANCE & THEMES (Theme Factory) */}
+      {/* 2. APPEARANCE & THEMES */}
       <section className="settings-section">
-        <Card className="p-6 md:p-8 space-y-6">
-          <div>
-            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">
-              Appearance & Aesthetic
+        <Card className="p-6 md:p-8 space-y-6 border-[#3a3244]">
+          <div className="pb-3 border-b border-[#292c32]">
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">
+              Atmosphere &amp; Palette
             </h2>
-            <p className="text-xs text-stone mt-1">
-              Select your personal operational atmosphere.
+            <p className="font-mono text-xs text-[#9a9a96] mt-1">
+              Select your environmental theme preset.
             </p>
           </div>
           <ThemeSelector initialTheme={user.preferredTheme || 'midnight-galaxy'} />
@@ -175,76 +181,78 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
 
       {/* 3. DATA EXPORT */}
       <section className="settings-section">
-        <Card className="p-6 md:p-8">
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-2">Export My History</h2>
-          <p className="text-sm text-stone mb-5 leading-relaxed">
-            Download all your commitments and daily records in JSON format for backup or external analysis.
+        <Card className="p-6 md:p-8 border-[#3a3244]">
+          <div className="pb-3 border-b border-[#292c32] mb-4">
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Ledger Export</h2>
+          </div>
+          <p className="text-sm text-[#9a9a96] mb-6 leading-relaxed">
+            Download your complete discipline history, commitments, and daily check-ins as an encrypted JSON ledger archive.
           </p>
           <Button variant="secondary" onClick={handleExport} disabled={isPending}>
-            Export Data
+            Export JSON Archive
           </Button>
         </Card>
       </section>
 
       {/* 4. DANGER ZONE */}
       <section className="settings-section">
-        <Card className="p-6 md:p-8 border-error/30 bg-error/5">
-          <h2 className="text-sm font-semibold text-error uppercase tracking-wider mb-6">Danger Zone</h2>
+        <Card className="p-6 md:p-8 border-[#b56b6b]/40 bg-[#b56b6b]/5">
+          <h2 className="font-mono text-xs font-semibold text-[#b56b6b] uppercase tracking-[0.2em] mb-6">Danger Protocol</h2>
           
           <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="text-sm text-ivory font-semibold mb-1">Reset Streak</div>
-                <div className="text-xs text-stone/80 font-medium">Reset your current streak to 0. Longest streak is preserved.</div>
+                <div className="text-sm text-[#f2f0ea] font-medium mb-1">Reset Streak</div>
+                <div className="font-mono text-xs text-[#9a9a96]">Reset active streak counter to 0. Longest streak preserved.</div>
               </div>
               <Button variant="secondary" onClick={() => setResetModalOpen(true)}>Reset Streak</Button>
             </div>
             
-            <div className="w-full h-px bg-border/50" />
+            <div className="w-full h-px bg-[#b56b6b]/20" />
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="text-sm text-ivory font-semibold mb-1">Delete All Data</div>
-                <div className="text-xs text-stone/80 font-medium">Permanently erase all commitments and history.</div>
+                <div className="text-sm text-[#f2f0ea] font-medium mb-1">Purge Account Ledger</div>
+                <div className="font-mono text-xs text-[#9a9a96]">Permanently delete all commitments, records, and history.</div>
               </div>
-              <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>Delete Data</Button>
+              <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>Purge All Data</Button>
             </div>
           </div>
         </Card>
       </section>
 
       {/* Modals */}
-      <Modal open={resetModalOpen} onClose={() => setResetModalOpen(false)} title="Reset Streak">
-        <div className="p-2 space-y-5">
-          <p className="text-sm text-stone leading-relaxed">
-            This will reset your current streak to 0. Your longest streak record will be preserved. This cannot be undone.
+      <Modal open={resetModalOpen} onClose={() => setResetModalOpen(false)} title="Reset Streak Counter">
+        <div className="space-y-5">
+          <p className="text-sm text-[#9a9a96] leading-relaxed">
+            This will reset your current streak to 0. Your longest streak record will be preserved. This action cannot be reversed.
           </p>
-          <div className="flex justify-end gap-3 pt-2 border-t border-border/50">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#292c32]">
             <Button variant="ghost" onClick={() => setResetModalOpen(false)}>Cancel</Button>
             <Button variant="primary" onClick={handleResetStreak} disabled={isPending}>Confirm Reset</Button>
           </div>
         </div>
       </Modal>
 
-      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Delete All Data">
-        <div className="p-2 space-y-5">
-          <p className="text-sm text-error font-medium leading-relaxed bg-error/10 border border-error/20 p-3 rounded-sm">
-            Are you sure? This will delete all commitments and records permanently. This action is irreversible.
-          </p>
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Purge All Data">
+        <div className="space-y-5">
+          <div className="text-xs font-mono text-[#b56b6b] leading-relaxed bg-[#b56b6b]/10 border border-[#b56b6b]/30 p-3 rounded-md">
+            WARNING: This permanently purges your entire ledger. All commitments and daily records will be destroyed.
+          </div>
           <Input 
             label="Type DELETE to confirm"
             placeholder="DELETE" 
             value={deleteConfirmText} 
             onChange={(e) => setDeleteConfirmText(e.target.value)} 
           />
-          <div className="flex justify-end gap-3 pt-2 border-t border-border/50">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#292c32]">
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
             <Button 
               variant="danger" 
               onClick={handleDeleteData} 
               disabled={deleteConfirmText !== 'DELETE' || isPending}
             >
-              Permanently Delete
+              Permanently Purge
             </Button>
           </div>
         </div>

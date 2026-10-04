@@ -35,7 +35,7 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
     gsap.fromTo(
       items,
       { opacity: 0, x: -10 },
-      { opacity: 1, x: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+      { opacity: 1, x: 0, duration: 0.35, stagger: 0.05, ease: "power2.out" }
     );
   }, { dependencies: [activeCommitments.length, archivedCommitments.length], scope: listRef });
 
@@ -70,26 +70,26 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
   };
 
   const renderRow = (c: any) => (
-    <Card key={c.id} className="habit-row flex justify-between items-center p-5 mb-3 group hover:border-stone/40">
+    <Card key={c.id} className="habit-row flex justify-between items-center p-5 mb-3 group hover:border-[#c8a96b]/40 border-[#3a3244]">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2.5">
-          <span className="font-medium text-sm text-ivory">{c.title}</span>
-          <span className="px-1.5 py-0.5 text-[9px] uppercase tracking-wider rounded border border-border/60 bg-elevated text-stone font-semibold">
+          <span className="font-sans font-medium text-sm text-[#f2f0ea]">{c.title}</span>
+          <span className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest rounded-xs border border-[#292c32] bg-[#1a1d22] text-[#c8a96b]">
             {c.type}
           </span>
         </div>
-        <div className="text-xs text-stone font-medium">
+        <div className="text-xs font-mono text-[#9a9a96]">
           Target: {c.targetValue} {c.unit}
         </div>
       </div>
-      <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
-        <Button variant="ghost" size="icon" onClick={() => setEditItem(c)} disabled={isPending}>
-          <Pencil className="w-4 h-4" />
+      <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+        <Button variant="ghost" size="icon" onClick={() => setEditItem(c)} disabled={isPending} aria-label="Edit commitment">
+          <Pencil className="w-4 h-4 text-[#9a9a96] hover:text-[#f2f0ea]" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => handleToggleActive(c.id)} disabled={isPending}>
-          {c.isActive ? <Archive className="w-4 h-4" /> : <ArchiveRestore className="w-4 h-4" />}
+        <Button variant="ghost" size="icon" onClick={() => handleToggleActive(c.id)} disabled={isPending} aria-label="Archive commitment">
+          {c.isActive ? <Archive className="w-4 h-4 text-[#9a9a96] hover:text-[#f2f0ea]" /> : <ArchiveRestore className="w-4 h-4 text-[#9a9a96] hover:text-[#f2f0ea]" />}
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => setDeleteItem(c)} disabled={isPending} className="text-stone hover:text-error hover:bg-error/10">
+        <Button variant="ghost" size="icon" onClick={() => setDeleteItem(c)} disabled={isPending} className="text-[#9a9a96] hover:text-[#b56b6b] hover:bg-[#b56b6b]/10" aria-label="Delete commitment">
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
@@ -97,9 +97,12 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
   );
 
   return (
-    <div className="flex flex-col gap-10 w-full max-w-3xl mx-auto pb-20 animate-fade-in px-4 md:px-0 pt-4" ref={listRef}>
+    <div className="flex flex-col gap-10 w-full max-w-3xl mx-auto pb-20 animate-fade-in" ref={listRef}>
       <header className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-ivory tracking-tight">Habits Manager</h1>
+        <div>
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#f2f0ea] tracking-tight">Habits Manager</h1>
+          <p className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider mt-1">Configure active commitment protocols</p>
+        </div>
         <Button variant="primary" onClick={() => setIsAddOpen(true)}>
           + Add Commitment
         </Button>
@@ -107,9 +110,15 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
 
       <div className="flex flex-col gap-6">
         <div>
-          <h2 className="text-xs font-semibold tracking-wider text-muted uppercase mb-4">Active Commitments</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-mono text-xs font-semibold tracking-[0.2em] text-[#c8a96b] uppercase">Active Commitments</h2>
+            <span className="font-mono text-[10px] text-[#9a9a96]">{activeCommitments.length} PROTOCOLS</span>
+          </div>
+
           {activeCommitments.length === 0 ? (
-            <p className="text-sm text-muted italic bg-surface p-4 rounded-md border border-border/50">No active commitments.</p>
+            <p className="text-sm font-mono text-[#9a9a96] italic bg-[#131519] p-5 rounded-lg border border-[#3a3244]">
+              No active commitments configured.
+            </p>
           ) : (
             <div className="flex flex-col">
               {activeCommitments.map(renderRow)}
@@ -118,8 +127,8 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
         </div>
 
         {archivedCommitments.length > 0 && (
-          <div className="opacity-75">
-            <h2 className="text-xs font-semibold tracking-wider text-muted uppercase mb-4 mt-4">Archived</h2>
+          <div className="opacity-75 pt-4">
+            <h2 className="font-mono text-xs font-semibold tracking-[0.2em] text-[#62646a] uppercase mb-4">Archived Protocols</h2>
             <div className="flex flex-col">
               {archivedCommitments.map(renderRow)}
             </div>
@@ -138,55 +147,58 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
                 label="Title"
                 value={editItem.title} 
                 onChange={(e) => setEditItem({...editItem, title: e.target.value})}
-                required 
+                required
               />
             </div>
-            {editItem.type !== 'binary' && (
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Input 
-                    label="Target Value"
-                    type="number"
-                    min="1"
-                    value={editItem.targetValue} 
-                    onChange={(e) => setEditItem({...editItem, targetValue: Number(e.target.value)})}
-                    required 
-                  />
-                </div>
-                <div className="flex-1">
-                  <Input 
-                    label="Unit"
-                    value={editItem.unit} 
-                    onChange={(e) => setEditItem({...editItem, unit: e.target.value})}
-                    required 
-                  />
-                </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Input 
+                  label="Target Value"
+                  type="number"
+                  step="any"
+                  value={editItem.targetValue} 
+                  onChange={(e) => setEditItem({...editItem, targetValue: Number(e.target.value)})}
+                  required
+                />
               </div>
-            )}
+              <div>
+                <Input 
+                  label="Unit"
+                  value={editItem.unit} 
+                  onChange={(e) => setEditItem({...editItem, unit: e.target.value})}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="flex justify-end gap-3 mt-4">
-              <Button type="button" variant="ghost" onClick={() => setEditItem(null)} disabled={isPending}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isPending}>Save Changes</Button>
+              <Button type="button" variant="ghost" onClick={() => setEditItem(null)} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary" disabled={isPending}>
+                {isPending ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </form>
         )}
       </Modal>
 
-      {/* Delete Modal */}
+      {/* Delete Confirmation Modal */}
       <Modal open={!!deleteItem} onClose={() => setDeleteItem(null)} title="Delete Commitment">
-        {deleteItem && (
-          <div className="flex flex-col gap-5">
-            <p className="text-sm text-ivory leading-relaxed">
-              Are you sure you want to delete <span className="font-semibold text-gold">{deleteItem.title}</span>?
-            </p>
-            <div className="bg-error/10 border border-error/20 p-3 rounded-sm">
-              <span className="text-xs text-error font-medium">Warning: This action cannot be undone and will cascade to all daily records.</span>
-            </div>
-            <div className="flex justify-end gap-3 mt-2">
-              <Button type="button" variant="ghost" onClick={() => setDeleteItem(null)} disabled={isPending}>Cancel</Button>
-              <Button type="button" variant="danger" onClick={handleDelete} disabled={isPending}>Delete</Button>
-            </div>
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-[#9a9a96] leading-relaxed">
+            Are you sure you want to permanently delete <strong className="text-[#f2f0ea]">&quot;{deleteItem?.title}&quot;</strong>? All historical logs for this commitment will be purged from the ledger.
+          </p>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="ghost" onClick={() => setDeleteItem(null)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDelete} disabled={isPending}>
+              {isPending ? "Deleting..." : "Confirm Delete"}
+            </Button>
           </div>
-        )}
+        </div>
       </Modal>
     </div>
   );

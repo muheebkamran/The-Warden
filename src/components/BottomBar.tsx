@@ -20,7 +20,7 @@ export default function BottomBar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 w-full h-[64px] flex md:hidden bg-obsidian/95 backdrop-blur-md border-t border-border z-40 px-2 pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 w-full h-[64px] flex md:hidden bg-[#0b0c0e]/95 backdrop-blur-xl border-t border-[#292c32] z-40 px-2 pb-[env(safe-area-inset-bottom)]">
       <div className="flex w-full items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -30,21 +30,21 @@ export default function BottomBar() {
             <Link
               key={item.name}
               href={item.href}
-              className="relative flex flex-col items-center justify-center gap-1 w-16 h-14 group"
+              className="relative flex flex-col items-center justify-center gap-1 w-14 h-14 group transition-transform active:scale-95"
             >
               {isActive && (
-                <div className="absolute inset-0 top-1 bottom-1 bg-surface rounded-md -z-10 transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]" />
+                <div className="absolute inset-0 top-1.5 bottom-1.5 bg-[#1a1d22] border border-[#c8a96b]/30 rounded-md -z-10" />
               )}
               <Icon 
-                size={22} 
+                size={18} 
                 className={cn(
-                  "transition-colors duration-300",
-                  isActive ? "text-gold" : "text-stone group-hover:text-ivory"
+                  "transition-colors duration-150",
+                  isActive ? "text-[#c8a96b]" : "text-[#9a9a96] group-hover:text-[#f2f0ea]"
                 )} 
               />
               <span className={cn(
-                "text-[9px] font-medium transition-colors duration-300",
-                isActive ? "text-ivory" : "text-stone"
+                "text-[8px] font-mono tracking-wider uppercase transition-colors duration-150",
+                isActive ? "text-[#f2f0ea] font-medium" : "text-[#9a9a96]"
               )}>
                 {item.name}
               </span>
@@ -53,10 +53,11 @@ export default function BottomBar() {
         })}
         <button
           onClick={() => logout()}
-          className="relative flex flex-col items-center justify-center gap-1 w-16 h-14 group"
+          className="relative flex flex-col items-center justify-center gap-1 w-14 h-14 group transition-transform active:scale-95"
+          aria-label="Logout"
         >
-          <LogOut size={22} className="text-stone group-hover:text-error transition-colors duration-300" />
-          <span className="text-[9px] font-medium text-stone group-hover:text-error transition-colors duration-300">Logout</span>
+          <LogOut size={18} className="text-[#9a9a96] group-hover:text-[#b56b6b] transition-colors duration-150" />
+          <span className="text-[8px] font-mono tracking-wider uppercase text-[#9a9a96] group-hover:text-[#b56b6b] transition-colors duration-150">Exit</span>
         </button>
       </div>
     </nav>

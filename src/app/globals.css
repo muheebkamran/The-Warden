@@ -18,9 +18,11 @@
   --color-success: #7FA889;
   --color-warning: #C99A54;
   --color-error: #B56B6B;
+  --color-hairline: #3A3244;
 }
 
 :root {
+  --color-hairline: #3a3244;
   --color-obsidian: #0b0c0e;
   --color-surface: #131519;
   --color-elevated: #1a1d22;

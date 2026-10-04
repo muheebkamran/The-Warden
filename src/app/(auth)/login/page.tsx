@@ -4,28 +4,32 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import Background3D from "@/components/Background3D";
+import { Shield } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-obsidian text-ivory p-4 animate-fade-in relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#0b0c0e] text-[#f2f0ea] p-4 animate-fade-in relative overflow-hidden">
       <Background3D />
-      <Card className="w-full max-w-md p-8 md:p-10 relative z-10 backdrop-blur-xl bg-elevated/70 border-border/50">
-        <div className="text-center mb-10">
-          <h1 className="font-serif text-3xl tracking-[0.2em] uppercase mb-3 text-ivory">The Warden</h1>
-          <p className="text-stone text-xs tracking-widest uppercase font-semibold">Keep Your Word</p>
+      <Card className="w-full max-w-md p-8 md:p-10 relative z-10 backdrop-blur-xl bg-[#131519]/90 border border-[#3a3244] shadow-none">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="w-10 h-10 rounded-sm bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b] mb-4">
+            <Shield size={20} />
+          </div>
+          <h1 className="font-serif text-3xl tracking-[0.2em] uppercase mb-1.5 text-[#f2f0ea]">The Warden</h1>
+          <p className="font-mono text-[10px] tracking-widest text-[#9a9a96] uppercase">Lithos Authentication Ledger</p>
         </div>
         
         <form action={login} className="space-y-6">
           <Input
-            label="Email"
+            label="Enlisted Email"
             type="email"
             name="email"
             required
-            placeholder="your@email.com"
+            placeholder="operative@discipline.io"
           />
           
           <Input
-            label="Password"
+            label="Passphrase"
             type="password"
             name="password"
             required
@@ -36,17 +40,17 @@ export default function LoginPage() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full py-6 text-sm"
+              className="w-full py-3.5 text-xs font-mono uppercase tracking-widest"
             >
-              Log In
+              Access Ledger
             </Button>
           </div>
         </form>
         
-        <div className="mt-8 text-center text-xs text-stone font-medium">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-gold hover:text-ivory transition-colors">
-            Register
+        <div className="mt-8 text-center font-mono text-xs text-[#9a9a96]">
+          No active protocol?{" "}
+          <Link href="/register" className="text-[#c8a96b] hover:text-[#f2f0ea] transition-colors underline underline-offset-4">
+            Register Enlistment
           </Link>
         </div>
       </Card>

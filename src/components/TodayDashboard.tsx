@@ -41,7 +41,7 @@ export default function TodayDashboard({ commitments, records, streakState, toda
   const editable = status === 'editable' || status === 'limited';
   
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
@@ -79,8 +79,8 @@ export default function TodayDashboard({ commitments, records, streakState, toda
     
     gsap.fromTo(
       cards,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "back.out(1.2)" }
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }
     );
   }, { dependencies: [selectedDate, activeCommitments.length], scope: containerRef });
 
@@ -88,17 +88,19 @@ export default function TodayDashboard({ commitments, records, streakState, toda
   const consistencyRate = records.length > 0 ? Math.round((totalKept / records.length) * 100) : 0;
 
   return (
-    <div ref={containerRef} className="w-full max-w-3xl mx-auto flex flex-col gap-10 pb-20 animate-fade-in px-4 md:px-0">
+    <div ref={containerRef} className="w-full max-w-3xl mx-auto flex flex-col gap-10 pb-20 animate-fade-in">
       <header className="flex flex-col gap-8">
-        <div className="flex items-center justify-between pt-4">
-          <div className="flex gap-1 bg-surface p-1 rounded-full border border-border/50">
+        
+        {/* Date Selector & Telemetry Readout */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+          <div className="flex gap-1.5 bg-[#131519] p-1 rounded-full border border-[#292c32] self-start">
             <button 
               onClick={() => setSelectedDate(todayStr)}
               className={cn(
-                "px-5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300",
+                "px-5 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-150 cursor-pointer",
                 selectedDate === todayStr 
-                  ? "bg-elevated text-ivory shadow-sm" 
-                  : "text-stone hover:text-ivory"
+                  ? "bg-[#1a1d22] text-[#f2f0ea] border border-[#c8a96b]/40 font-medium" 
+                  : "text-[#9a9a96] hover:text-[#f2f0ea]"
               )}
             >
               Today
@@ -106,75 +108,98 @@ export default function TodayDashboard({ commitments, records, streakState, toda
             <button 
               onClick={() => setSelectedDate(yesterdayStr)}
               className={cn(
-                "px-5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300",
+                "px-5 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-150 cursor-pointer",
                 selectedDate === yesterdayStr 
-                  ? "bg-elevated text-ivory shadow-sm" 
-                  : "text-stone hover:text-ivory"
+                  ? "bg-[#1a1d22] text-[#f2f0ea] border border-[#c8a96b]/40 font-medium" 
+                  : "text-[#9a9a96] hover:text-[#f2f0ea]"
               )}
             >
               Yesterday
             </button>
           </div>
-          <div className="text-stone text-sm font-medium">
-            {formatDate(selectedDate)}
+
+          <div className="font-mono text-xs text-[#9a9a96] uppercase tracking-widest flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c8a96b]" />
+            <span>{formatDate(selectedDate)}</span>
           </div>
         </div>
 
+        {/* Monolithic Streak Counter (Lithos Aesthetic) */}
         <div>
           <div className="flex flex-col gap-3">
             <div className="flex items-baseline gap-4">
-              <h1 className="font-serif text-6xl md:text-7xl text-ivory uppercase tracking-tight">
-                {streakState ? streakState.currentStreak : 0} <span className="text-4xl text-stone/70">DAYS</span>
+              <h1 className="font-serif italic font-normal text-6xl sm:text-7xl md:text-8xl text-[#f2f0ea] tracking-tight leading-none">
+                {streakState ? streakState.currentStreak : 0} 
+                <span className="font-mono text-2xl sm:text-3xl text-[#9a9a96] not-italic ml-3 uppercase font-normal tracking-wide">
+                  DAYS
+                </span>
               </h1>
-              <div className="w-2.5 h-2.5 rounded-full bg-gold shadow-[0_0_12px_rgba(200,169,107,0.5)]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#c8a96b] animate-pulse" />
             </div>
             
-            <div className="flex items-center gap-4 text-sm text-stone font-medium">
-              <div>Total Kept: <span className="text-ivory">{totalKept}</span></div>
-              <div className="w-1 h-1 rounded-full bg-border" />
-              <div>Consistency Rate: <span className="text-ivory">{consistencyRate}%</span></div>
+            <div className="flex items-center gap-4 font-mono text-xs text-[#9a9a96] uppercase tracking-wider pt-1">
+              <div>Total Kept: <span className="text-[#f2f0ea]">{totalKept}</span></div>
+              <div className="w-1 h-1 rounded-full bg-[#292c32]" />
+              <div>Consistency: <span className="text-[#c8a96b]">{consistencyRate}%</span></div>
             </div>
           </div>
         </div>
 
         {streakState?.graceDayActive && selectedDate === todayStr && (
           <div>
-            <Badge variant="grace" className="px-3 py-1.5 text-xs">
-              1 GRACE DAY REMAINING
+            <Badge variant="grace" className="px-3 py-1.5">
+              1 GRACE DAY ACTIVE // BUFFER CONSUMED
             </Badge>
           </div>
         )}
 
-        <div className="flex flex-col gap-3 bg-surface p-4 rounded-md border border-border/50">
-          <div className="text-stone text-xs font-medium uppercase tracking-wider flex justify-between">
-            <span>Daily Target</span>
-            <span>{positive} / {required}</span>
+        {/* Daily Target Progress Bar */}
+        <div className="flex flex-col gap-3 bg-[#131519]/90 p-5 rounded-lg border border-[#3a3244]">
+          <div className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider flex justify-between">
+            <span>DISCIPLINE TARGET</span>
+            <span className={positive >= required ? "text-[#7fa889]" : "text-[#c8a96b]"}>
+              {positive} / {required} ({total > 0 ? Math.round((positive / total) * 100) : 0}%)
+            </span>
           </div>
-          <div className="w-full h-1.5 bg-obsidian rounded-full overflow-hidden shadow-inner">
+          <div className="w-full h-2 bg-[#0b0c0e] rounded-full overflow-hidden border border-[#292c32]">
             <div 
               className={cn(
-                "h-full transition-all duration-700 ease-out",
-                positive >= required ? "bg-success" : "bg-gold"
+                "h-full transition-all duration-500 ease-out rounded-full",
+                positive >= required ? "bg-[#7fa889]" : "bg-[#c8a96b]"
               )}
               style={{ width: `${Math.min(100, (positive / (required || 1)) * 100)}%` }}
             />
           </div>
+          <div className="flex justify-between font-mono text-[9px] text-[#62646a] tracking-wider uppercase">
+            <span>0%</span>
+            <span className="text-[#c8a96b]">70% THRESHOLD</span>
+            <span>100%</span>
+          </div>
         </div>
       </header>
 
-      <section className="bg-surface border border-border/50 p-5 rounded-md flex flex-col gap-4 shadow-sm">
-        <h3 className="font-serif text-ivory tracking-[0.1em] uppercase text-sm font-semibold">Daily Reflection</h3>
+      {/* Daily Reflection Section */}
+      <section className="bg-[#131519]/90 border border-[#3a3244] p-6 rounded-lg flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-serif text-xl text-[#f2f0ea]">
+            Daily Reflection
+          </h3>
+          <span className="font-mono text-[9px] text-[#c8a96b] uppercase tracking-widest">
+            LEDGER ENTRY
+          </span>
+        </div>
+
         {reflectionLoaded ? (
           <>
             <textarea
               value={reflectionText}
               onChange={(e) => setReflectionText(e.target.value)}
               disabled={!editable || isSavingReflection}
-              placeholder="Reflect on your day, challenges, or thoughts..."
+              placeholder="Record your friction, execution, or telemetry for today..."
               className={cn(
-                "w-full h-24 bg-obsidian/50 border border-border text-ivory placeholder:text-muted p-4 rounded-sm transition-all duration-300 resize-none text-sm",
-                "focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold focus:bg-obsidian",
-                "hover:border-stone/50"
+                "w-full h-24 bg-[#0b0c0e] border border-[#292c32] text-[#f2f0ea] placeholder:text-[#62646a] p-4 rounded-md transition-all duration-150 resize-none text-sm font-sans",
+                "focus:outline-none focus:border-[#c8a96b] focus:ring-1 focus:ring-[#c8a96b]/30",
+                "hover:border-[#3a3244]"
               )}
             />
             {editable && (
@@ -185,31 +210,32 @@ export default function TodayDashboard({ commitments, records, streakState, toda
                   onClick={handleSaveReflection}
                   disabled={isSavingReflection}
                 >
-                  {isSavingReflection ? "Saving..." : "Save Reflection"}
+                  {isSavingReflection ? "Recording..." : "Save Entry"}
                 </Button>
               </div>
             )}
           </>
         ) : (
-          <div className="h-24 w-full bg-elevated animate-pulse rounded-sm" />
+          <div className="h-24 w-full bg-[#1a1d22] animate-pulse rounded-md" />
         )}
       </section>
 
       {positive >= required && total > 0 && (
-        <div className="text-gold font-serif italic text-xl animate-fade-in text-center opacity-90">
+        <div className="text-[#c8a96b] font-serif italic text-2xl animate-fade-in text-center py-2">
           Day Complete. You kept your word.
         </div>
       )}
 
+      {/* Main Commitments Feed */}
       <main className="flex flex-col gap-6">
         {activeCommitments.length === 0 ? (
           <EmptyState 
-            title="No commitments yet" 
-            description="Add your first daily commitment to begin."
+            title="No commitments active" 
+            description="Add your first daily discipline rule to begin the ledger."
             action={<Button variant="primary" onClick={() => setIsAddModalOpen(true)}>Add Commitment</Button>}
           />
         ) : (
-          <div className="flex flex-col gap-3" ref={cardsRef}>
+          <div className="flex flex-col gap-3.5" ref={cardsRef}>
             {activeCommitments.map(commitment => {
               const record = selectedRecords.find(r => r.commitmentId === commitment.id);
               return (
@@ -223,6 +249,7 @@ export default function TodayDashboard({ commitments, records, streakState, toda
                 </div>
               );
             })}
+            
             <div className="mt-6 text-center">
               <Button variant="ghost" size="sm" onClick={() => setIsAddModalOpen(true)}>
                 + Add Commitment
