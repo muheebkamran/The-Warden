@@ -291,7 +291,7 @@ export function BillPhotoUpload({
           <button
             type="submit"
             disabled={isSaving || isScanning}
-            className="px-4 py-1.5 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50"
+            className="px-4 py-1.5 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-all duration-150 active:scale-[0.98] active:-translate-y-0.5 disabled:opacity-50"
           >
             {isSaving ? "Saving Bill..." : "Confirm & Save Bill"}
           </button>

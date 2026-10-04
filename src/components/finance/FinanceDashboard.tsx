@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import { BillPhotoUpload } from "./BillPhotoUpload";
+import { SpendingTrendChart } from "./SpendingTrendChart";
 import { addTransaction, deleteTransaction, toggleBillPaid, deleteBill } from "@/app/actions";
 
 interface Transaction {
@@ -529,7 +530,16 @@ export function FinanceDashboard({
         </div>
       </div>
 
-      {/* 4. Daily Variable Expenses Section */}
+      {/* 4. Spending Flow & Cumulative Burn Velocity (Line + Area Combo) */}
+      <SpendingTrendChart
+        transactions={monthTransactions}
+        bills={monthBills}
+        currency={currency}
+        monthKey={monthKey}
+        monthLabel={monthLabel}
+      />
+
+      {/* 5. Daily Variable Expenses Section */}
       <div className="rounded-xl bg-surface border border-border p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/80">
           <div>
