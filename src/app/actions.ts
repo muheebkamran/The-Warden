@@ -346,3 +346,13 @@ export async function getReflection(date: string) {
     where: { userId_date: { userId, date } },
   });
 }
+
+// 19. saveUserTheme
+export async function saveUserTheme(themeId: string) {
+  const { userId } = await requireAuth();
+  await db.user.update({
+    where: { id: userId },
+    data: { preferredTheme: themeId },
+  });
+  revalidatePath('/settings');
+}

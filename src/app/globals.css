@@ -21,25 +21,168 @@
 }
 
 :root {
-  /* Legacy variables to ensure existing components don't break during transition */
-  --bg-obsidian: #0B0C0E;
-  --bg-surface: #131519;
-  --bg-elevated: #1A1D22;
-  --border-default: #292C32;
-  --text-ivory: #F2F0EA;
-  --text-stone: #9A9A96;
-  --text-muted: #62646A;
-  --accent-gold: #C8A96B;
-  --accent-gold-hover: #D4B87A;
-  --status-success: #7FA889;
-  --status-warning: #C99A54;
-  --status-error: #B56B6B;
+  --color-obsidian: #0b0c0e;
+  --color-surface: #131519;
+  --color-elevated: #1a1d22;
+  --color-border: #292c32;
+  --color-gold: #c8a96b;
+  --color-gold-hover: #d4b87a;
+  --color-ivory: #f2f0ea;
+  --color-stone: #9a9a96;
+  --color-muted: #62646a;
+  --color-success: #7fa889;
+  --color-warning: #c99a54;
+  --color-error: #b56b6b;
+
+  /* Aliases for universal compatibility across Tailwind and legacy styles */
+  --bg-obsidian: var(--color-obsidian);
+  --bg-surface: var(--color-surface);
+  --bg-elevated: var(--color-elevated);
+  --border-default: var(--color-border);
+  --text-ivory: var(--color-ivory);
+  --text-stone: var(--color-stone);
+  --text-muted: var(--color-muted);
+  --accent-gold: var(--color-gold);
+  --accent-gold-hover: var(--color-gold-hover);
+  --status-success: var(--color-success);
+  --status-warning: var(--color-warning);
+  --status-error: var(--color-error);
   --radius-sm: 8px;
   --radius-md: 12px;
   
   /* Layout */
   --sidebar-width: 260px;
   --bottom-bar-height: 64px;
+}
+
+/* 1. Midnight Galaxy */
+[data-theme="midnight-galaxy"] {
+  --color-obsidian: #1b1328;
+  --color-surface: #2b1e3e;
+  --color-elevated: #3b2c52;
+  --color-border: #4a3866;
+  --color-gold: #a490c2;
+  --color-gold-hover: #b8a6d4;
+  --color-ivory: #e6e6fa;
+  --color-stone: #9e92b3;
+  --color-muted: #736988;
+}
+
+/* 2. Golden Hour */
+[data-theme="golden-hour"] {
+  --color-obsidian: #1a1614;
+  --color-surface: #2a2419;
+  --color-elevated: #3a3424;
+  --color-border: #4a443a;
+  --color-gold: #f4a900;
+  --color-gold-hover: #ffb816;
+  --color-ivory: #fdf6ed;
+  --color-stone: #a89878;
+  --color-muted: #796c53;
+}
+
+/* 3. Ocean Depths */
+[data-theme="ocean-depths"] {
+  --color-obsidian: #1a2332;
+  --color-surface: #1f2d3f;
+  --color-elevated: #2a3a52;
+  --color-border: #3a4a66;
+  --color-gold: #2d8b8b;
+  --color-gold-hover: #3da5a5;
+  --color-ivory: #f1faee;
+  --color-stone: #7a9db5;
+  --color-muted: #53758e;
+}
+
+/* 4. Forest Canopy */
+[data-theme="forest-canopy"] {
+  --color-obsidian: #1b291a;
+  --color-surface: #263d23;
+  --color-elevated: #31502d;
+  --color-border: #405d39;
+  --color-gold: #7d8471;
+  --color-gold-hover: #94a688;
+  --color-ivory: #faf9f6;
+  --color-stone: #8a9a78;
+  --color-muted: #617350;
+}
+
+/* 5. Arctic Frost */
+[data-theme="arctic-frost"] {
+  --color-obsidian: #151c24;
+  --color-surface: #1f2d38;
+  --color-elevated: #2a3f4d;
+  --color-border: #3a5266;
+  --color-gold: #4a6fa5;
+  --color-gold-hover: #6189bd;
+  --color-ivory: #fafafa;
+  --color-stone: #8fa5b5;
+  --color-muted: #5e7688;
+}
+
+/* 6. Desert Rose */
+[data-theme="desert-rose"] {
+  --color-obsidian: #24181c;
+  --color-surface: #332531;
+  --color-elevated: #42313f;
+  --color-border: #513e4d;
+  --color-gold: #d4a5a5;
+  --color-gold-hover: #e4bfbf;
+  --color-ivory: #faf4ee;
+  --color-stone: #b89090;
+  --color-muted: #846161;
+}
+
+/* 7. Tech Innovation */
+[data-theme="tech-innovation"] {
+  --color-obsidian: #0d1117;
+  --color-surface: #161b22;
+  --color-elevated: #21262d;
+  --color-border: #30363d;
+  --color-gold: #0066ff;
+  --color-gold-hover: #3b82f6;
+  --color-ivory: #ffffff;
+  --color-stone: #8b949e;
+  --color-muted: #606873;
+}
+
+/* 8. Botanical Garden */
+[data-theme="botanical-garden"] {
+  --color-obsidian: #18231c;
+  --color-surface: #243726;
+  --color-elevated: #304a31;
+  --color-border: #3f5d42;
+  --color-gold: #f9a620;
+  --color-gold-hover: #ffb84d;
+  --color-ivory: #f5f3ed;
+  --color-stone: #8a9b7f;
+  --color-muted: #607255;
+}
+
+/* 9. Sunset Boulevard */
+[data-theme="sunset-boulevard"] {
+  --color-obsidian: #1c1e24;
+  --color-surface: #2a2d36;
+  --color-elevated: #383d48;
+  --color-border: #464d5a;
+  --color-gold: #e76f51;
+  --color-gold-hover: #f4a261;
+  --color-ivory: #fcf6ed;
+  --color-stone: #a5959f;
+  --color-muted: #74646e;
+}
+
+/* 10. Modern Minimalist */
+[data-theme="modern-minimalist"] {
+  --color-obsidian: #121212;
+  --color-surface: #1e1e1e;
+  --color-elevated: #2a2a2a;
+  --color-border: #3a3a3a;
+  --color-gold: #d3d3d3;
+  --color-gold-hover: #e8e8e8;
+  --color-ivory: #ffffff;
+  --color-stone: #808080;
+  --color-muted: #5a5a5a;
 }
 
 * {

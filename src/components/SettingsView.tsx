@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { updateUserSettings, exportUserData, resetStreakAction, deleteMyData } from '@/app/actions';
+import { ThemeSelector } from '@/components/settings/ThemeSelector';
 import { cn } from '@/lib/utils';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -14,6 +15,7 @@ interface User {
   id: string;
   email?: string | null;
   timezone?: string | null;
+  preferredTheme?: string | null;
   createdAt: Date;
 }
 
@@ -148,6 +150,21 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
               </Button>
             </div>
           </form>
+        </Card>
+      </section>
+
+      {/* 2. APPEARANCE & THEMES (Theme Factory) */}
+      <section className="settings-section">
+        <Card className="p-6 md:p-8 space-y-6">
+          <div>
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">
+              Appearance & Aesthetic
+            </h2>
+            <p className="text-xs text-stone mt-1">
+              Select your personal operational atmosphere.
+            </p>
+          </div>
+          <ThemeSelector initialTheme={user.preferredTheme || 'midnight-galaxy'} />
         </Card>
       </section>
 
