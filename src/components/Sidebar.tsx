@@ -17,12 +17,12 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
   const navItems = [
     { name: "Today", href: "/", icon: Calendar },
     { name: "Habits", href: "/habits", icon: Target },
+    { name: "Reading Room", href: "/reader", icon: BookOpen },
     { name: "Progress", href: "/progress", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
   const upcomingItems = [
-    { name: "Reading", icon: BookOpen },
     { name: "Finance", icon: Wallet },
   ];
 
