@@ -31,37 +31,13 @@ export function PDFViewer({
   }, [initialPage, fileUrl]);
 
   useEffect(() => {
-    // Attempt dynamic pdfjs-dist load or fallback to robust iframe/embed viewer
-    let isMounted = true;
-    async function loadPdf() {
-      setIsLoading(true);
-      try {
-        const pdfjs = await import('pdfjs-dist');
-        // Configure worker
-        pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-        const loadingTask = pdfjs.getDocument(fileUrl);
-        const doc = await loadingTask.promise;
-        if (isMounted) {
-          setNumPages(doc.numPages);
-          setIsLoading(false);
-        }
-      } catch (err) {
-        // Fallback gracefully for cross-origin or local reader
-        if (isMounted) {
-          setNumPages(totalPages || 100);
-          setIsLoading(false);
-        }
+    if (fileUrl) {
+      setIsLoading(false);
+      if (totalPages && totalPages > 1) {
+        setNumPages(totalPages);
       }
     }
-
-    if (fileUrl) {
-      loadPdf();
-    }
-    return () => {
-      isMounted = false;
-    };
-  }, [fileUrl]);
+  }, [fileUrl, totalPages]);
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
