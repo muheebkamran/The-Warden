@@ -15,7 +15,7 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Today", href: "/", icon: Calendar },
+    { name: "Today", href: "/dashboard", icon: Calendar },
     { name: "Habits", href: "/habits", icon: Target },
     { name: "Reading Room", href: "/reader", icon: BookOpen },
     { name: "Finance", href: "/finance", icon: Wallet },

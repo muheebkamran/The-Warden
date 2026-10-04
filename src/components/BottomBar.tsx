@@ -11,7 +11,7 @@ export default function BottomBar() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Today", href: "/", icon: Calendar },
+    { name: "Today", href: "/dashboard", icon: Calendar },
     { name: "Habits", href: "/habits", icon: Target },
     { name: "Reading", href: "/reader", icon: BookOpen },
     { name: "Finance", href: "/finance", icon: Wallet },

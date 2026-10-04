@@ -13,6 +13,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const isPublicRoute = pathname === "/" || pathname === "/login" || pathname === "/register";
   const isAuthRoute = pathname === "/login" || pathname === "/register";
 
   const sessionCookie = req.cookies.get("session")?.value;
@@ -22,12 +23,14 @@ export async function middleware(req: NextRequest) {
     session = await verifyToken(sessionCookie);
   }
 
-  if (!session && !isAuthRoute) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  // If authenticated and visiting landing page or auth routes, redirect to dashboard
+  if (session && (pathname === "/" || isAuthRoute)) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (session && isAuthRoute) {
-    return NextResponse.redirect(new URL("/", req.url));
+  // If unauthenticated and visiting a protected route, redirect to login
+  if (!session && !isPublicRoute) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   return NextResponse.next();

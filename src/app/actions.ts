@@ -32,7 +32,7 @@ export async function login(formData: FormData) {
   if (!isValid) throw new Error("Invalid credentials");
 
   await createSession(user.id);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function register(formData: FormData) {
@@ -64,7 +64,7 @@ export async function register(formData: FormData) {
   });
 
   await createSession(user.id);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function logout() {

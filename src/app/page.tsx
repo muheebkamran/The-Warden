@@ -1,40 +1,15 @@
-import { db } from "@/lib/db";
-import AppShell from "@/components/AppShell";
-import TodayDashboard from "@/components/TodayDashboard";
-import { getTodayStr, getYesterdayStr } from "@/lib/dateEngine";
-import { getStreakState } from "@/lib/streak";
-import { requireAuth } from "@/app/actions";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import LandingPage from "@/components/LandingPage";
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const { userId } = await requireAuth();
-  const todayStr = getTodayStr();
-  const yesterdayStr = getYesterdayStr();
+  const session = await getSession();
 
-  const [commitments, allRecords, streakState] = await Promise.all([
-    db.commitment.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-    }),
-    db.dailyRecord.findMany({
-      where: { userId },
-      orderBy: { date: 'asc' }
-    }),
-    getStreakState(userId),
-  ]);
+  if (session?.userId) {
+    redirect("/dashboard");
+  }
 
-  const records = allRecords;
-
-  return (
-    <AppShell>
-      <TodayDashboard 
-        commitments={commitments}
-        records={records}
-        streakState={streakState}
-        todayStr={todayStr}
-        yesterdayStr={yesterdayStr}
-      />
-    </AppShell>
-  );
+  return <LandingPage />;
 }
