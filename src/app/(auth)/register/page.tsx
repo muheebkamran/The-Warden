@@ -32,14 +32,6 @@ export default function RegisterPage() {
             placeholder="••••••••"
           />
           
-          <Input
-            label="Invite Code"
-            type="text"
-            name="inviteCode"
-            required
-            placeholder="Enter invite code"
-          />
-          
           <div className="pt-2">
             <Button
               type="submit"

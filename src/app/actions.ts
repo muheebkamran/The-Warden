@@ -38,14 +38,10 @@ export async function login(formData: FormData) {
 export async function register(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const inviteCode = formData.get("inviteCode") as string;
 
-  if (!email || !password || !inviteCode) {
+  if (!email || !password) {
     throw new Error("Missing required fields");
   }
-
-  const invite = await db.invite.findUnique({ where: { code: inviteCode, isUsed: false } });
-  if (!invite) throw new Error("Invalid or used invite code");
 
   const existingUser = await db.user.findUnique({ where: { email } });
   if (existingUser) throw new Error("Email already registered");
@@ -65,11 +61,6 @@ export async function register(formData: FormData) {
         ]
       }
     }
-  });
-
-  await db.invite.update({
-    where: { id: invite.id },
-    data: { isUsed: true }
   });
 
   await createSession(user.id);

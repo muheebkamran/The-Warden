@@ -37,7 +37,8 @@ export default function TodayDashboard({ commitments, records, streakState, toda
   const selectedRecords = records.filter(r => r.date === selectedDate);
   const positive = selectedRecords.filter(r => r.status === 'complete' || r.status === 'showed_up').length;
 
-  const editable = getDateEditability(selectedDate) === 'editable';
+  const status = getDateEditability(selectedDate);
+  const editable = status === 'editable' || status === 'limited';
   
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
