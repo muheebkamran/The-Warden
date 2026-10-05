@@ -9,6 +9,9 @@ import { createSession, deleteSession, getSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
+import { hashPassword, verifyPassword, generateResetToken, isTokenExpired } from "@/lib/password";
+import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email";
+
 // 1. requireAuth
 export async function requireAuth() {
   const session = await getSession();
@@ -20,51 +23,180 @@ export async function requireAuth() {
 
 // Auth Actions
 export async function login(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.toLowerCase().trim();
   const password = formData.get("password") as string;
 
-  if (!email || !password) throw new Error("Missing email or password");
+  if (!email || !password) {
+    redirect("/login?error=" + encodeURIComponent("Please enter both email and password."));
+  }
 
   const user = await db.user.findUnique({ where: { email } });
-  if (!user) throw new Error("Invalid credentials");
+  if (!user) {
+    redirect("/login?error=" + encodeURIComponent("Invalid email or password."));
+  }
 
-  const isValid = await bcrypt.compare(password, user.passwordHash);
-  if (!isValid) throw new Error("Invalid credentials");
+  if (!user.passwordHash) {
+    redirect("/login?error=" + encodeURIComponent("This account was created with Google. Please click 'Continue with Google'."));
+  }
+
+  const isValid = await verifyPassword(password, user.passwordHash);
+  if (!isValid) {
+    redirect("/login?error=" + encodeURIComponent("Invalid email or password."));
+  }
 
   await createSession(user.id);
   redirect("/dashboard");
 }
 
 export async function register(formData: FormData) {
-  const email = formData.get("email") as string;
+  const name = (formData.get("name") as string)?.trim() || null;
+  const email = (formData.get("email") as string)?.toLowerCase().trim();
   const password = formData.get("password") as string;
 
   if (!email || !password) {
-    throw new Error("Missing required fields");
+    redirect("/register?error=" + encodeURIComponent("Please provide email and password."));
+  }
+
+  if (password.length < 6) {
+    redirect("/register?error=" + encodeURIComponent("Password must be at least 6 characters."));
   }
 
   const existingUser = await db.user.findUnique({ where: { email } });
-  if (existingUser) throw new Error("Email already registered");
+  if (existingUser) {
+    redirect("/register?error=" + encodeURIComponent("An account with this email already exists. Please log in."));
+  }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await hashPassword(password);
 
   const user = await db.user.create({
     data: {
       email,
+      name,
       passwordHash,
       commitments: {
         create: [
-          { title: "Read", type: "duration", targetValue: 30, unit: "min", frequency: "daily" },
-          { title: "Watch a lecture", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
-          { title: "Be in the office", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
-          { title: "Physical activity", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          { title: "Read 20 mins", type: "duration", targetValue: 20, unit: "min", frequency: "daily" },
+          { title: "Exercise", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          { title: "Drink 2L Water", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          { title: "No Junk Food", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
         ]
       }
     }
   });
 
+  sendWelcomeEmail(email, name).catch(() => {});
+
   await createSession(user.id);
   redirect("/dashboard");
+}
+
+export async function forgotPassword(formData: FormData) {
+  const email = (formData.get("email") as string)?.toLowerCase().trim();
+  if (!email) {
+    redirect("/forgot-password?error=" + encodeURIComponent("Please enter your email."));
+  }
+
+  const user = await db.user.findUnique({ where: { email } });
+  if (user) {
+    const { token, expiry } = generateResetToken();
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken: token,
+        resetTokenExpiry: expiry,
+      },
+    });
+    await sendPasswordResetEmail(email, token);
+  }
+
+  redirect("/forgot-password?sent=true");
+}
+
+export async function resetPassword(formData: FormData) {
+  const token = formData.get("token") as string;
+  const password = formData.get("password") as string;
+
+  if (!token || !password) {
+    redirect("/reset-password?error=" + encodeURIComponent("Missing reset token or password.") + (token ? `&token=${encodeURIComponent(token)}` : ""));
+  }
+
+  if (password.length < 6) {
+    redirect(`/reset-password?token=${encodeURIComponent(token)}&error=` + encodeURIComponent("Password must be at least 6 characters."));
+  }
+
+  const user = await db.user.findFirst({
+    where: { resetToken: token },
+  });
+
+  if (!user || isTokenExpired(user.resetTokenExpiry)) {
+    redirect("/forgot-password?error=" + encodeURIComponent("This password reset link has expired or is invalid. Please request a new one."));
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      passwordHash,
+      resetToken: null,
+      resetTokenExpiry: null,
+    },
+  });
+
+  await createSession(user.id);
+  redirect("/dashboard?reset=success");
+}
+
+export async function handleGoogleUser(googleUser: {
+  googleId: string;
+  email: string;
+  name?: string | null;
+  avatarUrl?: string | null;
+}) {
+  const email = googleUser.email.toLowerCase().trim();
+
+  let user = await db.user.findFirst({
+    where: {
+      OR: [
+        { googleId: googleUser.googleId },
+        { email },
+      ],
+    },
+  });
+
+  if (user) {
+    if (!user.googleId || (!user.avatarUrl && googleUser.avatarUrl)) {
+      user = await db.user.update({
+        where: { id: user.id },
+        data: {
+          googleId: user.googleId || googleUser.googleId,
+          avatarUrl: user.avatarUrl || googleUser.avatarUrl,
+          name: user.name || googleUser.name,
+        },
+      });
+    }
+  } else {
+    user = await db.user.create({
+      data: {
+        email,
+        googleId: googleUser.googleId,
+        name: googleUser.name,
+        avatarUrl: googleUser.avatarUrl,
+        commitments: {
+          create: [
+            { title: "Read 20 mins", type: "duration", targetValue: 20, unit: "min", frequency: "daily" },
+            { title: "Exercise", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+            { title: "Drink 2L Water", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+            { title: "No Junk Food", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          ],
+        },
+      },
+    });
+
+    sendWelcomeEmail(email, googleUser.name).catch(() => {});
+  }
+
+  return user;
 }
 
 export async function logout() {
