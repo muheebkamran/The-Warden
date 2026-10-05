@@ -50,3 +50,4 @@ next-env.d.ts
 .tmp/
 credentials.json
 token.json
+3d-ui/

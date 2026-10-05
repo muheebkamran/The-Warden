@@ -3,6 +3,8 @@ import "./globals.css";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 
+import { GlobalSpotlight } from "@/components/GlobalSpotlight";
+
 export const metadata: Metadata = {
   title: "THE WARDEN",
   description: "Personal Accountability Operating System — Keep Your Word",
@@ -46,8 +48,11 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased bg-obsidian text-ivory min-h-screen">
-        {children}
+      <body className="antialiased bg-obsidian text-ivory min-h-screen relative">
+        <GlobalSpotlight />
+        <div className="relative z-10 min-h-screen flex flex-col">
+          {children}
+        </div>
       </body>
     </html>
   );

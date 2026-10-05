@@ -196,10 +196,10 @@ export function FinanceDashboard({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
           <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold">
-            Financial Management Chamber
+            MONEY & BILLS
           </span>
           <h1 className="text-2xl md:text-3xl font-serif font-bold text-ivory tracking-wide mt-1">
-            Capital Ledger & Cash Flow
+            Money & Bills
           </h1>
         </div>
 
@@ -207,7 +207,7 @@ export function FinanceDashboard({
         <div className="flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-border shadow-xs self-start sm:self-auto">
           <button
             onClick={prevMonth}
-            className="p-1 rounded text-stone hover:text-ivory transition-colors"
+            className="p-1 rounded text-stone hover:text-ivory transition-colors cursor-pointer"
             title="Previous Month"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -217,7 +217,7 @@ export function FinanceDashboard({
           </span>
           <button
             onClick={nextMonth}
-            className="p-1 rounded text-stone hover:text-ivory transition-colors"
+            className="p-1 rounded text-stone hover:text-ivory transition-colors cursor-pointer"
             title="Next Month"
           >
             <ChevronRight className="w-4 h-4" />
@@ -237,11 +237,11 @@ export function FinanceDashboard({
             <div className="text-2xl font-serif font-bold text-emerald-400">
               {currency}{totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </div>
-            <p className="text-[11px] text-stone mt-1">Total revenue & deposits</p>
+            <p className="text-[11px] text-stone mt-1">Total earnings and deposits</p>
           </div>
           <button
             onClick={() => setShowIncomeModal(true)}
-            className="text-[11px] text-gold hover:underline font-medium flex items-center gap-1 self-start"
+            className="text-[11px] text-gold hover:underline font-medium flex items-center gap-1 self-start cursor-pointer"
           >
             <Plus className="w-3 h-3" /> Add Income
           </button>
@@ -250,7 +250,7 @@ export function FinanceDashboard({
         {/* Bills Card */}
         <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Fixed Bills</span>
+            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Bills</span>
             <Receipt className="w-4 h-4 text-amber-400" />
           </div>
           <div className="my-2">
@@ -258,21 +258,21 @@ export function FinanceDashboard({
               {currency}{totalBills.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </div>
             <p className="text-[11px] text-stone mt-1">
-              {monthBills.filter((b) => b.paid).length} of {monthBills.length} bills settled
+              {monthBills.filter((b) => b.paid).length} of {monthBills.length} bills paid
             </p>
           </div>
           <button
             onClick={() => setShowBillUpload(true)}
-            className="text-[11px] text-gold hover:underline font-medium flex items-center gap-1 self-start"
+            className="text-[11px] text-gold hover:underline font-medium flex items-center gap-1 self-start cursor-pointer"
           >
-            <Camera className="w-3 h-3" /> Scan with OCR
+            <Camera className="w-3 h-3" /> Add or Scan Bill
           </button>
         </div>
 
         {/* Daily Expenses Card */}
         <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Daily Outflows</span>
+            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Daily Spending</span>
             <DollarSign className="w-4 h-4 text-rose-400" />
           </div>
           <div className="my-2">
@@ -280,18 +280,18 @@ export function FinanceDashboard({
               {currency}{totalDailyExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </div>
             <p className="text-[11px] text-stone mt-1">
-              Variable & discretionary spend
+              Everyday purchases this month
             </p>
           </div>
           <span className="text-[11px] text-muted font-mono">
-            Total Out: {currency}{totalOutflows.toFixed(0)}
+            Total Spent: {currency}{totalOutflows.toFixed(0)}
           </span>
         </div>
 
         {/* Net Savings & Savings Rate */}
         <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Net Sovereign Savings</span>
+            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Total Saved</span>
             <TrendingUp className={`w-4 h-4 ${netSavings >= 0 ? "text-emerald-400" : "text-rose-400"}`} />
           </div>
           <div className="my-2">
@@ -393,18 +393,18 @@ export function FinanceDashboard({
             <div>
               <h3 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-amber-400" />
-                Monthly Recurring Bills & Invoices
+                Monthly Bills
               </h3>
               <p className="text-[11px] text-stone mt-0.5">
-                Scan bills with Claude Vision or track payment status
+                Add recurring bills or scan receipts with your camera
               </p>
             </div>
             <button
               onClick={() => setShowBillUpload(!showBillUpload)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-elevated hover:bg-surface border border-border rounded-lg text-xs font-medium text-stone hover:text-ivory transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 bg-elevated hover:bg-surface border border-border rounded-lg text-xs font-medium text-stone hover:text-ivory transition-colors cursor-pointer"
             >
               <Camera className="w-3.5 h-3.5 text-gold" />
-              <span>{showBillUpload ? "Close Scanner" : "Scan Bill"}</span>
+              <span>{showBillUpload ? "Close Scanner" : "Add / Scan Bill"}</span>
             </button>
           </div>
 
@@ -477,9 +477,9 @@ export function FinanceDashboard({
           <div className="pb-2 border-b border-border/80">
             <h3 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
               <PieIcon className="w-4 h-4 text-gold" />
-              Outflows Distribution
+              Spending by Category
             </h3>
-            <p className="text-[11px] text-stone mt-0.5">Category allocation</p>
+            <p className="text-[11px] text-stone mt-0.5">Where your money went this month</p>
           </div>
 
           <div className="h-56 w-full flex items-center justify-center my-2">
@@ -545,10 +545,10 @@ export function FinanceDashboard({
           <div>
             <h3 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-gold" />
-              Daily Variable Expenses
+              Daily Spending
             </h3>
             <p className="text-[11px] text-stone mt-0.5">
-              Quickly record outflows as they happen
+              Quickly record everyday spending
             </p>
           </div>
         </div>
@@ -572,9 +572,9 @@ export function FinanceDashboard({
           >
             <option value="Food">Food & Groceries</option>
             <option value="Transit">Transit & Fuel</option>
-            <option value="Shopping">Discretionary / Shopping</option>
+            <option value="Shopping">Shopping & Discretionary</option>
             <option value="Entertainment">Entertainment</option>
-            <option value="Rent">Rent / Housing</option>
+            <option value="Rent">Rent & Housing</option>
             <option value="Other">Other</option>
           </select>
           <input
@@ -588,9 +588,9 @@ export function FinanceDashboard({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-1.5 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50"
+            className="px-4 py-1.5 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {isSubmitting ? "Logging..." : "Log Expense"}
+            {isSubmitting ? "Adding..." : "Add Expense"}
           </button>
         </form>
 

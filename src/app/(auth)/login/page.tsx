@@ -16,20 +16,20 @@ export default function LoginPage() {
             <Shield size={20} />
           </div>
           <h1 className="font-serif text-3xl tracking-[0.2em] uppercase mb-1.5 text-[#f2f0ea]">The Warden</h1>
-          <p className="font-mono text-[10px] tracking-widest text-[#9a9a96] uppercase">Lithos Authentication Ledger</p>
+          <p className="font-mono text-[11px] tracking-wider text-[#9a9a96]">Track your daily habits and stay disciplined.</p>
         </div>
         
         <form action={login} className="space-y-6">
           <Input
-            label="Enlisted Email"
+            label="Email"
             type="email"
             name="email"
             required
-            placeholder="operative@discipline.io"
+            placeholder="you@example.com"
           />
           
           <Input
-            label="Passphrase"
+            label="Password"
             type="password"
             name="password"
             required
@@ -40,17 +40,17 @@ export default function LoginPage() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full py-3.5 text-xs font-mono uppercase tracking-widest"
+              className="w-full py-3.5 text-xs font-mono uppercase tracking-widest cursor-pointer"
             >
-              Access Ledger
+              Log In
             </Button>
           </div>
         </form>
         
         <div className="mt-8 text-center font-mono text-xs text-[#9a9a96]">
-          No active protocol?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-[#c8a96b] hover:text-[#f2f0ea] transition-colors underline underline-offset-4">
-            Register Enlistment
+            Sign Up
           </Link>
         </div>
       </Card>

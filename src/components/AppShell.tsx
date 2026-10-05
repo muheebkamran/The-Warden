@@ -34,7 +34,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 The Warden
               </span>
               <span className="font-mono text-[9px] tracking-widest text-[#9a9a96] uppercase -mt-0.5">
-                Lithos Engine
+                Daily Accountability
               </span>
             </div>
           </div>
@@ -43,9 +43,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Right Status Readout */}
         <div className="hidden sm:flex items-center gap-3 font-mono text-[10px] tracking-widest text-[#9a9a96] uppercase">
           <span className="w-2 h-2 rounded-full bg-[#7fa889] animate-pulse" />
-          <span>LEDGER: ACTIVE</span>
-          <span className="text-[#3a3244]">|</span>
-          <span className="text-[#c8a96b]">V2.4</span>
+          <span>ONLINE</span>
         </div>
       </header>
 

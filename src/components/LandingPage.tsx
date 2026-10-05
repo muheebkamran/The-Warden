@@ -5,17 +5,16 @@ import Link from "next/link";
 import { 
   Flame, 
   Wallet, 
-  BookOpen, 
   ArrowRight, 
-  ChevronRight, 
   Menu, 
   X, 
   Shield, 
-  CheckCircle2, 
+  Check, 
   Sparkles, 
-  Clock, 
   TrendingUp,
-  Receipt
+  Receipt,
+  HeartHandshake,
+  CalendarCheck
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -67,7 +66,7 @@ export default function LandingPage() {
                 The Warden
               </span>
               <span className="font-mono text-[9px] tracking-widest text-[#9a9a96] uppercase -mt-1">
-                Lithos Engine
+                Keep Your Word
               </span>
             </div>
           </Link>
@@ -76,28 +75,34 @@ export default function LandingPage() {
         {/* Center Pill Nav (Desktop) */}
         <nav className="hidden md:flex items-center gap-1 px-4 py-1.5 rounded-full bg-[#131519]/80 border border-[#292c32] shadow-inner text-xs font-medium text-[#9a9a96]">
           <a 
-            href="#iron-rule" 
+            href="#the-70-rule" 
             className="px-3 py-1 rounded-full hover:text-[#f2f0ea] hover:bg-[#1a1d22] transition-all duration-200"
           >
-            The Iron Rule
+            The 70% Rule
           </a>
           <a 
-            href="#financial-telemetry" 
+            href="#grace-days" 
             className="px-3 py-1 rounded-full hover:text-[#f2f0ea] hover:bg-[#1a1d22] transition-all duration-200"
           >
-            Financial Telemetry
+            Grace Days
           </a>
           <a 
-            href="#reading-room" 
+            href="#money" 
             className="px-3 py-1 rounded-full hover:text-[#f2f0ea] hover:bg-[#1a1d22] transition-all duration-200"
           >
-            The Reading Room
+            Money &amp; Bills
+          </a>
+          <a 
+            href="#faq" 
+            className="px-3 py-1 rounded-full hover:text-[#f2f0ea] hover:bg-[#1a1d22] transition-all duration-200"
+          >
+            How It Works
           </a>
           <Link 
             href="/demo" 
             className="px-3 py-1 rounded-full hover:text-[#c8a96b] hover:bg-[#1a1d22] transition-all duration-200"
           >
-            Live Preview
+            Demo
           </Link>
         </nav>
 
@@ -105,13 +110,13 @@ export default function LandingPage() {
         <div className="hidden md:flex items-center gap-4">
           <Link 
             href="/login" 
-            className="text-xs uppercase tracking-wider font-mono text-[#9a9a96] hover:text-[#f2f0ea] transition-colors duration-200 px-3 py-2"
+            className="text-xs uppercase tracking-wider font-mono text-[#9a9a96] hover:text-[#f2f0ea] transition-colors duration-200 px-3 py-2 cursor-pointer"
           >
             Log In
           </Link>
           <Link 
             href="/register" 
-            className="px-5 py-2 rounded-full bg-[#f2f0ea] text-[#0b0c0e] font-semibold text-xs tracking-wider uppercase hover:bg-[#c8a96b] hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 shadow-sm"
+            className="px-5 py-2 rounded-full bg-[#f2f0ea] text-[#0b0c0e] font-semibold text-xs tracking-wider uppercase hover:bg-[#c8a96b] hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 shadow-sm cursor-pointer"
           >
             Sign Up
           </Link>
@@ -121,7 +126,7 @@ export default function LandingPage() {
         <div className="md:hidden flex items-center">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-[#9a9a96] hover:text-[#f2f0ea] focus:outline-none"
+            className="p-2 text-[#9a9a96] hover:text-[#f2f0ea] focus:outline-none cursor-pointer"
             aria-label="Toggle Navigation Menu"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -134,25 +139,32 @@ export default function LandingPage() {
         <div className="md:hidden fixed inset-x-0 top-16 z-40 bg-[#0b0c0e]/95 backdrop-blur-2xl border-b border-[#292c32] p-6 space-y-4 animate-fade-in">
           <nav className="flex flex-col space-y-3 font-mono text-xs uppercase tracking-wider text-[#9a9a96]">
             <a 
-              href="#iron-rule" 
+              href="#the-70-rule" 
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 hover:text-[#f2f0ea]"
             >
-              The Iron Rule
+              The 70% Rule
             </a>
             <a 
-              href="#financial-telemetry" 
+              href="#grace-days" 
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 hover:text-[#f2f0ea]"
             >
-              Financial Telemetry
+              Grace Days
             </a>
             <a 
-              href="#reading-room" 
+              href="#money" 
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 hover:text-[#f2f0ea]"
             >
-              The Reading Room
+              Money &amp; Bills
+            </a>
+            <a 
+              href="#faq" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2 hover:text-[#f2f0ea]"
+            >
+              How It Works
             </a>
             <Link 
               href="/demo" 
@@ -183,7 +195,7 @@ export default function LandingPage() {
       <section 
         ref={heroRef}
         onMouseMove={handleMouseMove}
-        className="relative min-h-[92vh] md:min-h-screen pt-24 md:pt-28 flex flex-col justify-between px-6 sm:px-12 md:px-16 overflow-hidden cursor-crosshair border-b border-[#292c32]"
+        className="relative min-h-[90vh] md:min-h-screen pt-24 md:pt-28 flex flex-col justify-between px-6 sm:px-12 md:px-16 overflow-hidden cursor-crosshair border-b border-[#292c32]"
       >
         {/* Background Architectural Grid Pattern */}
         <div 
@@ -206,7 +218,6 @@ export default function LandingPage() {
             background: "radial-gradient(circle at center, #1b1e25 0%, #101216 100%)",
           }}
         >
-          {/* Lithos Etched Stone Topography / Circuit Telemetry Grid */}
           <div 
             className="absolute inset-0 opacity-40 mix-blend-color-dodge"
             style={{
@@ -229,29 +240,29 @@ export default function LandingPage() {
           }}
         />
 
-        {/* Telemetry Header Line */}
+        {/* Status Header Line */}
         <div className="relative z-10 pt-4 flex flex-wrap items-center justify-between gap-4 font-mono text-[10px] sm:text-xs tracking-widest text-[#9a9a96] uppercase">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#7fa889] animate-pulse" />
-            <span>CORE PROTOCOL // OPERATIONAL</span>
+            <span>DAILY HABITS &amp; MONEY SYSTEM</span>
           </div>
           <div className="hidden sm:flex items-center gap-6">
-            <span>GRID: 37°46&apos;N 122°25&apos;W</span>
-            <span>SYSTEM: ZERO COMPROMISE</span>
+            <span>CONSISTENCY OVER PERFECTION</span>
+            <span>NO FLUFF</span>
           </div>
         </div>
 
-        {/* Hero Title & Staggered Monolithic Header */}
-        <div className="relative z-10 my-auto py-12 md:py-16 max-w-5xl">
+        {/* Hero Title & Main Hook */}
+        <div className="relative z-10 my-auto py-12 md:py-16 max-w-4xl">
           <p 
             className="font-mono text-xs sm:text-sm tracking-[0.25em] text-[#c8a96b] uppercase mb-4 opacity-0 animate-fade-in"
             style={{ animationDelay: "150ms", animationFillMode: "forwards" }}
           >
-            [ THE DISCIPLINE OPERATING SYSTEM ]
+            [ PERSONAL DISCIPLINE &amp; ACCOUNTABILITY ]
           </p>
 
           <h1 
-            className="font-serif italic font-normal tracking-tight text-6xl sm:text-8xl md:text-9xl lg:text-[110px] leading-[0.9] text-[#f2f0ea] opacity-0 animate-blur-rise"
+            className="font-serif italic font-normal tracking-tight text-6xl sm:text-8xl md:text-9xl lg:text-[105px] leading-[0.95] text-[#f2f0ea] opacity-0 animate-blur-rise"
             style={{ animationDelay: "250ms", animationFillMode: "forwards" }}
           >
             The Warden
@@ -261,105 +272,111 @@ export default function LandingPage() {
             className="mt-6 text-xl sm:text-2xl md:text-3xl font-light text-[#9a9a96] tracking-wide opacity-0 animate-blur-rise"
             style={{ animationDelay: "420ms", animationFillMode: "forwards" }}
           >
-            Iron discipline, refined.
+            Keep your word every day.
+          </p>
+
+          <p 
+            className="mt-4 text-sm sm:text-base text-[#9a9a96] max-w-xl font-normal leading-relaxed opacity-0 animate-slide-up"
+            style={{ animationDelay: "550ms", animationFillMode: "forwards" }}
+          >
+            Track your daily habits and bills in a calm, distraction-free space. Complete 70% of your daily habits to keep your streak alive. Miss a day? Your free grace day has your back.
           </p>
         </div>
 
-        {/* Bottom Hero Info Block (Asymmetric Placement) */}
+        {/* Bottom Hero Action Block */}
         <div className="relative z-10 pb-10 sm:pb-14 flex flex-col md:flex-row items-start md:items-end justify-between gap-8 pt-8 border-t border-[#292c32]/50">
-          {/* Bottom Left Paragraph */}
           <div 
-            className="max-w-[280px] font-mono text-xs leading-relaxed text-[#9a9a96] opacity-0 animate-slide-up"
+            className="max-w-[320px] font-mono text-xs leading-relaxed text-[#9a9a96] opacity-0 animate-slide-up"
             style={{ animationDelay: "700ms", animationFillMode: "forwards" }}
           >
-            <p className="border-l border-[#c8a96b]/60 pl-3">
-              Every layer of discipline records what you forged under pressure. The Warden holds the ledger.
+            <p className="border-l-2 border-[#c8a96b]/60 pl-3">
+              No points, no ads, no fake motivation. Just clear daily proof that you did what you said you would do.
             </p>
           </div>
 
-          {/* Bottom Right Action Block */}
           <div 
-            className="flex flex-col sm:flex-row items-start sm:items-center gap-5 opacity-0 animate-slide-up"
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-0 animate-slide-up"
             style={{ animationDelay: "850ms", animationFillMode: "forwards" }}
           >
-            <div className="font-mono text-xs text-[#9a9a96] max-w-[240px] text-left md:text-right">
-              Precision telemetry. Zero motivational fluff.
-            </div>
-
             <Link
               href="/register"
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-md bg-[#e8702a] text-[#0b0c0e] font-semibold text-xs tracking-widest font-mono uppercase hover:scale-[1.03] active:scale-[0.95] transition-transform duration-150 shadow-md shadow-[#e8702a]/10"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-md bg-[#c8a96b] text-[#0b0c0e] font-semibold text-xs tracking-widest font-mono uppercase hover:scale-[1.03] active:scale-[0.95] transition-transform duration-150 shadow-md shadow-[#c8a96b]/15 cursor-pointer"
             >
-              <span>Start Forging</span>
+              <span>Get Started Free</span>
               <ArrowRight size={14} />
+            </Link>
+            <Link
+              href="/demo"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-md border border-[#3a3244] hover:border-[#c8a96b] text-[#f2f0ea] font-medium text-xs tracking-widest font-mono uppercase hover:bg-[#131519] transition-all duration-150 cursor-pointer"
+            >
+              <span>Explore Demo</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── 3-PILLAR BENTO GRID SECTION ─────────────────────────────────── */}
-      <section className="py-24 sm:py-32 px-6 sm:px-12 md:px-16 max-w-7xl mx-auto">
-        <div className="mb-16">
+      {/* ─── 3 CORE PILLARS (Interactive Cards with -8px Hover Lift) ───────── */}
+      <section className="py-20 sm:py-28 px-6 sm:px-12 md:px-16 max-w-7xl mx-auto">
+        <div className="mb-14">
           <div className="flex items-center gap-2 font-mono text-xs tracking-[0.2em] text-[#c8a96b] uppercase mb-2">
-            <span>PILLARS OF EXECUTION</span>
+            <span>HOW IT WORKS</span>
             <span className="w-12 h-px bg-[#c8a96b]/40" />
           </div>
           <h2 className="font-serif text-3xl sm:text-5xl text-[#f2f0ea] tracking-tight">
-            Engineered for relentless consistency.
+            Designed for real consistency.
           </h2>
           <p className="text-[#9a9a96] text-sm sm:text-base mt-2 max-w-2xl font-light">
-            Designed under strict industrial-brutalist principles. Every module is purpose-built to enforce your commitments without cognitive friction.
+            Everything in The Warden is built to help you make steady progress without burning out.
           </p>
         </div>
 
-        {/* Bento Grid: Asymmetric 2-column & wide arrangement */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* 3 Interactive Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          {/* ── CARD 1: THE IRON RULE (Wide 7 cols) ── */}
+          {/* CARD 1: THE 70% RULE */}
           <div 
-            id="iron-rule"
-            className="lg:col-span-7 bg-[#131519]/90 border border-[#3a3244] rounded-lg p-7 sm:p-9 flex flex-col justify-between hover:border-[#c8a96b]/60 transition-colors duration-200 group"
+            id="the-70-rule"
+            className="bg-[#131519]/90 border border-[#3a3244] rounded-xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:border-[#c8a96b]/60 hover:bg-[#1a1d22] transition-all duration-200 group cursor-pointer shadow-lg"
           >
             <div>
-              <div className="flex items-center justify-between font-mono text-[11px] text-[#9a9a96] uppercase tracking-wider mb-6">
+              <div className="flex items-center justify-between font-mono text-[10px] text-[#9a9a96] uppercase tracking-wider mb-5">
                 <span className="px-2.5 py-1 rounded bg-[#1a1d22] border border-[#292c32] text-[#c8a96b]">
                   RULE // 01
                 </span>
-                <span>THRESHOLD: 70%</span>
+                <span>TARGET: 70%</span>
               </div>
 
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b]">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b] group-hover:scale-105 transition-transform">
                   <Flame size={20} />
                 </div>
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#f2f0ea]">
-                  The Iron Rule
+                <h3 className="font-serif text-2xl text-[#f2f0ea]">
+                  The 70% Rule
                 </h3>
               </div>
 
-              <p className="text-sm text-[#9a9a96] leading-relaxed mb-8">
-                The 70% daily discipline threshold guarantees progress without unrealistic perfectionism. Miss one day and activate a grace buffer. Miss two consecutive days, and your streak burns to zero.
+              <p className="text-sm text-[#9a9a96] leading-relaxed mb-6 font-sans">
+                You don&apos;t have to be 100% perfect every single day. Complete 70% of your daily habits, and your streak keeps climbing. This gives you freedom to succeed even on busy days.
               </p>
             </div>
 
-            {/* Telemetry Mockup Card */}
-            <div className="bg-[#0b0c0e] border border-[#292c32] rounded-md p-5 font-mono text-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-[#292c32] pb-3">
-                <span className="text-[#9a9a96]">STREAK STATUS</span>
+            {/* Interactive Preview Mockup */}
+            <div className="bg-[#0b0c0e] border border-[#292c32] rounded-lg p-4 font-mono text-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-[#292c32] pb-2">
+                <span className="text-[#9a9a96]">YOUR STREAK</span>
                 <span className="text-[#c8a96b] font-bold flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#c8a96b] animate-ping" />
+                  <span className="w-2 h-2 rounded-full bg-[#c8a96b] animate-pulse" />
                   14 DAYS ACTIVE
                 </span>
               </div>
 
-              {/* Threshold Progress Bar */}
               <div className="space-y-1.5">
                 <div className="flex justify-between text-[11px] text-[#9a9a96]">
-                  <span>DISCIPLINE TARGET</span>
-                  <span className="text-[#7fa889]">4 / 5 COMPLETED (80%)</span>
+                  <span>HABITS DONE</span>
+                  <span className="text-[#7fa889]">4 of 5 (80%) ✓</span>
                 </div>
-                <div className="w-full h-2 bg-[#1a1d22] rounded-full overflow-hidden flex">
-                  <div className="h-full bg-[#c8a96b] rounded-full w-[80%] transition-all duration-500" />
+                <div className="w-full h-2 bg-[#1a1d22] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#7fa889] rounded-full w-[80%]" />
                 </div>
                 <div className="flex justify-between text-[9px] text-[#62646a]">
                   <span>0%</span>
@@ -367,127 +384,90 @@ export default function LandingPage() {
                   <span>100%</span>
                 </div>
               </div>
-
-              {/* Live Commitments Feed */}
-              <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-                <div className="bg-[#131519] p-2 rounded border border-[#292c32] flex items-center justify-between">
-                  <span className="text-[#9a9a96]">Deep Reading</span>
-                  <span className="text-[#7fa889]">45m ✓</span>
-                </div>
-                <div className="bg-[#131519] p-2 rounded border border-[#292c32] flex items-center justify-between">
-                  <span className="text-[#9a9a96]">Technical Lecture</span>
-                  <span className="text-[#7fa889]">DONE ✓</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* ── CARD 2: FINANCIAL TELEMETRY (5 cols) ── */}
+          {/* CARD 2: GRACE DAYS */}
           <div 
-            id="financial-telemetry"
-            className="lg:col-span-5 bg-[#131519]/90 border border-[#3a3244] rounded-lg p-7 sm:p-9 flex flex-col justify-between hover:border-[#c8a96b]/60 transition-colors duration-200 group"
+            id="grace-days"
+            className="bg-[#131519]/90 border border-[#3a3244] rounded-xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:border-[#c8a96b]/60 hover:bg-[#1a1d22] transition-all duration-200 group cursor-pointer shadow-lg"
           >
             <div>
-              <div className="flex items-center justify-between font-mono text-[11px] text-[#9a9a96] uppercase tracking-wider mb-6">
+              <div className="flex items-center justify-between font-mono text-[10px] text-[#9a9a96] uppercase tracking-wider mb-5">
                 <span className="px-2.5 py-1 rounded bg-[#1a1d22] border border-[#292c32] text-[#c8a96b]">
-                  TELEMETRY // 02
+                  PROTECTION // 02
                 </span>
-                <span>AI VISION OCR</span>
+                <span>FREE BUFFER</span>
               </div>
 
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b]">
-                  <Receipt size={20} />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b] group-hover:scale-105 transition-transform">
+                  <HeartHandshake size={20} />
                 </div>
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#f2f0ea]">
-                  Financial Telemetry
+                <h3 className="font-serif text-2xl text-[#f2f0ea]">
+                  Grace Days
                 </h3>
               </div>
 
-              <p className="text-sm text-[#9a9a96] leading-relaxed mb-6">
-                Automated bill photo parsing powered by Claude 3.5 Sonnet Vision. Track monthly burn velocity with dual line and cumulative area burn curves.
+              <p className="text-sm text-[#9a9a96] leading-relaxed mb-6 font-sans">
+                Miss one day? No problem. You get 1 free grace day automatically. A busy day or an illness won&apos;t erase weeks of hard work. Only missing two days in a row resets your streak.
               </p>
             </div>
 
-            {/* Financial Telemetry Preview */}
-            <div className="bg-[#0b0c0e] border border-[#292c32] rounded-md p-5 font-mono text-xs space-y-3.5">
-              <div className="flex justify-between items-center text-[11px]">
-                <span className="text-[#9a9a96]">MTD BURN RATE</span>
-                <span className="text-[#f2f0ea] font-semibold">$2,410.00</span>
+            {/* Interactive Preview Mockup */}
+            <div className="bg-[#0b0c0e] border border-[#292c32] rounded-lg p-4 font-mono text-xs space-y-3">
+              <div className="p-2.5 rounded bg-[#c99a54]/10 border border-[#c99a54]/30 text-[#c99a54] text-[11px] flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#c99a54] animate-ping" />
+                <span>1 Free Grace Day Active</span>
               </div>
-
-              {/* Sparkline Graphic Mockup */}
-              <div className="h-14 w-full bg-[#131519] rounded border border-[#292c32] p-2 flex items-end justify-between gap-1">
-                {[20, 35, 25, 45, 30, 60, 50, 75, 40, 85, 65, 95].map((h, i) => (
-                  <div 
-                    key={i} 
-                    className="flex-1 bg-[#c8a96b]/30 hover:bg-[#c8a96b] rounded-t-xs transition-colors duration-150"
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
-              </div>
-
-              <div className="bg-[#1a1d22] px-2.5 py-1.5 rounded flex items-center justify-between text-[10px] text-[#9a9a96]">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles size={11} className="text-[#c8a96b]" />
-                  Claude OCR Engine
-                </span>
-                <span className="text-[#7fa889]">AUTO-PARSED</span>
-              </div>
+              <p className="text-[11px] text-[#9a9a96] font-sans">
+                Missed yesterday? Your 14-day streak is protected today. Complete your habits today to keep going!
+              </p>
             </div>
           </div>
 
-          {/* ── CARD 3: THE READING ROOM (Full 12 cols span) ── */}
+          {/* CARD 3: MONEY & BILLS */}
           <div 
-            id="reading-room"
-            className="lg:col-span-12 bg-[#131519]/90 border border-[#3a3244] rounded-lg p-7 sm:p-9 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 hover:border-[#c8a96b]/60 transition-colors duration-200 group"
+            id="money"
+            className="bg-[#131519]/90 border border-[#3a3244] rounded-xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:border-[#c8a96b]/60 hover:bg-[#1a1d22] transition-all duration-200 group cursor-pointer shadow-lg"
           >
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 font-mono text-[11px] text-[#9a9a96] uppercase tracking-wider mb-4">
+            <div>
+              <div className="flex items-center justify-between font-mono text-[10px] text-[#9a9a96] uppercase tracking-wider mb-5">
                 <span className="px-2.5 py-1 rounded bg-[#1a1d22] border border-[#292c32] text-[#c8a96b]">
-                  ARCHIVE // 03
+                  FINANCE // 03
                 </span>
-                <span>CLOUDFLARE R2 SECURE VAULT</span>
+                <span>MONEY &amp; BILLS</span>
               </div>
 
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b]">
-                  <BookOpen size={20} />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b] group-hover:scale-105 transition-transform">
+                  <Wallet size={20} />
                 </div>
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#f2f0ea]">
-                  The Reading Room
+                <h3 className="font-serif text-2xl text-[#f2f0ea]">
+                  Money &amp; Bills
                 </h3>
               </div>
 
-              <p className="text-sm text-[#9a9a96] leading-relaxed">
-                A sanctuary for deep study. Drag-and-drop any PDF; our server automatically extracts metadata, stores the file in Cloudflare R2, and tracks active reading timers that auto-fulfill your daily reading commitments.
+              <p className="text-sm text-[#9a9a96] leading-relaxed mb-6 font-sans">
+                Track your monthly bills and daily spending in the exact same place. Snap photos of receipts or type them in to see your total savings and spending trends clearly.
               </p>
             </div>
 
-            {/* Reading Room Session Telemetry Card */}
-            <div className="w-full md:w-[380px] bg-[#0b0c0e] border border-[#292c32] rounded-md p-5 font-mono text-xs space-y-3.5">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-[10px] text-[#c8a96b] tracking-wider uppercase">CURRENT TOME</div>
-                  <div className="font-sans text-sm font-semibold text-[#f2f0ea] mt-0.5">Deep Work</div>
-                  <div className="text-[10px] text-[#9a9a96]">Cal Newport</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-[#9a9a96]">PROGRESS</div>
-                  <div className="text-xs text-[#c8a96b] font-semibold">PAGE 142 / 304</div>
-                </div>
+            {/* Interactive Preview Mockup */}
+            <div className="bg-[#0b0c0e] border border-[#292c32] rounded-lg p-4 font-mono text-xs space-y-2.5">
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-[#9a9a96]">TOTAL SAVED THIS MONTH</span>
+                <span className="text-emerald-400 font-bold">+$1,090.00</span>
               </div>
-
-              <div className="w-full h-1.5 bg-[#1a1d22] rounded-full overflow-hidden">
-                <div className="h-full bg-[#c8a96b] w-[46.7%]" />
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-[#9a9a96]">BILLS SETTLED</span>
+                <span className="text-[#c8a96b]">3 of 3 Paid ✓</span>
               </div>
-
-              <div className="bg-[#131519] p-3 rounded border border-[#292c32] flex items-center justify-between">
-                <div className="flex items-center gap-2 text-stone">
-                  <Clock size={14} className="text-[#c8a96b]" />
-                  <span className="text-[11px]">ACTIVE SESSION</span>
-                </div>
-                <span className="text-[#f2f0ea] font-bold">38:45</span>
+              <div className="w-full bg-[#1a1d22] rounded-full h-1.5 overflow-hidden">
+                <div className="bg-emerald-400 h-full rounded-full w-[45%]" />
+              </div>
+              <div className="text-[10px] text-[#62646a] text-right">
+                Savings Rate: 45%
               </div>
             </div>
           </div>
@@ -495,33 +475,86 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── FAQ / HOW IT WORKS SECTION (Simple Q&A) ───────────────────────── */}
+      <section id="faq" className="py-20 sm:py-28 px-6 sm:px-12 md:px-16 max-w-4xl mx-auto border-t border-[#292c32]/60">
+        <div className="text-center mb-16">
+          <div className="inline-block px-3 py-1 rounded-full bg-[#1a1d22] border border-[#3a3244] font-mono text-[10px] text-[#c8a96b] tracking-widest uppercase mb-3">
+            QUESTIONS &amp; ANSWERS
+          </div>
+          <h2 className="font-serif text-3xl sm:text-4xl text-[#f2f0ea]">
+            Everything you need to know
+          </h2>
+          <p className="text-[#9a9a96] text-sm mt-2">
+            Clear, honest answers. No complicated jargon.
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-[#131519]/70 border border-[#292c32] rounded-xl p-6 hover:border-[#3a3244] transition-colors">
+            <h3 className="font-serif text-lg text-[#f2f0ea] mb-2">
+              What is The Warden?
+            </h3>
+            <p className="text-[#9a9a96] text-sm leading-relaxed font-sans">
+              The Warden is a personal daily tracker designed to help you stay honest with yourself. It combines habit tracking and personal bill tracking into one clean, dark dashboard.
+            </p>
+          </div>
+
+          <div className="bg-[#131519]/70 border border-[#292c32] rounded-xl p-6 hover:border-[#3a3244] transition-colors">
+            <h3 className="font-serif text-lg text-[#f2f0ea] mb-2">
+              How does the streak counter work?
+            </h3>
+            <p className="text-[#9a9a96] text-sm leading-relaxed font-sans">
+              Each day you set your habits (like reading for 20 minutes, working out, or drinking water). If you finish at least 70% of them by the end of the day, your streak goes up by 1.
+            </p>
+          </div>
+
+          <div className="bg-[#131519]/70 border border-[#292c32] rounded-xl p-6 hover:border-[#3a3244] transition-colors">
+            <h3 className="font-serif text-lg text-[#f2f0ea] mb-2">
+              What happens if I miss a day?
+            </h3>
+            <p className="text-[#9a9a96] text-sm leading-relaxed font-sans">
+              You get one free grace day. That means if you miss yesterday, your streak is still safe today. You just need to show up and complete your habits today. If you miss two days in a row, your streak resets to zero.
+            </p>
+          </div>
+
+          <div className="bg-[#131519]/70 border border-[#292c32] rounded-xl p-6 hover:border-[#3a3244] transition-colors">
+            <h3 className="font-serif text-lg text-[#f2f0ea] mb-2">
+              Why is money tracking included with habits?
+            </h3>
+            <p className="text-[#9a9a96] text-sm leading-relaxed font-sans">
+              Discipline isn&apos;t just about morning routines; it&apos;s also about being responsible with your money. Having your monthly bills and daily spending right next to your daily habits gives you a complete view of your life in one place.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ─── CALL TO ACTION SECTION ──────────────────────────────────────── */}
-      <section className="py-24 sm:py-32 px-6 sm:px-12 border-t border-[#292c32] bg-[#0f1115]/50 relative overflow-hidden">
+      <section className="py-24 sm:py-32 px-6 sm:px-12 border-t border-[#292c32] bg-[#0f1115]/60 relative overflow-hidden">
         <div className="max-w-3xl mx-auto text-center space-y-8 relative z-10">
-          <div className="inline-block px-3 py-1 rounded-full bg-[#1a1d22] border border-[#3a3244] font-mono text-xs text-[#c8a96b] tracking-widest uppercase">
-            ACCOUNTABILITY AWAITS
+          <div className="inline-block px-3.5 py-1 rounded-full bg-[#1a1d22] border border-[#3a3244] font-mono text-xs text-[#c8a96b] tracking-widest uppercase">
+            START YOUR STREAK
           </div>
 
           <h2 className="font-serif text-4xl sm:text-6xl text-[#f2f0ea] tracking-tight">
-            Ready to build discipline?
+            Ready to build habits that stick?
           </h2>
 
           <p className="text-[#9a9a96] text-base sm:text-lg max-w-xl mx-auto font-light leading-relaxed">
-            No motivational platitudes. Just cold mathematics, uncompromising telemetry, and daily execution.
+            No endless notifications. Just a calm, daily system to help you show up and keep your word.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/register"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-md bg-[#c8a96b] text-[#0b0c0e] font-semibold text-xs tracking-widest font-mono uppercase hover:scale-[1.03] active:scale-[0.98] transition-transform duration-150 shadow-md shadow-[#c8a96b]/10 text-center"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-md bg-[#c8a96b] text-[#0b0c0e] font-semibold text-xs tracking-widest font-mono uppercase hover:scale-[1.03] active:scale-[0.98] transition-transform duration-150 shadow-md shadow-[#c8a96b]/15 text-center cursor-pointer"
             >
-              Get Started
+              Sign Up Free
             </Link>
             <Link
               href="/demo"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-md border border-[#3a3244] text-[#f2f0ea] font-medium text-xs tracking-widest font-mono uppercase hover:border-[#f2f0ea] hover:scale-[1.03] active:scale-[0.98] transition-all duration-150 text-center"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-md border border-[#3a3244] text-[#f2f0ea] font-medium text-xs tracking-widest font-mono uppercase hover:border-[#f2f0ea] hover:scale-[1.03] active:scale-[0.98] transition-all duration-150 text-center cursor-pointer"
             >
-              See Demo
+              See Live Demo
             </Link>
           </div>
         </div>
@@ -538,12 +571,12 @@ export default function LandingPage() {
               The Warden
             </span>
             <span className="text-[#62646a]">|</span>
-            <span className="text-[10px] text-[#62646a]">DISCIPLINE OPERATING SYSTEM</span>
+            <span className="text-[10px] text-[#62646a]">KEEP YOUR WORD</span>
           </div>
 
           <div className="flex items-center gap-6 text-[11px]">
-            <Link href="/login" className="hover:text-[#f2f0ea] transition-colors">Login</Link>
-            <Link href="/register" className="hover:text-[#f2f0ea] transition-colors">Register</Link>
+            <Link href="/login" className="hover:text-[#f2f0ea] transition-colors">Log In</Link>
+            <Link href="/register" className="hover:text-[#f2f0ea] transition-colors">Sign Up</Link>
             <Link href="/demo" className="hover:text-[#f2f0ea] transition-colors">Demo</Link>
             <a 
               href="https://github.com/muheebkamran/The-Warden" 
@@ -556,7 +589,7 @@ export default function LandingPage() {
           </div>
 
           <div className="text-[10px] text-[#62646a]">
-            © 2026 Muheeb Kamran. All rights reserved.
+            &copy; 2026 The Warden. All rights reserved.
           </div>
         </div>
       </footer>

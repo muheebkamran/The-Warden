@@ -114,8 +114,8 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
 
       <header className="progress-section flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[#f2f0ea] tracking-tight">Progress Telemetry</h1>
-          <p className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider mt-1">Consistency analytics &amp; velocity metrics</p>
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#f2f0ea] tracking-tight">Your Progress</h1>
+          <p className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider mt-1">See your streaks and consistency over time</p>
         </div>
       </header>
 
@@ -123,12 +123,12 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
       <section className="progress-section">
         <Card className="p-6 md:p-8 border-[#3a3244]">
           <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#292c32]">
-            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Today&apos;s Breakdown</h2>
-            <span className="font-mono text-[10px] text-[#9a9a96] uppercase">{commitments.length} PROTOCOLS</span>
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Today&apos;s Habits</h2>
+            <span className="font-mono text-[10px] text-[#9a9a96] uppercase">{commitments.length} HABITS</span>
           </div>
 
           {commitments.length === 0 ? (
-            <EmptyState title="No active commitments" description="Create one to see your breakdown." icon={Activity} />
+            <EmptyState title="No active habits" description="Add a habit to start tracking your daily progress." icon={Activity} />
           ) : (
             <div className="space-y-3">
               {commitments.map(c => {
@@ -217,7 +217,7 @@ export function ProgressView({ commitments, allRecords, streakState, todayStr }:
         <section className="progress-section">
           <Card className="p-6 md:p-8 h-full border-[#3a3244]">
             <div className="flex items-center justify-between mb-8 pb-3 border-b border-[#292c32]">
-              <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Heatmap</h2>
+              <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">Monthly Calendar</h2>
               <div className="flex items-center gap-3 bg-[#0b0c0e] rounded-full border border-[#292c32] p-1 px-3">
                 <button onClick={handlePrevMonth} className="text-[#9a9a96] hover:text-[#f2f0ea] transition-colors p-0.5 cursor-pointer" aria-label="Previous Month">
                   <ChevronLeft className="w-3.5 h-3.5" />

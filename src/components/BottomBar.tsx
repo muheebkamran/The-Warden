@@ -12,10 +12,8 @@ export default function BottomBar() {
 
   const navItems = [
     { name: "Today", href: "/dashboard", icon: Calendar },
-    { name: "Habits", href: "/habits", icon: Target },
-    { name: "Reading", href: "/reader", icon: BookOpen },
-    { name: "Finance", href: "/finance", icon: Wallet },
     { name: "Progress", href: "/progress", icon: BarChart3 },
+    { name: "Money", href: "/finance", icon: Wallet },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -53,11 +51,11 @@ export default function BottomBar() {
         })}
         <button
           onClick={() => logout()}
-          className="relative flex flex-col items-center justify-center gap-1 w-14 h-14 group transition-transform active:scale-95"
+          className="relative flex flex-col items-center justify-center gap-1 w-14 h-14 group transition-transform active:scale-95 cursor-pointer"
           aria-label="Logout"
         >
           <LogOut size={18} className="text-[#9a9a96] group-hover:text-[#b56b6b] transition-colors duration-150" />
-          <span className="text-[8px] font-mono tracking-wider uppercase text-[#9a9a96] group-hover:text-[#b56b6b] transition-colors duration-150">Exit</span>
+          <span className="text-[8px] font-mono tracking-wider uppercase text-[#9a9a96] group-hover:text-[#b56b6b] transition-colors duration-150">Log Out</span>
         </button>
       </div>
     </nav>

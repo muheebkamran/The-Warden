@@ -138,7 +138,7 @@ export default function TodayDashboard({ commitments, records, streakState, toda
             </div>
             
             <div className="flex items-center gap-4 font-mono text-xs text-[#9a9a96] uppercase tracking-wider pt-1">
-              <div>Total Kept: <span className="text-[#f2f0ea]">{totalKept}</span></div>
+              <div>Habits Completed: <span className="text-[#f2f0ea]">{totalKept}</span></div>
               <div className="w-1 h-1 rounded-full bg-[#292c32]" />
               <div>Consistency: <span className="text-[#c8a96b]">{consistencyRate}%</span></div>
             </div>
@@ -147,21 +147,21 @@ export default function TodayDashboard({ commitments, records, streakState, toda
 
         {streakState?.graceDayActive && selectedDate === todayStr && (
           <div>
-            <Badge variant="grace" className="px-3 py-1.5">
-              1 GRACE DAY ACTIVE // BUFFER CONSUMED
+            <Badge variant="grace" className="px-3.5 py-1.5 text-xs">
+              1 FREE GRACE DAY USED — Missed yesterday? Your streak is protected!
             </Badge>
           </div>
         )}
 
         {/* Daily Target Progress Bar */}
         <div className="flex flex-col gap-3 bg-[#131519]/90 p-5 rounded-lg border border-[#3a3244]">
-          <div className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider flex justify-between">
-            <span>DISCIPLINE TARGET</span>
-            <span className={positive >= required ? "text-[#7fa889]" : "text-[#c8a96b]"}>
-              {positive} / {required} ({total > 0 ? Math.round((positive / total) * 100) : 0}%)
+          <div className="font-mono text-xs text-[#9a9a96] uppercase tracking-wider flex justify-between items-center">
+            <span>HABITS DONE TODAY</span>
+            <span className={positive >= required ? "text-[#7fa889] font-medium" : "text-[#c8a96b] font-medium"}>
+              {positive} / {required} to pass ({total > 0 ? Math.round((positive / total) * 100) : 0}%)
             </span>
           </div>
-          <div className="w-full h-2 bg-[#0b0c0e] rounded-full overflow-hidden border border-[#292c32]">
+          <div className="w-full h-2.5 bg-[#0b0c0e] rounded-full overflow-hidden border border-[#292c32]">
             <div 
               className={cn(
                 "h-full transition-all duration-500 ease-out rounded-full",
@@ -172,20 +172,23 @@ export default function TodayDashboard({ commitments, records, streakState, toda
           </div>
           <div className="flex justify-between font-mono text-[9px] text-[#62646a] tracking-wider uppercase">
             <span>0%</span>
-            <span className="text-[#c8a96b]">70% THRESHOLD</span>
+            <span className="text-[#c8a96b]">70% TO KEEP STREAK</span>
             <span>100%</span>
           </div>
+          <p className="text-[11px] text-[#9a9a96] font-sans mt-0.5">
+            The 70% Rule: Complete at least {required} of your {total} habits today to keep your streak alive.
+          </p>
         </div>
       </header>
 
-      {/* Daily Reflection Section */}
+      {/* Daily Note Section */}
       <section className="bg-[#131519]/90 border border-[#3a3244] p-6 rounded-lg flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h3 className="font-serif text-xl text-[#f2f0ea]">
-            Daily Reflection
+            Daily Note
           </h3>
           <span className="font-mono text-[9px] text-[#c8a96b] uppercase tracking-widest">
-            LEDGER ENTRY
+            OPTIONAL
           </span>
         </div>
 
@@ -195,7 +198,7 @@ export default function TodayDashboard({ commitments, records, streakState, toda
               value={reflectionText}
               onChange={(e) => setReflectionText(e.target.value)}
               disabled={!editable || isSavingReflection}
-              placeholder="Record your friction, execution, or telemetry for today..."
+              placeholder="Write a quick note about your day, wins, or thoughts..."
               className={cn(
                 "w-full h-24 bg-[#0b0c0e] border border-[#292c32] text-[#f2f0ea] placeholder:text-[#62646a] p-4 rounded-md transition-all duration-150 resize-none text-sm font-sans",
                 "focus:outline-none focus:border-[#c8a96b] focus:ring-1 focus:ring-[#c8a96b]/30",
@@ -209,8 +212,9 @@ export default function TodayDashboard({ commitments, records, streakState, toda
                   size="sm" 
                   onClick={handleSaveReflection}
                   disabled={isSavingReflection}
+                  className="cursor-pointer"
                 >
-                  {isSavingReflection ? "Recording..." : "Save Entry"}
+                  {isSavingReflection ? "Saving..." : "Save Note"}
                 </Button>
               </div>
             )}
@@ -222,17 +226,17 @@ export default function TodayDashboard({ commitments, records, streakState, toda
 
       {positive >= required && total > 0 && (
         <div className="text-[#c8a96b] font-serif italic text-2xl animate-fade-in text-center py-2">
-          Day Complete. You kept your word.
+          Day Complete! You kept your word.
         </div>
       )}
 
-      {/* Main Commitments Feed */}
+      {/* Main Habits Feed */}
       <main className="flex flex-col gap-6">
         {activeCommitments.length === 0 ? (
           <EmptyState 
-            title="No commitments active" 
-            description="Add your first daily discipline rule to begin the ledger."
-            action={<Button variant="primary" onClick={() => setIsAddModalOpen(true)}>Add Commitment</Button>}
+            title="No habits added yet" 
+            description="Add your first daily habit to start tracking your streak."
+            action={<Button variant="primary" onClick={() => setIsAddModalOpen(true)}>Add Habit</Button>}
           />
         ) : (
           <div className="flex flex-col gap-3.5" ref={cardsRef}>
@@ -251,8 +255,8 @@ export default function TodayDashboard({ commitments, records, streakState, toda
             })}
             
             <div className="mt-6 text-center">
-              <Button variant="ghost" size="sm" onClick={() => setIsAddModalOpen(true)}>
-                + Add Commitment
+              <Button variant="ghost" size="sm" onClick={() => setIsAddModalOpen(true)} className="cursor-pointer">
+                + Add Habit
               </Button>
             </div>
           </div>

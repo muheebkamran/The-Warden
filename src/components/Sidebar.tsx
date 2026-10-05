@@ -16,10 +16,8 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
 
   const navItems = [
     { name: "Today", href: "/dashboard", icon: Calendar },
-    { name: "Habits", href: "/habits", icon: Target },
-    { name: "Reading Room", href: "/reader", icon: BookOpen },
-    { name: "Finance", href: "/finance", icon: Wallet },
     { name: "Progress", href: "/progress", icon: BarChart3 },
+    { name: "Money & Bills", href: "/finance", icon: Wallet },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -33,7 +31,7 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
       <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         <div className="px-3 pb-2">
           <p className="font-mono text-[9px] font-semibold text-[#62646a] tracking-[0.2em] uppercase">
-            NAVIGATION // MODULES
+            NAVIGATION
           </p>
         </div>
 
@@ -71,10 +69,10 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
       <div className="p-4 border-t border-[#292c32]">
         <button
           onClick={() => logout()}
-          className="flex w-full flex-row gap-3 items-center px-3.5 py-2.5 text-xs font-mono tracking-wider uppercase rounded-md text-[#9a9a96] hover:text-[#b56b6b] hover:bg-[#b56b6b]/10 border border-transparent hover:border-[#b56b6b]/30 transition-all duration-150 hover:scale-[1.01] active:scale-[0.98]"
+          className="flex w-full flex-row gap-3 items-center px-3.5 py-2.5 text-xs font-mono tracking-wider uppercase rounded-md text-[#9a9a96] hover:text-[#b56b6b] hover:bg-[#b56b6b]/10 border border-transparent hover:border-[#b56b6b]/30 transition-all duration-150 hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
         >
           <LogOut size={16} />
-          <span>Exit Ledger</span>
+          <span>Log Out</span>
         </button>
       </div>
     </aside>

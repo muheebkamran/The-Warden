@@ -54,37 +54,42 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Add New Commitment">
+    <Modal open={open} onClose={onClose} title="Add New Habit">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {activeCount >= 7 && (
           <div className="bg-[#1a1d22] text-[#c99a54] border border-[#c99a54]/30 p-4 rounded-md font-mono text-xs">
-            [FOCUS ADVISORY] You have 7+ active protocols. Adding more risks dilution.
+            Tip: You have 7+ active habits. Keeping your list focused makes it much easier to stay consistent!
           </div>
         )}
 
         <div>
           <Input 
-            label="Title"
+            label="Habit Name"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Read Philosophy, Deep Work"
+            placeholder="e.g. Read 20 mins, Exercise, Drink Water"
             required
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="font-mono text-[11px] uppercase tracking-wider text-[#9a9a96]">Type</label>
+          <label className="font-mono text-[11px] uppercase tracking-wider text-[#9a9a96]">Habit Type</label>
           <div className="grid grid-cols-4 gap-2">
-            {(['duration', 'quantity', 'count', 'binary'] as CommitmentType[]).map((t) => (
+            {[
+              { id: 'duration' as CommitmentType, label: 'Minutes' },
+              { id: 'quantity' as CommitmentType, label: 'Amount' },
+              { id: 'count' as CommitmentType, label: 'Count' },
+              { id: 'binary' as CommitmentType, label: 'Yes / No' },
+            ].map((item) => (
               <Button
-                key={t}
+                key={item.id}
                 type="button"
-                variant={type === t ? 'primary' : 'secondary'}
+                variant={type === item.id ? 'primary' : 'secondary'}
                 size="sm"
-                onClick={() => handleTypeSelect(t)}
-                className="capitalize text-xs"
+                onClick={() => handleTypeSelect(item.id)}
+                className="text-xs"
               >
-                {t}
+                {item.label}
               </Button>
             ))}
           </div>
@@ -94,7 +99,7 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Input 
-                label="Target Value"
+                label="Goal Number"
                 type="number"
                 min="1"
                 value={targetValue}
@@ -107,7 +112,7 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
                 label="Unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                placeholder="e.g. min, pages"
+                placeholder="e.g. min, pages, glasses"
                 required
               />
             </div>
@@ -119,7 +124,7 @@ export default function CommitmentModal({ open, onClose, activeCount }: Commitme
             Cancel
           </Button>
           <Button type="submit" variant="primary" disabled={isPending || !title.trim()}>
-            {isPending ? "Adding..." : "Add Commitment"}
+            {isPending ? "Adding..." : "Add Habit"}
           </Button>
         </div>
       </form>

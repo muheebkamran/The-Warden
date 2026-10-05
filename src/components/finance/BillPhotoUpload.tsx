@@ -144,13 +144,33 @@ export function BillPhotoUpload({
       <div className="flex items-center justify-between pb-3 border-b border-border/80">
         <h4 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
           <Camera className="w-4 h-4 text-gold" />
-          Scan Bill or Invoice (Claude Vision OCR)
+          Add or Scan Bill
         </h4>
         {onCancel && (
-          <button onClick={onCancel} className="text-stone hover:text-ivory text-xs">
+          <button onClick={onCancel} className="text-stone hover:text-ivory text-xs cursor-pointer">
             ✕
           </button>
         )}
+      </div>
+
+      {/* 4-Step Simple Guide */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-sans text-[#9a9a96]">
+        <div className="bg-[#0b0c0e] p-2.5 rounded-lg border border-[#292c32]">
+          <span className="text-[#c8a96b] font-mono text-[10px] font-bold block uppercase mb-0.5">Step 1</span>
+          <span>Upload photo or enter details</span>
+        </div>
+        <div className="bg-[#0b0c0e] p-2.5 rounded-lg border border-[#292c32]">
+          <span className="text-[#c8a96b] font-mono text-[10px] font-bold block uppercase mb-0.5">Step 2</span>
+          <span>Auto-detects amount &amp; date</span>
+        </div>
+        <div className="bg-[#0b0c0e] p-2.5 rounded-lg border border-[#292c32]">
+          <span className="text-[#c8a96b] font-mono text-[10px] font-bold block uppercase mb-0.5">Step 3</span>
+          <span>Review the details below</span>
+        </div>
+        <div className="bg-[#0b0c0e] p-2.5 rounded-lg border border-[#292c32]">
+          <span className="text-[#c8a96b] font-mono text-[10px] font-bold block uppercase mb-0.5">Step 4</span>
+          <span>Click save to track this bill</span>
+        </div>
       </div>
 
       {/* Drag & Drop Area */}
@@ -176,7 +196,7 @@ export function BillPhotoUpload({
               Drag & drop bill photo or <span className="text-gold underline">browse</span>
             </p>
             <p className="text-[10px] text-muted mt-0.5">
-              Claude Vision will automatically extract vendor name, amount, and due date.
+              We&apos;ll automatically detect the bill name, amount, and due date.
             </p>
           </div>
         </div>
@@ -192,7 +212,7 @@ export function BillPhotoUpload({
             <div className="absolute inset-0 bg-obsidian/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2">
               <Sparkles className="w-6 h-6 text-gold animate-spin" />
               <span className="text-xs font-mono text-ivory animate-pulse">
-                Claude Vision analyzing bill...
+                Scanning bill details...
               </span>
             </div>
           )}
@@ -203,7 +223,7 @@ export function BillPhotoUpload({
               setPreviewUrl(null);
               setScanSuccess(false);
             }}
-            className="absolute top-2 right-2 p-1 rounded-full bg-obsidian/80 text-stone hover:text-ivory border border-border text-xs"
+            className="absolute top-2 right-2 p-1 rounded-full bg-obsidian/80 text-stone hover:text-ivory border border-border text-xs cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -213,7 +233,7 @@ export function BillPhotoUpload({
       {scanSuccess && (
         <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
           <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <span>Claude Vision successfully extracted bill details! Verify below.</span>
+          <span>Bill details detected! Please check them below.</span>
         </div>
       )}
 

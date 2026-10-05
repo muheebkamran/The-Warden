@@ -148,7 +148,7 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
           {editable ? (
             <textarea
               className="w-full bg-[#0b0c0e] text-[#f2f0ea] border border-[#292c32] rounded-sm p-3 text-xs placeholder:text-[#62646a] focus:outline-none focus:border-[#c8a96b] focus:ring-1 focus:ring-[#c8a96b]/30 transition-all duration-150 resize-none hover:border-[#3a3244]"
-              placeholder="Add telemetry note..."
+              placeholder="Add a note (optional)..."
               value={noteValue}
               onChange={(e) => setNoteValue(e.target.value)}
               onBlur={handleSaveValue}

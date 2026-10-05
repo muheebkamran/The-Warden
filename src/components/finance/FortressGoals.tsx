@@ -96,19 +96,19 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
         <div>
           <h3 className="text-base font-serif font-semibold text-ivory tracking-wide flex items-center gap-2">
             <Target className="w-5 h-5 text-gold" />
-            Financial Fortress & Savings Milestones
+            Savings Goals
           </h3>
           <p className="text-xs text-stone mt-1">
-            Build unshakeable peace of mind. Every dollar fortified buys future autonomy.
+            Build peace of mind by saving toward what matters most.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors shadow-sm self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors shadow-sm self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          Add Fortress Goal
+          Add Savings Goal
         </button>
       </div>
 
@@ -119,7 +119,7 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
             <div className="flex items-center justify-between border-b border-border pb-3">
               <h4 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
                 <Target className="w-4 h-4 text-gold" />
-                New Financial Fortress Goal
+                New Savings Goal
               </h4>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -217,9 +217,9 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50"
+                  className="px-5 py-2 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  {isSubmitting ? "Creating..." : "Establish Goal"}
+                  {isSubmitting ? "Creating..." : "Create Goal"}
                 </button>
               </div>
             </form>
@@ -237,7 +237,7 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
               </h4>
               <button
                 onClick={() => setDepositModalGoal(null)}
-                className="text-stone hover:text-ivory text-sm"
+                className="text-stone hover:text-ivory text-sm cursor-pointer"
               >
                 ✕
               </button>
@@ -269,16 +269,16 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
                 <button
                   type="button"
                   onClick={() => setDepositModalGoal(null)}
-                  className="px-4 py-2 text-xs text-stone hover:text-ivory transition-colors"
+                  className="px-4 py-2 text-xs text-stone hover:text-ivory transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-emerald-500 text-obsidian text-xs font-semibold rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                  className="px-5 py-2 bg-emerald-500 text-obsidian text-xs font-semibold rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  {isSubmitting ? "Updating..." : "Add Capital"}
+                  {isSubmitting ? "Updating..." : "Add Money"}
                 </button>
               </div>
             </form>
@@ -290,9 +290,9 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
       {goals.length === 0 ? (
         <div className="p-8 rounded-xl bg-surface/50 border border-border/60 text-center space-y-2">
           <Target className="w-8 h-8 text-stone/40 mx-auto" />
-          <p className="text-sm text-stone font-medium">No fortress goals established yet</p>
+          <p className="text-sm text-stone font-medium">No savings goals added yet</p>
           <p className="text-xs text-muted max-w-sm mx-auto">
-            Establish your 6-month emergency reserve or high-conviction savings milestones to build true sovereign freedom.
+            Set up an emergency fund or savings goal to build peace of mind.
           </p>
         </div>
       ) : (
