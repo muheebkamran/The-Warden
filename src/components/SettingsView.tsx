@@ -178,6 +178,26 @@ export function SettingsView({ user, streakState }: SettingsViewProps) {
         </Card>
       </section>
 
+      {/* 2.5 MOBILE APP INSTALL */}
+      <section className="settings-section">
+        <Card className="p-6 md:p-8 space-y-4 border-[#3a3244]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#292c32]">
+            <h2 className="font-mono text-xs font-semibold text-[#c8a96b] uppercase tracking-[0.2em]">
+              Mobile App Install
+            </h2>
+            <span className="font-mono text-[10px] text-[#7fa889]">PWA READY</span>
+          </div>
+          <p className="text-sm text-[#9a9a96] leading-relaxed">
+            Install The Warden directly on your phone&apos;s home screen for instant, full-screen daily access.
+          </p>
+          <div className="bg-[#0b0c0e] p-4 rounded-lg border border-[#292c32] text-xs space-y-2 text-[#9a9a96]">
+            <p className="font-medium text-[#f2f0ea]">How to install on your phone:</p>
+            <p>• <strong className="text-[#f2f0ea]">iPhone (Safari):</strong> Tap the <span className="text-[#c8a96b]">Share</span> button at the bottom, then tap <strong className="text-[#c8a96b]">Add to Home Screen</strong>.</p>
+            <p>• <strong className="text-[#f2f0ea]">Android (Chrome):</strong> Tap the <span className="text-[#c8a96b]">three dots (⋮)</span> in the top-right corner, then tap <strong className="text-[#c8a96b]">Install app</strong>.</p>
+          </div>
+        </Card>
+      </section>
+
       {/* 3. DATA EXPORT */}
       <section className="settings-section">
         <Card className="p-6 md:p-8 border-[#3a3244]">

@@ -1,13 +1,35 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 import { GlobalSpotlight } from "@/components/GlobalSpotlight";
 
+export const viewport: Viewport = {
+  themeColor: "#0b0c0e",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
-  title: "THE WARDEN",
-  description: "Personal Accountability Operating System — Keep Your Word",
+  title: "THE WARDEN — Personal Accountability OS",
+  description: "Keep your word every day. Track habits and finances with zero distractions.",
+  applicationName: "The Warden",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "The Warden",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: "/icon-192.png",
+    shortcut: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default async function RootLayout({
