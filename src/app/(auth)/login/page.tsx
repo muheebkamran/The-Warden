@@ -100,6 +100,12 @@ export default async function LoginPage({
             Sign Up
           </Link>
         </div>
+
+        <div className="mt-6 pt-4 border-t border-[#292c32]/50 flex items-center justify-center gap-4 text-[10px] font-mono text-[#62646a]">
+          <Link href="/privacy" className="hover:text-[#c8a96b] transition-colors">Privacy Policy</Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-[#c8a96b] transition-colors">Terms of Service</Link>
+        </div>
       </Card>
     </div>
   );
