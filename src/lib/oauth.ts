@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { handleGoogleUser } from "@/app/actions";
-import { createSession } from "@/lib/auth";
+import { createSession, signToken } from "@/lib/auth";
 
 export function getAppUrl(req: Request): string {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -92,8 +92,18 @@ export async function processGoogleCallback(req: Request) {
 
     // 4. Create session and redirect to dashboard
     await createSession(user.id);
+    const token = await signToken({ userId: user.id });
 
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    const response = NextResponse.redirect(new URL("/dashboard", req.url));
+    response.cookies.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (err: any) {
     console.error("Google OAuth callback exception:", err);
     return NextResponse.redirect(
