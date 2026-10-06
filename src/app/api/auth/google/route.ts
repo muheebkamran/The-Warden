@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAppUrl } from "@/lib/oauth";
 
 export async function GET(req: Request) {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID;
 
   if (!clientId) {
     return NextResponse.redirect(
