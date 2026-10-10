@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: "/icon-192.png",
-    shortcut: "/icon-192.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
@@ -50,7 +50,7 @@ export default async function RootLayout({
         initialTheme = user.preferredTheme;
       }
     }
-  } catch (err) {
+  } catch {
     // Fallback if not logged in
   }
 

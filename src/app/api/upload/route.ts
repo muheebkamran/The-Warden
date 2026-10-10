@@ -32,11 +32,13 @@ export async function POST(req: NextRequest) {
     const result = await getPresignedUploadUrl(targetFolder, filename, contentType);
 
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating pre-signed upload URL:', error);
+    const message = error instanceof Error ? error.message : 'Failed to generate upload URL';
+    const isUnconfigured = message.includes('R2_NOT_CONFIGURED') || message.includes('not configured');
     return NextResponse.json(
-      { error: error?.message || 'Failed to generate upload URL' },
-      { status: 500 }
+      { error: isUnconfigured ? 'File storage is not configured.' : message },
+      { status: isUnconfigured ? 503 : 500 }
     );
   }
 }

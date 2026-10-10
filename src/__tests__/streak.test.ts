@@ -4,7 +4,7 @@ import { evaluateDay } from '../lib/evaluation';
 
 describe('Streak Calculation Edge Cases', () => {
   it('should start at 0 for new users with no completed days', () => {
-    const records: any[] = [];
+    const records: unknown[] = [];
     const currentStreak = records.length;
     assert.strictEqual(currentStreak, 0);
   });

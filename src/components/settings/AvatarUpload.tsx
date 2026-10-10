@@ -68,9 +68,9 @@ export function AvatarUpload({ currentAvatarUrl }: AvatarUploadProps) {
       startTransition(async () => {
         await updateUserAvatar(publicUrl);
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Avatar upload error:', err);
-      setErrorMessage(err?.message || 'Failed to upload photo');
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to upload photo');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

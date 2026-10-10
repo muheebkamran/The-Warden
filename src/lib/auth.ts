@@ -16,7 +16,7 @@ export async function verifyToken(token: string): Promise<{ userId: string } | n
   try {
     const { payload } = await jwtVerify(token, key);
     return payload as { userId: string };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

@@ -51,3 +51,4 @@ next-env.d.ts
 credentials.json
 token.json
 3d-ui/
+scratch/

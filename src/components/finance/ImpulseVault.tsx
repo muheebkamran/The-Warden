@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Shield, Lock, Clock, Plus, Trash2, CheckCircle2, XCircle, Sparkles, AlertTriangle } from "lucide-react";
+import { Shield, Lock, Clock, Trash2, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { createImpulseLock, resolveImpulseLock, deleteImpulseLock } from "@/app/actions";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface ImpulseLockItem {
   id: string;
@@ -67,6 +69,91 @@ function CountdownTimer({ coolsAt }: { coolsAt: Date | string }) {
         {String(timeLeft.hours).padStart(2, "0")}h : {String(timeLeft.minutes).padStart(2, "0")}m : {String(timeLeft.seconds).padStart(2, "0")}s
       </span>
       <span className="text-[10px] text-muted font-sans ml-1">cooling</span>
+    </div>
+  );
+}
+
+function LockCard({
+  lock,
+  currency,
+  onDelete,
+  onResolve,
+}: {
+  lock: ImpulseLockItem;
+  currency: string;
+  onDelete: (id: string) => void;
+  onResolve: (lockId: string, resolution: "killed" | "purchased", name: string, cost: number) => void;
+}) {
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    const checkExpired = () => {
+      setIsExpired(new Date(lock.coolsAt).getTime() <= Date.now());
+    };
+    checkExpired();
+    const interval = setInterval(checkExpired, 1000);
+    return () => clearInterval(interval);
+  }, [lock.coolsAt]);
+
+  return (
+    <div
+      className={`p-5 rounded-xl bg-surface border transition-all flex flex-col justify-between ${
+        isExpired
+          ? "border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+          : "border-border hover:border-border/80"
+      }`}
+    >
+      <div>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h5 className="text-sm font-semibold text-ivory">{lock.itemName}</h5>
+            <div className="text-lg font-serif font-bold text-gold mt-1">
+              {currency}{lock.amount.toFixed(2)}
+            </div>
+          </div>
+          <button
+            onClick={() => onDelete(lock.id)}
+            className="text-stone/60 hover:text-rose-400 p-1 transition-colors"
+            title="Delete entry"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+
+        {lock.urgencyRationale && (
+          <p className="text-xs text-stone italic mt-2.5 bg-obsidian/50 p-2.5 rounded-lg border border-border/40">
+            &quot;{lock.urgencyRationale}&quot;
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-border/60 space-y-3">
+        <CountdownTimer coolsAt={lock.coolsAt} />
+
+        {/* Verdict Decision Buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            onClick={() => onResolve(lock.id, "killed", lock.itemName, lock.amount)}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all group"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+            Kill Desire (Save {currency}{lock.amount.toFixed(0)})
+          </button>
+
+          <button
+            onClick={() => onResolve(lock.id, "purchased", lock.itemName, lock.amount)}
+            className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              isExpired
+                ? "bg-elevated hover:bg-surface text-stone hover:text-ivory border border-border"
+                : "bg-surface text-muted border border-border/40 opacity-70 hover:opacity-100"
+            }`}
+            title={isExpired ? "Execute purchase & log expense" : "Purchase prematurely"}
+          >
+            <XCircle className="w-3.5 h-3.5" />
+            {isExpired ? "Approve Purchase" : "Override Lock"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -284,81 +371,33 @@ export function ImpulseVault({ locks, currency }: ImpulseVaultProps) {
         </div>
 
         {activeLocks.length === 0 ? (
-          <div className="p-8 rounded-xl bg-surface/50 border border-border/60 text-center space-y-2">
-            <Shield className="w-8 h-8 text-stone/40 mx-auto" />
-            <p className="text-sm text-stone font-medium">Vault is currently empty</p>
-            <p className="text-xs text-muted max-w-sm mx-auto">
-              Before swiping your card on any discretionary luxury or tech gadget, lock it here for 48 hours.
-            </p>
-          </div>
+          <EmptyState
+            title="Vault is currently empty"
+            description="Before swiping your card on any discretionary luxury or tech gadget, lock it here for a 48-hour cooling period to defeat emotional buying."
+            icon={Shield}
+            action={
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setShowAddModal(true)}
+              >
+                <Lock className="w-4 h-4 mr-1.5 inline" />
+                Lock a Temptation
+              </Button>
+            }
+            tip="Pro-tip: 82% of locked impulse purchases are voluntarily cancelled once dopamine normalizes after 48 hours."
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {activeLocks.map((lock) => {
-              const isExpired = new Date(lock.coolsAt).getTime() <= Date.now();
-
-              return (
-                <div
-                  key={lock.id}
-                  className={`p-5 rounded-xl bg-surface border transition-all flex flex-col justify-between ${
-                    isExpired
-                      ? "border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                      : "border-border hover:border-border/80"
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h5 className="text-sm font-semibold text-ivory">{lock.itemName}</h5>
-                        <div className="text-lg font-serif font-bold text-gold mt-1">
-                          {currency}{lock.amount.toFixed(2)}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleDelete(lock.id)}
-                        className="text-stone/60 hover:text-rose-400 p-1 transition-colors"
-                        title="Delete entry"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {lock.urgencyRationale && (
-                      <p className="text-xs text-stone italic mt-2.5 bg-obsidian/50 p-2.5 rounded-lg border border-border/40">
-                        &quot;{lock.urgencyRationale}&quot;
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-border/60 space-y-3">
-                    <CountdownTimer coolsAt={lock.coolsAt} />
-
-                    {/* Verdict Decision Buttons */}
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <button
-                        onClick={() => handleResolve(lock.id, "killed", lock.itemName, lock.amount)}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all group"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                        Kill Desire (Save {currency}{lock.amount.toFixed(0)})
-                      </button>
-
-                      <button
-                        onClick={() => handleResolve(lock.id, "purchased", lock.itemName, lock.amount)}
-                        className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                          isExpired
-                            ? "bg-elevated hover:bg-surface text-stone hover:text-ivory border border-border"
-                            : "bg-surface text-muted border border-border/40 opacity-70 hover:opacity-100"
-                        }`}
-                        title={isExpired ? "Execute purchase & log expense" : "Purchase prematurely"}
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                        {isExpired ? "Approve Purchase" : "Override Lock"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {activeLocks.map((lock) => (
+              <LockCard
+                key={lock.id}
+                lock={lock}
+                currency={currency}
+                onDelete={handleDelete}
+                onResolve={handleResolve}
+              />
+            ))}
           </div>
         )}
       </div>

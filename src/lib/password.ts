@@ -16,7 +16,12 @@ export function generateResetToken(): { token: string; expiry: Date } {
   return { token, expiry };
 }
 
+export function hashResetToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
 export function isTokenExpired(expiry: Date | null | undefined): boolean {
   if (!expiry) return true;
   return new Date() > new Date(expiry);
 }
+

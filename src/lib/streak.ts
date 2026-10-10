@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { evaluateCommitment, evaluateDay, type CommitmentType } from '@/lib/evaluation';
+import { evaluateDay } from '@/lib/evaluation';
 import { getTodayStr, formatDateStr, addDays } from '@/lib/dateEngine';
 
 export interface StreakEvalResult {
@@ -122,8 +122,9 @@ export async function recalculateStreak(userId: string): Promise<StreakEvalResul
 
 export async function evaluateAndUpdateStreak(
   userId: string,
-  dateStr: string
+  dateStr?: string
 ): Promise<StreakEvalResult> {
+  void dateStr;
   return recalculateStreak(userId);
 }
 

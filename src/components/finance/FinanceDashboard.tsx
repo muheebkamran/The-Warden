@@ -2,25 +2,38 @@
 
 import React, { useState } from "react";
 import {
-  Wallet,
   ArrowUpRight,
   Receipt,
   Plus,
   Trash2,
   CheckCircle2,
   Circle,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   PieChart as PieIcon,
   DollarSign,
   TrendingUp,
   Camera,
+  Calendar,
+  Pencil,
+  X,
 } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import { BillPhotoUpload } from "./BillPhotoUpload";
 import { SpendingTrendChart } from "./SpendingTrendChart";
-import { addTransaction, deleteTransaction, toggleBillPaid, deleteBill } from "@/app/actions";
+import { FinanceOverview } from "./FinanceOverview";
+import { ExpenseLedger } from "./ExpenseLedger";
+import { FortressGoals } from "./FortressGoals";
+import { ImpulseVault } from "./ImpulseVault";
+import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  addTransaction,
+  deleteTransaction,
+  updateTransaction,
+  toggleBillPaid,
+  deleteBill,
+  updateBill,
+} from "@/app/actions";
 
 interface Transaction {
   id: string;
@@ -29,6 +42,7 @@ interface Transaction {
   type: string; // 'income' | 'expense'
   date: string;
   description: string;
+  createdAt?: Date | string;
 }
 
 interface Bill {
@@ -40,6 +54,29 @@ interface Bill {
   paid: boolean;
 }
 
+interface FinancialGoalItem {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  category: string;
+  targetDate: string | null;
+  isCompleted: boolean;
+  createdAt: Date | string;
+}
+
+interface ImpulseLockItem {
+  id: string;
+  itemName: string;
+  amount: number;
+  category: string;
+  urgencyRationale: string | null;
+  coolsAt: Date | string;
+  status: string;
+  createdAt: Date | string;
+  resolvedAt: Date | string | null;
+}
+
 interface FinanceDashboardProps {
   initialProfile: {
     monthlyBudget: number;
@@ -47,6 +84,8 @@ interface FinanceDashboardProps {
   } | null;
   transactions: Transaction[];
   bills: Bill[];
+  goals?: FinancialGoalItem[];
+  locks?: ImpulseLockItem[];
 }
 
 const CATEGORY_COLORS: { [key: string]: string } = {
@@ -63,6 +102,8 @@ export function FinanceDashboard({
   initialProfile,
   transactions,
   bills,
+  goals = [],
+  locks = [],
 }: FinanceDashboardProps) {
   const currency = initialProfile?.currency || "$";
 
@@ -82,6 +123,92 @@ export function FinanceDashboard({
   const [expenseCategory, setExpenseCategory] = useState("Food");
   const [expenseDesc, setExpenseDesc] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Edit Bill state
+  const [editingBill, setEditingBill] = useState<Bill | null>(null);
+  const [editBillName, setEditBillName] = useState("");
+  const [editBillAmount, setEditBillAmount] = useState("");
+  const [editBillDate, setEditBillDate] = useState("");
+  const [editBillPaid, setEditBillPaid] = useState(false);
+  const [isUpdatingBill, setIsUpdatingBill] = useState(false);
+  const [editBillError, setEditBillError] = useState<string | null>(null);
+
+  const openEditBill = (b: Bill) => {
+    setEditingBill(b);
+    setEditBillName(b.billName);
+    setEditBillAmount(b.amount.toString());
+    setEditBillDate(b.date);
+    setEditBillPaid(b.paid);
+    setEditBillError(null);
+  };
+
+  const handleUpdateBill = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBill || !editBillName || !editBillAmount || !editBillDate) return;
+
+    setIsUpdatingBill(true);
+    setEditBillError(null);
+    try {
+      await updateBill({
+        id: editingBill.id,
+        billName: editBillName.trim(),
+        amount: parseFloat(editBillAmount),
+        date: editBillDate,
+        photoUrl: editingBill.photoUrl,
+        paid: editBillPaid,
+      });
+      setEditingBill(null);
+    } catch (err: unknown) {
+      console.error(err);
+      setEditBillError(err instanceof Error ? err.message : "Failed to update bill");
+    } finally {
+      setIsUpdatingBill(false);
+    }
+  };
+
+  // Edit Transaction state
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+  const [editTxDesc, setEditTxDesc] = useState("");
+  const [editTxAmount, setEditTxAmount] = useState("");
+  const [editTxCategory, setEditTxCategory] = useState("Food");
+  const [editTxDate, setEditTxDate] = useState("");
+  const [editTxType, setEditTxType] = useState<"expense" | "income">("expense");
+  const [isUpdatingTx, setIsUpdatingTx] = useState(false);
+  const [editTxError, setEditTxError] = useState<string | null>(null);
+
+  const openEditTx = (tx: Transaction) => {
+    setEditingTx(tx);
+    setEditTxDesc(tx.description);
+    setEditTxAmount(tx.amount.toString());
+    setEditTxCategory(tx.category.charAt(0).toUpperCase() + tx.category.slice(1).toLowerCase());
+    setEditTxDate(tx.date);
+    setEditTxType(tx.type === "income" ? "income" : "expense");
+    setEditTxError(null);
+  };
+
+  const handleUpdateTx = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTx || !editTxDesc || !editTxAmount || !editTxDate) return;
+
+    setIsUpdatingTx(true);
+    setEditTxError(null);
+    try {
+      await updateTransaction({
+        id: editingTx.id,
+        description: editTxDesc.trim(),
+        amount: parseFloat(editTxAmount),
+        category: editTxCategory.toLowerCase(),
+        date: editTxDate,
+        type: editTxType,
+      });
+      setEditingTx(null);
+    } catch (err: unknown) {
+      console.error(err);
+      setEditTxError(err instanceof Error ? err.message : "Failed to update transaction");
+    } finally {
+      setIsUpdatingTx(false);
+    }
+  };
 
   // Month prefix string: YYYY-MM
   const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
@@ -125,6 +252,20 @@ export function FinanceDashboard({
   const totalOutflows = totalDailyExpenses + totalBills;
   const netSavings = totalIncome - totalOutflows;
   const savingsRate = totalIncome > 0 ? Math.max(0, Math.round((netSavings / totalIncome) * 100)) : 0;
+
+  // Overview metrics
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todaySpent = transactions
+    .filter((t) => t.date === todayStr && t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalSavedFromImpulse = locks
+    .filter((l) => l.status === "killed")
+    .reduce((sum, l) => sum + l.amount, 0);
+
+  const resistedImpulsesCount = locks.filter((l) => l.status === "killed").length;
+
+  const fortressTotalSaved = goals.reduce((sum, g) => sum + g.currentAmount, 0);
 
   // Donut Chart data aggregation
   const categoryTotals: { [name: string]: number } = {};
@@ -192,121 +333,193 @@ export function FinanceDashboard({
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-200">
-      {/* 1. Header & Month Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
-        <div>
-          <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold">
-            MONEY & BILLS
-          </span>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold text-ivory tracking-wide mt-1">
-            Money & Bills
+      {/* 1. Header & Month Selector (Stitch Architecture) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#222227]">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#1C1C20] border border-[#2E2E35] font-mono text-[10px] text-[#FFFC00] font-bold tracking-widest uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FFFC00] animate-pulse" />
+              MONEY &amp; BILLS
+            </span>
+            <span className="font-mono text-[11px] text-zinc-500 font-semibold tracking-wider uppercase">
+              FINANCIAL TELEMETRY
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Money &amp; Bills
           </h1>
+          {/* Month Selector */}
+          <div className="flex items-center gap-2 mt-0.5">
+            <button
+              onClick={prevMonth}
+              className="p-1 text-zinc-400 hover:text-white rounded-md hover:bg-[#1C1C20] transition-colors cursor-pointer"
+              title="Previous Month"
+              type="button"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#141416] border border-[#26262B] text-white font-mono text-xs font-semibold">
+              <Calendar className="w-3.5 h-3.5 text-[#FFFC00]" />
+              <span>{monthLabel}</span>
+            </div>
+            <button
+              onClick={nextMonth}
+              className="p-1 text-zinc-400 hover:text-white rounded-md hover:bg-[#1C1C20] transition-colors cursor-pointer"
+              title="Next Month"
+              type="button"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Month Selector Carousel */}
-        <div className="flex items-center gap-3 bg-surface px-4 py-2 rounded-xl border border-border shadow-xs self-start sm:self-auto">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={prevMonth}
-            className="p-1 rounded text-stone hover:text-ivory transition-colors cursor-pointer"
-            title="Previous Month"
+            onClick={() => setShowIncomeModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1C1C20] hover:bg-[#24242C] border border-[#2E2E35] text-white font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer"
+            type="button"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-[#00D664]" />
+            <span>+ Add Income</span>
           </button>
-          <span className="text-sm font-serif font-semibold text-ivory min-w-[120px] text-center">
-            {monthLabel}
-          </span>
           <button
-            onClick={nextMonth}
-            className="p-1 rounded text-stone hover:text-ivory transition-colors cursor-pointer"
-            title="Next Month"
+            onClick={() => setShowBillUpload(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFFC00] text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-[#FFFC00]/20 hover:shadow-[0_0_20px_rgba(255,252,0,0.35)] active:scale-95 transition-all cursor-pointer"
+            type="button"
           >
-            <ChevronRight className="w-4 h-4" />
+            <Camera className="w-4 h-4 font-black" />
+            <span>+ Add or Scan Bill</span>
           </button>
         </div>
       </div>
 
-      {/* 2. End-of-Month Summary Cards (Top Overview) */}
+      {/* Financial Fortress Overview */}
+      <FinanceOverview
+        monthlyBudget={initialProfile?.monthlyBudget ?? 2000}
+        currency={currency}
+        todaySpent={todaySpent}
+        monthSpent={totalOutflows}
+        totalSavedFromImpulse={totalSavedFromImpulse}
+        resistedImpulsesCount={resistedImpulsesCount}
+        fortressTotalSaved={fortressTotalSaved}
+      />
+
+      {/* 2. 4 Metric KPI Cards Grid (Stitch Architecture) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Income Card */}
-        <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Money In</span>
-            <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+        {/* Card 1: Money In */}
+        <div className="relative overflow-hidden rounded-2xl bg-[#141416] border border-[#26262B] p-5 flex flex-col justify-between gap-4 group hover:border-[#32323A] transition-all">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Cash Inflow
+              </span>
+              <span className="text-sm font-bold text-white">Money In</span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-[#1C1C20] border border-[#2E2E35] flex items-center justify-center text-[#00D664]">
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
           </div>
-          <div className="my-2">
-            <div className="text-2xl font-serif font-bold text-emerald-400">
+          <div className="flex flex-col gap-1">
+            <span className="font-mono text-2xl sm:text-3xl text-white font-extrabold tracking-tight">
               {currency}{totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </div>
-            <p className="text-[11px] text-stone mt-1">Total earnings and deposits</p>
+            </span>
+            <span className="font-mono text-xs text-zinc-400">Total earnings and deposits</span>
           </div>
-          <button
-            onClick={() => setShowIncomeModal(true)}
-            className="text-[11px] text-gold hover:underline font-medium flex items-center gap-1 self-start cursor-pointer"
-          >
-            <Plus className="w-3 h-3" /> Add Income
-          </button>
+          <div className="pt-2 border-t border-[#202024]">
+            <button
+              onClick={() => setShowIncomeModal(true)}
+              className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#FFFC00] hover:underline cursor-pointer"
+              type="button"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Income</span>
+            </button>
+          </div>
         </div>
 
-        {/* Bills Card */}
-        <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Bills</span>
-            <Receipt className="w-4 h-4 text-amber-400" />
+        {/* Card 2: Bills */}
+        <div className="relative overflow-hidden rounded-2xl bg-[#141416] border border-[#26262B] p-5 flex flex-col justify-between gap-4 group hover:border-[#32323A] transition-all">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Recurring &amp; Due
+              </span>
+              <span className="text-sm font-bold text-white">Bills</span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-[#1C1C20] border border-[#2E2E35] flex items-center justify-center text-[#FFFC00]">
+              <Receipt className="w-4 h-4" />
+            </div>
           </div>
-          <div className="my-2">
-            <div className="text-2xl font-serif font-bold text-amber-400">
+          <div className="flex flex-col gap-1">
+            <span className="font-mono text-2xl sm:text-3xl text-white font-extrabold tracking-tight">
               {currency}{totalBills.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </div>
-            <p className="text-[11px] text-stone mt-1">
+            </span>
+            <span className="font-mono text-xs text-zinc-400">
               {monthBills.filter((b) => b.paid).length} of {monthBills.length} bills paid
-            </p>
+            </span>
           </div>
-          <button
-            onClick={() => setShowBillUpload(true)}
-            className="text-[11px] text-gold hover:underline font-medium flex items-center gap-1 self-start cursor-pointer"
-          >
-            <Camera className="w-3 h-3" /> Add or Scan Bill
-          </button>
+          <div className="pt-2 border-t border-[#202024]">
+            <button
+              onClick={() => setShowBillUpload(true)}
+              className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#FFFC00] hover:underline cursor-pointer"
+              type="button"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>Add or Scan Bill</span>
+            </button>
+          </div>
         </div>
 
-        {/* Daily Expenses Card */}
-        <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Daily Spending</span>
-            <DollarSign className="w-4 h-4 text-rose-400" />
+        {/* Card 3: Daily Spending */}
+        <div className="relative overflow-hidden rounded-2xl bg-[#141416] border border-[#26262B] p-5 flex flex-col justify-between gap-4 group hover:border-[#32323A] transition-all">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Discretionary Outflow
+              </span>
+              <span className="text-sm font-bold text-white">Daily Spending</span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-[#1C1C20] border border-[#2E2E35] flex items-center justify-center text-zinc-300">
+              <DollarSign className="w-4 h-4" />
+            </div>
           </div>
-          <div className="my-2">
-            <div className="text-2xl font-serif font-bold text-ivory">
+          <div className="flex flex-col gap-1">
+            <span className="font-mono text-2xl sm:text-3xl text-white font-extrabold tracking-tight">
               {currency}{totalDailyExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </div>
-            <p className="text-[11px] text-stone mt-1">
-              Everyday purchases this month
-            </p>
+            </span>
+            <span className="font-mono text-xs text-zinc-400">Everyday purchases this month</span>
           </div>
-          <span className="text-[11px] text-muted font-mono">
-            Total Spent: {currency}{totalOutflows.toFixed(0)}
-          </span>
+          <div className="pt-2 border-t border-[#202024] flex items-center justify-between font-mono text-xs">
+            <span className="text-zinc-500">Total Spent:</span>
+            <span className="text-white font-bold">{currency}{totalOutflows.toFixed(0)}</span>
+          </div>
         </div>
 
-        {/* Net Savings & Savings Rate */}
-        <div className="p-5 rounded-xl bg-surface border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Total Saved</span>
-            <TrendingUp className={`w-4 h-4 ${netSavings >= 0 ? "text-emerald-400" : "text-rose-400"}`} />
-          </div>
-          <div className="my-2">
-            <div className={`text-2xl font-serif font-bold ${netSavings >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-              {netSavings >= 0 ? "+" : ""}{currency}{netSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        {/* Card 4: Total Saved */}
+        <div className="relative overflow-hidden rounded-2xl bg-[#141416] border border-[#26262B] p-5 flex flex-col justify-between gap-4 group hover:border-[#32323A] transition-all">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Net Surplus
+              </span>
+              <span className="text-sm font-bold text-white">Total Saved</span>
             </div>
-            <p className="text-[11px] text-stone mt-1">
-              Savings Rate: <span className="text-ivory font-semibold">{savingsRate}%</span>
-            </p>
+            <div className="w-9 h-9 rounded-xl bg-[#00D664]/10 border border-[#00D664]/30 flex items-center justify-center text-[#00D664]">
+              <TrendingUp className="w-4 h-4" />
+            </div>
           </div>
-          <div className="w-full bg-elevated rounded-full h-1.5 overflow-hidden">
-            <div
-              className="bg-emerald-400 h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, Math.max(0, savingsRate))}%` }}
-            />
+          <div className="flex flex-col gap-1">
+            <span className={`font-mono text-2xl sm:text-3xl font-extrabold tracking-tight ${netSavings >= 0 ? "text-[#00D664]" : "text-[#FF2D55]"}`}>
+              {netSavings >= 0 ? "+" : ""}{currency}{netSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
+            <span className="font-mono text-xs text-zinc-400">
+              Savings Rate: <span className="text-[#00D664] font-bold">{savingsRate}%</span>
+            </span>
+          </div>
+          <div className="pt-2 border-t border-[#202024] flex items-center justify-between font-mono text-xs">
+            <span className="text-zinc-500">Efficiency:</span>
+            <span className="text-[#00D664] font-bold">100% Defense</span>
           </div>
         </div>
       </div>
@@ -409,16 +622,21 @@ export function FinanceDashboard({
           </div>
 
           {monthBills.length === 0 ? (
-            <div className="py-8 text-center text-xs text-stone space-y-2">
-              <Receipt className="w-8 h-8 text-stone/40 mx-auto" />
-              <p>No bills recorded for {monthLabel}.</p>
-              <button
-                onClick={() => setShowBillUpload(true)}
-                className="text-gold underline text-[11px]"
-              >
-                Scan your first bill photo with Claude OCR
-              </button>
-            </div>
+            <EmptyState
+              icon={Receipt}
+              title={`No Bills Recorded for ${monthLabel}`}
+              description="Keep recurring commitments transparent. Log an upcoming utility or service bill or upload a receipt to track upcoming dues."
+              action={
+                <button
+                  onClick={() => setShowBillUpload(true)}
+                  className="bg-[#FFFC00] text-black font-extrabold text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:bg-white hover:shadow-[0_0_20px_rgba(255,252,0,0.4)] active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+                >
+                  <Camera className="w-3.5 h-3.5 text-black" />
+                  <span>Scan / Add Bill</span>
+                </button>
+              }
+              tip="Pro Tip: Uploading receipt photos enables automatic OCR data extraction."
+            />
           ) : (
             <div className="divide-y divide-border/40">
               {monthBills.map((b) => (
@@ -459,6 +677,13 @@ export function FinanceDashboard({
                     <span className={`text-xs font-serif font-bold ${b.paid ? "text-stone" : "text-amber-400"}`}>
                       {currency}{b.amount.toFixed(2)}
                     </span>
+                    <button
+                      onClick={() => openEditBill(b)}
+                      className="p-1 text-stone/40 hover:text-gold transition-colors"
+                      title="Edit bill"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => deleteBill(b.id)}
                       className="p-1 text-stone/40 hover:text-rose-400 transition-colors"
@@ -505,7 +730,7 @@ export function FinanceDashboard({
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: any) => [`${currency}${value}`, "Amount"]}
+                    formatter={(value: unknown) => [`${currency}${Number(value) || 0}`, "Amount"]}
                     contentStyle={{
                       backgroundColor: "var(--color-surface, #141417)",
                       borderColor: "var(--color-border, #27272a)",
@@ -616,6 +841,13 @@ export function FinanceDashboard({
                         -{currency}{tx.amount.toFixed(2)}
                       </span>
                       <button
+                        onClick={() => openEditTx(tx)}
+                        className="p-1 text-stone/40 hover:text-gold transition-colors"
+                        title="Edit transaction"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
                         onClick={() => deleteTransaction(tx.id)}
                         className="p-1 text-stone/40 hover:text-rose-400 transition-colors"
                       >
@@ -628,6 +860,268 @@ export function FinanceDashboard({
           )}
         </div>
       </div>
+
+      {/* 6. Daily Expense Ledger (Categorized Outflow Journal with Filters) */}
+      <ExpenseLedger transactions={transactions} currency={currency} />
+
+      {/* 7. Fortress Goals (Emergency Reserves & Capital Targets) */}
+      <FortressGoals goals={goals} currency={currency} />
+
+      {/* 8. The Impulse Purchase Shield (48h Cooling Vault) */}
+      <ImpulseVault locks={locks} currency={currency} />
+
+      {/* Edit Bill Modal */}
+      {editingBill && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md bg-surface border border-border rounded-xl p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <h4 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-gold" />
+                Edit Bill
+              </h4>
+              <button
+                onClick={() => setEditingBill(null)}
+                className="text-stone hover:text-ivory text-sm cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {editBillError && (
+              <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                {editBillError}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateBill} className="space-y-3">
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                  Bill / Vendor Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editBillName}
+                  onChange={(e) => setEditBillName(e.target.value)}
+                  className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                    Amount ({currency})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    value={editBillAmount}
+                    onChange={(e) => setEditBillAmount(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                    Due Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={editBillDate}
+                    onChange={(e) => setEditBillDate(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-stone hover:text-ivory">
+                  <input
+                    type="checkbox"
+                    checked={editBillPaid}
+                    onChange={(e) => setEditBillPaid(e.target.checked)}
+                    className="rounded border-border text-gold focus:ring-0 bg-obsidian w-4 h-4"
+                  />
+                  <span>Mark as paid</span>
+                </label>
+              </div>
+
+              {editingBill.photoUrl && (
+                <div className="text-[11px] text-stone">
+                  Receipt:{" "}
+                  <a
+                    href={editingBill.photoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-gold hover:underline"
+                  >
+                    View Attached Receipt
+                  </a>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-border/80">
+                <button
+                  type="button"
+                  onClick={() => setEditingBill(null)}
+                  className="px-3.5 py-1.5 text-xs text-stone hover:text-ivory cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingBill}
+                  className="px-4 py-1.5 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {isUpdatingBill ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Transaction Modal */}
+      {editingTx && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md bg-surface border border-border rounded-xl p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <h4 className="text-sm font-serif font-bold text-ivory flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-gold" />
+                Edit Transaction
+              </h4>
+              <button
+                onClick={() => setEditingTx(null)}
+                className="text-stone hover:text-ivory text-sm cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {editTxError && (
+              <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                {editTxError}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateTx} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                    Amount ({currency})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    value={editTxAmount}
+                    onChange={(e) => setEditTxAmount(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                    Category
+                  </label>
+                  <select
+                    value={editTxCategory}
+                    onChange={(e) => setEditTxCategory(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                  >
+                    <option value="Food">Food & Groceries</option>
+                    <option value="Transit">Transit & Fuel</option>
+                    <option value="Shopping">Shopping & Discretionary</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Rent">Rent & Housing</option>
+                    <option value="Bills">Bills & Utilities</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={editTxDate}
+                    onChange={(e) => setEditTxDate(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                    Flow Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditTxType("expense")}
+                      className={`py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                        editTxType === "expense"
+                          ? "bg-rose-500/20 text-rose-300 border-rose-500/40 font-semibold"
+                          : "bg-obsidian text-stone border-border"
+                      }`}
+                    >
+                      Expense
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditTxType("income")}
+                      className={`py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                        editTxType === "income"
+                          ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold"
+                          : "bg-obsidian text-stone border-border"
+                      }`}
+                    >
+                      Income
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-muted mb-1">
+                  Description / Merchant
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editTxDesc}
+                  onChange={(e) => setEditTxDesc(e.target.value)}
+                  className="w-full px-3 py-1.5 bg-obsidian border border-border rounded-lg text-ivory text-xs focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-border/80">
+                <button
+                  type="button"
+                  onClick={() => setEditingTx(null)}
+                  className="px-3.5 py-1.5 text-xs text-stone hover:text-ivory cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingTx}
+                  className="px-4 py-1.5 bg-gold text-obsidian text-xs font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {isUpdatingTx ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

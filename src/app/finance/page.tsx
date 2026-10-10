@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function FinancePage() {
   const { userId } = await requireAuth();
 
-  const [profile, transactions, bills] = await Promise.all([
+  const [profile, transactions, bills, goals, locks] = await Promise.all([
     db.financeProfile.findUnique({
       where: { userId },
     }),
@@ -22,6 +22,14 @@ export default async function FinancePage() {
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take: 100,
     }),
+    db.financialGoal.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.impulseLock.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   return (
@@ -30,6 +38,8 @@ export default async function FinancePage() {
         initialProfile={profile}
         transactions={transactions}
         bills={bills}
+        goals={goals}
+        locks={locks}
       />
     </AppShell>
   );

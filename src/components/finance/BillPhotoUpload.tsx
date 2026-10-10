@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Upload, Camera, Sparkles, Check, X, FileText, AlertCircle } from "lucide-react";
+import { Upload, Camera, Sparkles, Check, X, Info, AlertCircle } from "lucide-react";
 import { addBill, ocrBill } from "@/app/actions";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface BillPhotoUploadProps {
   currency: string;
@@ -19,7 +20,8 @@ export function BillPhotoUpload({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [scanSuccess, setScanSuccess] = useState(false);
+  const [ocrStatus, setOcrStatus] = useState<"idle" | "success" | "unconfigured" | "error">("idle");
+  const [uploadFailedConfirmOpen, setUploadFailedConfirmOpen] = useState(false);
 
   // Form fields
   const [billName, setBillName] = useState("");
@@ -39,6 +41,7 @@ export function BillPhotoUpload({
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreviewUrl(objectUrl);
     setIsScanning(true);
+    setOcrStatus("idle");
 
     try {
       // 1. Read file as base64 for Claude Vision OCR
@@ -55,18 +58,26 @@ export function BillPhotoUpload({
       // 2. Call Claude Vision OCR via server action
       const ocrResult = await ocrBill(base64Data, mediaType);
 
-      if (ocrResult) {
-        setBillName(ocrResult.billName || selectedFile.name.replace(/\.[^/.]+$/, ""));
-        setAmount(ocrResult.amount > 0 ? ocrResult.amount.toString() : "");
-        if (ocrResult.date) {
-          setDate(ocrResult.date);
+      if (ocrResult && ocrResult.status === "success") {
+        const { data } = ocrResult;
+        if (data.billName) {
+          setBillName(data.billName);
         }
-        setScanSuccess(true);
+        if (data.amount > 0) {
+          setAmount(data.amount.toString());
+        }
+        if (data.date) {
+          setDate(data.date);
+        }
+        setOcrStatus("success");
+      } else if (ocrResult && ocrResult.status === "unconfigured") {
+        setOcrStatus("unconfigured");
+      } else {
+        setOcrStatus("error");
       }
     } catch (err) {
       console.error("Error during OCR scan:", err);
-      // Fallback: use file name
-      setBillName(selectedFile.name.replace(/\.[^/.]+$/, ""));
+      setOcrStatus("error");
     } finally {
       setIsScanning(false);
     }
@@ -85,57 +96,78 @@ export function BillPhotoUpload({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!billName || !amount) return;
-
+  const saveBillDirectly = async (photoUrlToSave?: string) => {
     setIsSaving(true);
-    let uploadedPhotoUrl: string | undefined = undefined;
-
     try {
-      // If we have an image file, upload to R2
-      if (file) {
-        try {
-          const res = await fetch("/api/upload", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              filename: file.name,
-              contentType: file.type,
-              folder: "bills",
-            }),
-          });
-
-          if (res.ok) {
-            const { uploadUrl, publicUrl } = await res.json();
-            const uploadRes = await fetch(uploadUrl, {
-              method: "PUT",
-              headers: { "Content-Type": file.type },
-              body: file,
-            });
-
-            if (uploadRes.ok) {
-              uploadedPhotoUrl = publicUrl;
-            }
-          }
-        } catch (uploadErr) {
-          console.warn("R2 upload optional failure, saving bill without image URL:", uploadErr);
-        }
-      }
-
       await addBill({
-        billName,
+        billName: billName.trim(),
         amount: parseFloat(amount),
         date,
-        photoUrl: uploadedPhotoUrl,
+        photoUrl: photoUrlToSave,
         paid,
       });
-
       onBillAdded?.();
     } catch (err) {
       console.error("Failed to save bill:", err);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!billName || !amount) return;
+
+    if (!file) {
+      await saveBillDirectly(undefined);
+      return;
+    }
+
+    setIsSaving(true);
+    let uploadedPhotoUrl: string | undefined = undefined;
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+          folder: "bills",
+        }),
+      });
+
+      if (!res.ok) {
+        setIsSaving(false);
+        setUploadFailedConfirmOpen(true);
+        return;
+      }
+
+      const { uploadUrl, publicUrl } = await res.json();
+      if (!uploadUrl) {
+        setIsSaving(false);
+        setUploadFailedConfirmOpen(true);
+        return;
+      }
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        setIsSaving(false);
+        setUploadFailedConfirmOpen(true);
+        return;
+      }
+
+      uploadedPhotoUrl = publicUrl;
+      await saveBillDirectly(uploadedPhotoUrl);
+    } catch (uploadErr) {
+      console.warn("Storage upload failed:", uploadErr);
+      setIsSaving(false);
+      setUploadFailedConfirmOpen(true);
     }
   };
 
@@ -221,7 +253,7 @@ export function BillPhotoUpload({
             onClick={() => {
               setFile(null);
               setPreviewUrl(null);
-              setScanSuccess(false);
+              setOcrStatus("idle");
             }}
             className="absolute top-2 right-2 p-1 rounded-full bg-obsidian/80 text-stone hover:text-ivory border border-border text-xs cursor-pointer"
           >
@@ -230,10 +262,24 @@ export function BillPhotoUpload({
         </div>
       )}
 
-      {scanSuccess && (
+      {ocrStatus === "success" && (
         <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
           <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
           <span>Bill details detected! Please check them below.</span>
+        </div>
+      )}
+
+      {ocrStatus === "unconfigured" && (
+        <div className="p-2.5 rounded-lg bg-[#c8a96b]/10 border border-[#c8a96b]/30 text-[#c8a96b] text-xs flex items-center gap-2 animate-in fade-in">
+          <Info className="w-3.5 h-3.5 text-[#c8a96b] shrink-0" />
+          <span>AI bill scanning is currently unavailable. Please enter the bill details manually.</span>
+        </div>
+      )}
+
+      {ocrStatus === "error" && (
+        <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2 animate-in fade-in">
+          <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span>We couldn&apos;t read this bill. Please enter the details manually.</span>
         </div>
       )}
 
@@ -317,6 +363,21 @@ export function BillPhotoUpload({
           </button>
         </div>
       </form>
+
+      <ConfirmDialog
+        open={uploadFailedConfirmOpen}
+        title="Receipt Upload Unavailable"
+        description="Receipt image storage is currently unavailable or unconfigured. Would you like to proceed with saving the bill without the attached receipt, or return to the form?"
+        confirmLabel="Save Without Receipt"
+        cancelLabel="Return to Form"
+        variant="warning"
+        loading={isSaving}
+        onCancel={() => setUploadFailedConfirmOpen(false)}
+        onConfirm={async () => {
+          setUploadFailedConfirmOpen(false);
+          await saveBillDirectly(undefined);
+        }}
+      />
     </div>
   );
 }

@@ -13,8 +13,27 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const isPublicRoute = pathname === "/" || pathname === "/login" || pathname === "/register";
-  const isAuthRoute = pathname === "/login" || pathname === "/register";
+  const normalizedPath = pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
+
+  const PUBLIC_ROUTES = [
+    "/",
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/privacy",
+    "/terms",
+    "/demo",
+  ];
+  const AUTH_ROUTES = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+  ];
+
+  const isPublicRoute = PUBLIC_ROUTES.includes(normalizedPath);
+  const isAuthRoute = AUTH_ROUTES.includes(normalizedPath);
 
   const sessionCookie = req.cookies.get("session")?.value;
   let session = null;

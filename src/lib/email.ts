@@ -62,9 +62,9 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
     }
 
     return { success: true };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Failed to send reset email:", err);
-    return { success: false, error: err.message };
+    return { success: false, error: err instanceof Error ? err.message : "Failed to send reset email" };
   }
 }
 

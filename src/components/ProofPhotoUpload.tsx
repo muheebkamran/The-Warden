@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useTransition } from 'react';
-import { Camera, Image as ImageIcon, Loader2, X, ExternalLink } from 'lucide-react';
+import { Camera, Image as ImageIcon, Loader2, X } from 'lucide-react';
 import { attachProofPhoto } from '@/app/actions';
 
 interface ProofPhotoUploadProps {
@@ -77,9 +77,9 @@ export function ProofPhotoUpload({
       startTransition(async () => {
         await attachProofPhoto(commitmentId, date, publicUrl);
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Proof photo upload failed:', err);
-      setErrorMessage(err?.message || 'Upload failed');
+      setErrorMessage(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

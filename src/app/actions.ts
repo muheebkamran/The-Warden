@@ -6,10 +6,9 @@ import { assertDateAllowed } from "@/lib/dateEngine";
 import { evaluateCommitment, CommitmentType } from "@/lib/evaluation";
 import { evaluateAndUpdateStreak, getStreakState, resetStreak } from "@/lib/streak";
 import { createSession, deleteSession, getSession } from "@/lib/auth";
-import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
-import { hashPassword, verifyPassword, generateResetToken, isTokenExpired } from "@/lib/password";
+import { hashPassword, verifyPassword, generateResetToken, hashResetToken, isTokenExpired } from "@/lib/password";
 import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email";
 
 // 1. requireAuth
@@ -99,10 +98,11 @@ export async function forgotPassword(formData: FormData) {
   const user = await db.user.findUnique({ where: { email } });
   if (user) {
     const { token, expiry } = generateResetToken();
+    const hashedToken = hashResetToken(token);
     await db.user.update({
       where: { id: user.id },
       data: {
-        resetToken: token,
+        resetToken: hashedToken,
         resetTokenExpiry: expiry,
       },
     });
@@ -124,8 +124,9 @@ export async function resetPassword(formData: FormData) {
     redirect(`/reset-password?token=${encodeURIComponent(token)}&error=` + encodeURIComponent("Password must be at least 6 characters."));
   }
 
+  const hashedToken = hashResetToken(token);
   const user = await db.user.findFirst({
-    where: { resetToken: token },
+    where: { resetToken: hashedToken },
   });
 
   if (!user || isTokenExpired(user.resetTokenExpiry)) {
@@ -582,6 +583,52 @@ export async function deleteTransaction(transactionId: string) {
   revalidatePath("/finance");
 }
 
+// 28b. updateTransaction
+export async function updateTransaction(data: {
+  id: string;
+  amount: number;
+  category: string;
+  type?: "expense" | "income";
+  date: string;
+  description: string;
+}) {
+  const { userId } = await requireAuth();
+
+  if (!data.id || typeof data.id !== "string") {
+    throw new Error("Invalid transaction ID");
+  }
+  if (typeof data.amount !== "number" || isNaN(data.amount) || data.amount <= 0) {
+    throw new Error("Transaction amount must be a positive number");
+  }
+  if (!data.date || !/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    throw new Error("Valid date (YYYY-MM-DD) is required");
+  }
+  if (!data.description || !data.description.trim()) {
+    throw new Error("Transaction description is required");
+  }
+
+  const existing = await db.transaction.findFirst({
+    where: { id: data.id, userId },
+  });
+  if (!existing) {
+    throw new Error("Transaction not found or unauthorized");
+  }
+
+  const updated = await db.transaction.update({
+    where: { id: data.id },
+    data: {
+      amount: Math.abs(data.amount),
+      category: (data.category || existing.category || "other").toLowerCase(),
+      type: data.type || existing.type || "expense",
+      date: data.date,
+      description: data.description.trim(),
+    },
+  });
+
+  revalidatePath("/finance");
+  return updated;
+}
+
 // 29. createImpulseLock
 export async function createImpulseLock(data: {
   itemName: string;
@@ -755,6 +802,52 @@ export async function deleteBill(billId: string) {
     where: { id: billId, userId },
   });
   revalidatePath("/finance");
+}
+
+// 37b. updateBill
+export async function updateBill(data: {
+  id: string;
+  billName: string;
+  amount: number;
+  date: string;
+  photoUrl?: string | null;
+  paid?: boolean;
+}) {
+  const { userId } = await requireAuth();
+
+  if (!data.id || typeof data.id !== "string") {
+    throw new Error("Invalid bill ID");
+  }
+  if (!data.billName || !data.billName.trim()) {
+    throw new Error("Bill name is required");
+  }
+  if (typeof data.amount !== "number" || isNaN(data.amount) || data.amount <= 0) {
+    throw new Error("Bill amount must be a positive number");
+  }
+  if (!data.date || !/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    throw new Error("Valid bill date (YYYY-MM-DD) is required");
+  }
+
+  const existing = await db.bill.findFirst({
+    where: { id: data.id, userId },
+  });
+  if (!existing) {
+    throw new Error("Bill not found or unauthorized");
+  }
+
+  const updated = await db.bill.update({
+    where: { id: data.id },
+    data: {
+      billName: data.billName.trim(),
+      amount: Math.abs(data.amount),
+      date: data.date,
+      photoUrl: data.photoUrl !== undefined ? data.photoUrl : existing.photoUrl,
+      paid: data.paid !== undefined ? data.paid : existing.paid,
+    },
+  });
+
+  revalidatePath("/finance");
+  return updated;
 }
 
 // 38. ocrBill

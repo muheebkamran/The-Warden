@@ -1,11 +1,13 @@
 "use client";
 
 import React from "react";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg" | "icon";
+  loading?: boolean;
 }
 
 export function Button({
@@ -13,35 +15,57 @@ export function Button({
   variant = "primary",
   size = "md",
   disabled,
+  loading = false,
   children,
   ...props
 }: ButtonProps) {
   const variants = {
-    primary: "bg-[#c8a96b] text-[#0b0c0e] font-semibold hover:bg-[#d4b87a] hover:scale-[1.02] active:scale-[0.98]",
-    secondary: "bg-transparent border border-[#3a3244] text-[#f2f0ea] hover:border-[#f2f0ea] hover:bg-[#1a1d22] hover:scale-[1.02] active:scale-[0.98]",
-    ghost: "bg-transparent text-[#9a9a96] hover:text-[#f2f0ea] hover:bg-[#1a1d22] hover:scale-[1.02] active:scale-[0.98]",
-    danger: "bg-transparent border border-[#b56b6b]/40 text-[#b56b6b] hover:bg-[#b56b6b]/10 hover:border-[#b56b6b] hover:scale-[1.02] active:scale-[0.98]",
+    primary:
+      "bg-[#FFFC00] text-black font-extrabold hover:bg-white hover:shadow-[0_0_20px_rgba(255,252,0,0.4)] active:scale-[0.98] transition-all",
+    secondary:
+      "bg-[#18181B] border border-[#26262B] text-white hover:border-[#FFFC00]/60 hover:text-[#FFFC00] hover:bg-[#202024] active:scale-[0.98] transition-all",
+    ghost:
+      "bg-transparent text-zinc-400 hover:text-white hover:bg-[#1A1A1E] active:scale-[0.98] transition-all",
+    danger:
+      "bg-[#FF2D55]/10 border border-[#FF2D55]/30 text-[#FF2D55] hover:bg-[#FF2D55]/20 hover:border-[#FF2D55] active:scale-[0.98] transition-all",
   };
-  
+
   const sizes = {
-    sm: "px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm",
-    md: "px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-md",
-    lg: "px-6 py-2.5 text-sm font-mono uppercase tracking-wider rounded-md",
-    icon: "p-2 rounded-sm",
+    sm: "px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-lg min-h-[30px]",
+    md: "px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-xl min-h-[36px]",
+    lg: "px-6 py-2.5 text-sm font-mono uppercase tracking-wider rounded-xl min-h-[42px]",
+    icon: "p-2 rounded-xl min-w-[36px] min-h-[36px]",
   };
+
+  const isDisabled = disabled || loading;
 
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c8a96b] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 select-none shadow-none cursor-pointer",
+        "inline-flex items-center justify-center transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFFC00]/50 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 select-none shadow-none cursor-pointer",
         variants[variant],
         sizes[size],
         className
       )}
-      disabled={disabled}
+      disabled={isDisabled}
+      aria-busy={loading ? "true" : undefined}
+      aria-disabled={isDisabled ? "true" : undefined}
       {...props}
     >
-      {children}
+      {loading ? (
+        <>
+          <Loader2
+            className={cn(
+              "animate-spin shrink-0",
+              size === "icon" ? "w-4 h-4" : "w-3.5 h-3.5 mr-2"
+            )}
+            aria-hidden="true"
+          />
+          {size !== "icon" && <span>{children}</span>}
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }

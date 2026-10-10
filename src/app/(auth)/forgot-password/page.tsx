@@ -20,8 +20,8 @@ export default async function ForgotPasswordPage({
       <Background3D />
       <Card className="w-full max-w-md p-8 md:p-10 relative z-10 backdrop-blur-xl bg-[#131519]/90 border border-[#3a3244] shadow-none">
         <div className="text-center mb-6 flex flex-col items-center">
-          <div className="w-10 h-10 rounded-sm bg-[#1a1d22] border border-[#3a3244] flex items-center justify-center text-[#c8a96b] mb-4">
-            <Shield size={20} />
+          <div className="w-14 h-14 rounded-2xl bg-black border border-[#2A2A2E] overflow-hidden flex items-center justify-center mb-4 shadow-lg shadow-[#FFFC00]/10">
+            <img src="/logo.png" alt="The Warden" className="w-full h-full object-contain" />
           </div>
           <h1 className="font-serif text-2xl tracking-[0.2em] uppercase mb-1.5 text-[#f2f0ea]">Reset Password</h1>
           <p className="font-mono text-[11px] tracking-wider text-[#9a9a96]">Enter your email to receive a secure reset link.</p>

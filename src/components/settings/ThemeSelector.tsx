@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, useSyncExternalStore } from 'react';
 import { THEMES, ThemeDefinition, applyTheme } from '@/lib/themeEngine';
 import { saveUserTheme } from '@/app/actions';
 import { Check, Sparkles } from 'lucide-react';
@@ -10,25 +10,34 @@ interface ThemeSelectorProps {
   initialTheme?: string;
 }
 
+function subscribe(callback: () => void) {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+}
+
 export function ThemeSelector({ initialTheme = 'midnight-galaxy' }: ThemeSelectorProps) {
-  const [activeTheme, setActiveTheme] = useState(initialTheme);
+  const clientStoredTheme = useSyncExternalStore(
+    subscribe,
+    () => {
+      try {
+        return localStorage.getItem('warden-theme') || initialTheme;
+      } catch {
+        return initialTheme;
+      }
+    },
+    () => initialTheme
+  );
+
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+  const activeTheme = selectedTheme ?? clientStoredTheme;
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    // Check localStorage on mount in case client has a more recent choice
-    try {
-      const stored = localStorage.getItem('warden-theme');
-      if (stored && stored !== activeTheme) {
-        setActiveTheme(stored);
-        applyTheme(stored);
-      }
-    } catch (e) {
-      // Ignore storage errors
-    }
-  }, []);
+    applyTheme(activeTheme);
+  }, [activeTheme]);
 
   const handleSelectTheme = (theme: ThemeDefinition) => {
-    setActiveTheme(theme.id);
+    setSelectedTheme(theme.id);
     applyTheme(theme.id);
 
     startTransition(async () => {

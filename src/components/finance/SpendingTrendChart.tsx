@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -37,63 +37,66 @@ export function SpendingTrendChart({
   monthKey,
   monthLabel,
 }: SpendingTrendChartProps) {
-  // Aggregate daily expenses and bills for the month
-  const dailyMap: { [day: number]: number } = {};
+  const { data, totalSpent, daysInMonth } = useMemo(() => {
+    const dailyMap: { [day: number]: number } = {};
 
-  // Parse days in this month
-  const [yearStr, monthStr] = monthKey.split("-");
-  const year = parseInt(yearStr, 10);
-  const month = parseInt(monthStr, 10); // 1-indexed
-  const daysInMonth = new Date(year, month, 0).getDate();
+    // Parse days in this month
+    const [yearStr, monthStr] = monthKey.split("-");
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10); // 1-indexed
+    const numDays = new Date(year, month, 0).getDate();
 
-  // Initialize all days
-  for (let d = 1; d <= daysInMonth; d++) {
-    dailyMap[d] = 0;
-  }
+    // Initialize all days
+    for (let d = 1; d <= numDays; d++) {
+      dailyMap[d] = 0;
+    }
 
-  // Add daily variable expenses
-  transactions
-    .filter((t) => t.type === "expense" && t.date.startsWith(monthKey))
-    .forEach((t) => {
-      const day = parseInt(t.date.split("-")[2], 10);
-      if (!isNaN(day) && day >= 1 && day <= daysInMonth) {
-        dailyMap[day] = (dailyMap[day] || 0) + t.amount;
-      }
-    });
+    // Add daily variable expenses
+    transactions
+      .filter((t) => t.type === "expense" && t.date.startsWith(monthKey))
+      .forEach((t) => {
+        const day = parseInt(t.date.split("-")[2], 10);
+        if (!isNaN(day) && day >= 1 && day <= numDays) {
+          dailyMap[day] = (dailyMap[day] || 0) + t.amount;
+        }
+      });
 
-  // Add bills
-  bills
-    .filter((b) => b.date.startsWith(monthKey))
-    .forEach((b) => {
-      const day = parseInt(b.date.split("-")[2], 10);
-      if (!isNaN(day) && day >= 1 && day <= daysInMonth) {
-        dailyMap[day] = (dailyMap[day] || 0) + b.amount;
-      }
-    });
+    // Add bills
+    bills
+      .filter((b) => b.date.startsWith(monthKey))
+      .forEach((b) => {
+        const day = parseInt(b.date.split("-")[2], 10);
+        if (!isNaN(day) && day >= 1 && day <= numDays) {
+          dailyMap[day] = (dailyMap[day] || 0) + b.amount;
+        }
+      });
 
-  // Build sorted time-series with cumulative running total
-  let cumulative = 0;
-  const data = Object.keys(dailyMap)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .map((day) => {
+    // Build sorted time-series with cumulative running total
+    const sortedDays = Object.keys(dailyMap)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    let runningTotal = 0;
+    const series = [];
+    for (const day of sortedDays) {
       const daily = dailyMap[day];
-      cumulative += daily;
+      runningTotal += daily;
       const dateObj = new Date(year, month - 1, day);
       const dateFormatted = dateObj.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
       });
 
-      return {
+      series.push({
         day,
         dateFormatted,
         daily: Math.round(daily * 100) / 100,
-        cumulative: Math.round(cumulative * 100) / 100,
-      };
-    });
+        cumulative: Math.round(runningTotal * 100) / 100,
+      });
+    }
 
-  const totalSpent = cumulative;
+    return { data: series, totalSpent: runningTotal, daysInMonth: numDays };
+  }, [monthKey, transactions, bills]);
 
   return (
     <div className="rounded-xl bg-surface border border-border p-5 space-y-4">
@@ -155,9 +158,9 @@ export function SpendingTrendChart({
                   color: "#f4f4f5",
                   boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
                 }}
-                formatter={(value: any, name: any) => [
-                  `${currency}${value}`,
-                  name === "cumulative" ? "Cumulative Burn" : "Daily Outflow",
+                formatter={(value: unknown, name: unknown) => [
+                  `${currency}${Number(value) || 0}`,
+                  String(name) === "cumulative" ? "Cumulative Burn" : "Daily Outflow",
                 ]}
                 labelStyle={{ color: "#a1a1aa", marginBottom: "4px" }}
               />

@@ -1,40 +1,64 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', monospace;
   
-  --color-obsidian: #0B0C0E;
-  --color-surface: #131519;
-  --color-elevated: #1A1D22;
-  --color-border: #292C32;
-  --color-ivory: #F2F0EA;
+  --color-obsidian: #0E0E10;
+  --color-deep-base: #0E0E10;
+  --color-surface: #141416;
+  --color-surface-panel: #141416;
+  --color-surface-card: #18181B;
+  --color-surface-elevated: #202024;
+  --color-border: #26262B;
+  --color-border-subtle: #26262B;
+  --color-border-highlight: #32323A;
+  --color-snap-yellow: #FFFC00;
+  --color-snap-green: #00D664;
+  --color-snap-red: #FF2D55;
+  --color-muted-gray: #A1A1AA;
+  --color-dim-gray: #71717A;
+  
+  --color-elevated: #202024;
+  --color-ivory: #F5F2EB;
   --color-stone: #9A9A96;
-  --color-muted: #62646A;
-  --color-gold: #C8A96B;
-  --color-gold-hover: #D4B87A;
-  --color-success: #7FA889;
-  --color-warning: #C99A54;
-  --color-error: #B56B6B;
-  --color-hairline: #3A3244;
+  --color-muted: #71717A;
+  --color-gold: #FFFC00;
+  --color-gold-hover: #FFF000;
+  --color-success: #00D664;
+  --color-warning: #FFFC00;
+  --color-error: #FF2D55;
+  --color-hairline: #26262B;
 }
 
 :root {
-  --color-hairline: #3a3244;
-  --color-obsidian: #0b0c0e;
-  --color-surface: #131519;
-  --color-elevated: #1a1d22;
-  --color-border: #292c32;
-  --color-gold: #c8a96b;
-  --color-gold-hover: #d4b87a;
-  --color-ivory: #f2f0ea;
+  --color-deep-base: #0e0e10;
+  --color-surface-panel: #141416;
+  --color-surface-card: #18181b;
+  --color-surface-elevated: #202024;
+  --color-border-subtle: #26262b;
+  --color-border-highlight: #32323a;
+  --color-snap-yellow: #fffc00;
+  --color-snap-green: #00d664;
+  --color-snap-red: #ff2d55;
+  --color-muted-gray: #a1a1aa;
+  --color-dim-gray: #71717a;
+
+  --color-obsidian: #0e0e10;
+  --color-surface: #141416;
+  --color-elevated: #202024;
+  --color-border: #26262b;
+  --color-gold: #fffc00;
+  --color-gold-hover: #fff000;
+  --color-ivory: #f5f2eb;
   --color-stone: #9a9a96;
-  --color-muted: #62646a;
-  --color-success: #7fa889;
-  --color-warning: #c99a54;
-  --color-error: #b56b6b;
+  --color-muted: #71717a;
+  --color-success: #00d664;
+  --color-warning: #fffc00;
+  --color-error: #ff2d55;
+  --color-hairline: #26262b;
 
   /* Aliases for universal compatibility across Tailwind and legacy styles */
   --bg-obsidian: var(--color-obsidian);
@@ -51,9 +75,11 @@
   --status-error: var(--color-error);
   --radius-sm: 8px;
   --radius-md: 12px;
+  --radius-panel: 1.25rem;
+  --radius-card: 1rem;
   
   /* Layout */
-  --sidebar-width: 260px;
+  --sidebar-width: 270px;
   --bottom-bar-height: 64px;
 }
 
@@ -256,7 +282,7 @@ div[class*="dev-overlay"],
   pointer-events: none !important;
 }
 
-/* ─── Refined Micro-Animations (Taste-Skill / Minimalist-UI) ───────────────── */
+/* ─── Refined Micro-Animations (Taste-Skill / Apple-Inspired Motion) ────────── */
 @keyframes fadeIn {
   0% { opacity: 0; }
   100% { opacity: 1; }
@@ -273,7 +299,7 @@ div[class*="dev-overlay"],
 }
 
 @keyframes scaleUp {
-  0% { opacity: 0; transform: scale(0.95); }
+  0% { opacity: 0; transform: scale(0.96); }
   100% { opacity: 1; transform: scale(1); }
 }
 
@@ -282,16 +308,60 @@ div[class*="dev-overlay"],
   50% { opacity: 0.5; }
 }
 
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.22; }
+}
+
+@keyframes cardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-scale-up {
-  animation: scaleUp 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: scaleUp 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-up {
   animation: slideInUp 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-skeleton {
+  animation: skeletonPulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerSweep 1.9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-card-in {
+  animation: cardEntrance 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes blurRise {
@@ -311,12 +381,47 @@ div[class*="dev-overlay"],
   animation: blurRise 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes springPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-spring-pop {
+  animation: springPop 260ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .animate-skeleton {
+    animation: none !important;
+    opacity: 0.35 !important;
+  }
+
+  .animate-card-in,
+  .animate-fade-in,
+  .animate-scale-up,
+  .animate-slide-up,
+  .animate-blur-rise {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
 }
 

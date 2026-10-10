@@ -110,7 +110,7 @@ export function applyTheme(themeId: string): void {
     document.documentElement.setAttribute('data-theme', themeId);
     try {
       localStorage.setItem('warden-theme', themeId);
-    } catch (e) {
+    } catch {
       // LocalStorage might fail in restricted iframe / sandbox
     }
   }

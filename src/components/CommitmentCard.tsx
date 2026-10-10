@@ -83,15 +83,17 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
 
   return (
     <Card className={cn(
-      "flex flex-col p-5 group transition-colors duration-200 border-[#3a3244]",
-      record?.status === "complete" ? "border-[#7fa889]/40 bg-[#7fa889]/5" : "hover:border-[#c8a96b]/40"
+      "flex flex-col p-5 group transition-all duration-200 border-[#26262B] bg-[#18181B] rounded-2xl",
+      record?.status === "complete" 
+        ? "border-[#00D664]/50 bg-[#00D664]/5 shadow-[0_4px_24px_rgba(0,214,100,0.08)]" 
+        : "hover:border-[#FFFC00]/40 hover:bg-[#1C1C20]"
     )}>
       <div className="flex justify-between items-start gap-4">
         <div className="flex flex-col">
-          <span className="font-sans font-medium text-sm text-[#f2f0ea]">
+          <span className="font-sans font-semibold text-sm text-white tracking-tight">
             {commitment.title}
           </span>
-          <span className="font-mono text-xs text-[#9a9a96] mt-1 font-normal">
+          <span className="font-mono text-xs text-zinc-400 mt-1 font-normal">
             Target: {commitment.targetValue} {commitment.unit}
           </span>
         </div>
@@ -106,14 +108,14 @@ export default function CommitmentCard({ commitment, record, dateStr, editable }
                   onClick={handleToggleBinary}
                   disabled={isPending}
                   className={cn(
-                    "w-7 h-7 rounded-sm border flex items-center justify-center transition-all duration-150 shadow-none focus:outline-none hover:scale-105 active:scale-95 cursor-pointer",
+                    "w-8 h-8 rounded-xl border flex items-center justify-center transition-all duration-150 shadow-none focus:outline-none hover:scale-105 active:scale-90 cursor-pointer",
                     record?.status === "complete"
-                      ? "bg-[#7fa889] border-[#7fa889] text-[#0b0c0e]"
-                      : "bg-[#0b0c0e] border-[#292c32] hover:border-[#c8a96b] text-[#f2f0ea]"
+                      ? "bg-[#00D664] border-[#00D664] text-black shadow-[0_0_15px_rgba(0,214,100,0.4)]"
+                      : "bg-[#0E0E10] border-[#26262B] hover:border-[#FFFC00] text-white"
                   )}
                   aria-label="Toggle commitment status"
                 >
-                  {record?.status === "complete" && <Check className="w-4 h-4" strokeWidth={3} />}
+                  {record?.status === "complete" && <Check className="w-4 h-4 animate-spring-pop" strokeWidth={3} />}
                 </button>
               ) : (
                 <div className="flex items-center gap-2">

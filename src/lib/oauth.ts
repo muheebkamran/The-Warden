@@ -104,7 +104,7 @@ export async function processGoogleCallback(req: Request) {
     });
 
     return response;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Google OAuth callback exception:", err);
     return NextResponse.redirect(
       new URL("/login?error=" + encodeURIComponent("An unexpected error occurred during Google sign-in."), req.url)

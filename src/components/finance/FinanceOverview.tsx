@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ShieldCheck, TrendingDown, DollarSign, Wallet, Settings2, Check, AlertCircle } from "lucide-react";
+import { ShieldCheck, TrendingDown, DollarSign, Wallet, Settings2, Check } from "lucide-react";
 import { updateFinanceBudget } from "@/app/actions";
 
 interface FinanceOverviewProps {

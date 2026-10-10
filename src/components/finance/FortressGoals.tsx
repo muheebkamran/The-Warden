@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Target, Trash2, CheckCircle2, DollarSign, Calendar, TrendingUp } from "lucide-react";
+import { Plus, Target, Trash2, CheckCircle2, Calendar } from "lucide-react";
 import { createFinancialGoal, updateFinancialGoalProgress, deleteFinancialGoal } from "@/app/actions";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface FinancialGoalItem {
   id: string;
@@ -288,13 +290,22 @@ export function FortressGoals({ goals, currency }: FortressGoalsProps) {
 
       {/* Goals Grid */}
       {goals.length === 0 ? (
-        <div className="p-8 rounded-xl bg-surface/50 border border-border/60 text-center space-y-2">
-          <Target className="w-8 h-8 text-stone/40 mx-auto" />
-          <p className="text-sm text-stone font-medium">No savings goals added yet</p>
-          <p className="text-xs text-muted max-w-sm mx-auto">
-            Set up an emergency fund or savings goal to build peace of mind.
-          </p>
-        </div>
+        <EmptyState
+          title="No savings goals established"
+          description="Build peace of mind and sovereign runway by locking capital towards clear targets — like a 3-month emergency reserve or major investment."
+          icon={Target}
+          action={
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowAddModal(true)}
+            >
+              <Plus className="w-4 h-4 mr-1.5 inline" />
+              Add Savings Goal
+            </Button>
+          }
+          tip="Pro-tip: Funding an emergency buffer of 3-6 months living expenses turns unexpected shocks into minor inconveniences."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {goals.map((g) => {

@@ -5,22 +5,31 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
+import { EmptyState } from "@/components/ui/EmptyState";
 import CommitmentModal from "@/components/CommitmentModal";
 import { updateCommitment, toggleCommitmentActive, deleteCommitment } from "@/app/actions";
-import { Pencil, Trash2, Archive, ArchiveRestore } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Pencil, Trash2, Archive, ArchiveRestore, CheckSquare } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
+interface HabitCommitment {
+  id: string;
+  title: string;
+  targetValue: number;
+  unit: string;
+  type: string;
+  isActive: boolean;
+}
+
 type HabitsManagerProps = {
-  commitments: any[];
+  commitments: HabitCommitment[];
 };
 
 export default function HabitsManager({ commitments }: HabitsManagerProps) {
   const [isPending, startTransition] = useTransition();
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [editItem, setEditItem] = useState<any | null>(null);
-  const [deleteItem, setDeleteItem] = useState<any | null>(null);
+  const [editItem, setEditItem] = useState<HabitCommitment | null>(null);
+  const [deleteItem, setDeleteItem] = useState<HabitCommitment | null>(null);
   
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +78,7 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
     });
   };
 
-  const renderRow = (c: any) => (
+  const renderRow = (c: HabitCommitment) => (
     <Card key={c.id} className="habit-row flex justify-between items-center p-5 mb-3 group hover:border-[#c8a96b]/40 border-[#3a3244]">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2.5">
@@ -116,9 +125,13 @@ export default function HabitsManager({ commitments }: HabitsManagerProps) {
           </div>
 
           {activeCommitments.length === 0 ? (
-            <p className="text-sm font-mono text-[#9a9a96] italic bg-[#131519] p-5 rounded-lg border border-[#3a3244]">
-              No active commitments configured.
-            </p>
+            <EmptyState
+              icon={CheckSquare}
+              title="No Active Protocols Configured"
+              description="Your discipline fortress has no active commitments. Define a daily or weekly standard to enforce personal sovereignty."
+              action={<Button variant="primary" onClick={() => setIsAddOpen(true)}>+ Add New Protocol</Button>}
+              tip="Pro Tip: Choose concrete metrics like minutes, pages, or binary completion."
+            />
           ) : (
             <div className="flex flex-col">
               {activeCommitments.map(renderRow)}

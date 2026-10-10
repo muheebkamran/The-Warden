@@ -38,21 +38,17 @@ export interface PresignedUrlResult {
  * Generates a pre-signed PUT URL for direct client-to-R2 upload
  */
 export async function getPresignedUploadUrl(
-  folder: 'avatars' | 'proofs',
+  folder: 'avatars' | 'proofs' | 'bills' | 'books' | 'uploads' | string,
   filename: string,
   contentType: string
 ): Promise<PresignedUrlResult> {
+  // If R2 is not configured, do not issue an empty or fake URL
+  if (!isR2Configured()) {
+    throw new Error('File storage is not configured (R2_NOT_CONFIGURED)');
+  }
+
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
   const uniqueKey = `${folder}/${Date.now()}-${sanitizedFilename}`;
-
-  // If R2 is not fully configured, return a deterministic simulation for local dev
-  if (!isR2Configured()) {
-    return {
-      uploadUrl: '',
-      publicUrl: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80`,
-      key: uniqueKey,
-    };
-  }
 
   const s3 = getR2Client();
   const command = new PutObjectCommand({
