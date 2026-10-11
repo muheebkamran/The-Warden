@@ -20,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
           "/.well-known/*",
           "/opengraph-image",
           "/twitter-image",
+          "/google*.html",
         ],
         disallow: [
           "/dashboard",
