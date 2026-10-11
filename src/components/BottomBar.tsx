@@ -37,9 +37,11 @@ export default function BottomBar() {
   }, [quickMenuOpen]);
 
   // Close menu on route change
-  useEffect(() => {
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
     setQuickMenuOpen(false);
-  }, [pathname]);
+  }
 
   return (
     <>

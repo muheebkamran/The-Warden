@@ -270,6 +270,15 @@ const mockDb = {
       return { count: initialLen - store.goals.length };
     },
   },
+  $transaction: async (arg: unknown) => {
+    if (typeof arg === "function") {
+      return (arg as (tx: typeof mockDb) => Promise<unknown>)(mockDb);
+    }
+    if (Array.isArray(arg)) {
+      return Promise.all(arg);
+    }
+    return arg;
+  },
 };
 
 Object.assign(db, mockDb);

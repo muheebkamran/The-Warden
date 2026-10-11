@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useTransition, useRef } from "react";
-import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -16,14 +15,12 @@ import { AvatarUpload } from "@/components/settings/AvatarUpload";
 import {
   Shield,
   CheckCircle2,
-  Lock,
   Download,
   AlertTriangle,
   RotateCcw,
   Smartphone,
   Info,
   Save,
-  Check,
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";

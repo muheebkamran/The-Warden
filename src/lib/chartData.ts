@@ -1,4 +1,4 @@
-import { getLastNDays, parseDateStr, subtractDays } from './dateEngine';
+import { getLastNDays, parseDateStr, subtractDays, getTodayStr } from './dateEngine';
 import { evaluateDay } from './evaluation';
 
 export interface CommitmentRef {
@@ -62,7 +62,7 @@ export function getWeeklyVelocityData(
     const totalDays = 7;
 
     for (let d = startDaysAgo; d >= endDaysAgo; d--) {
-      const dateStr = subtractDays(new Date().toISOString().split('T')[0], d);
+      const dateStr = subtractDays(getTodayStr(), d);
       const dayRecords = allRecords.filter((r) => r.date === dateStr);
       const positiveCount = dayRecords.filter(
         (r) => r.status === 'complete' || r.status === 'showed_up'

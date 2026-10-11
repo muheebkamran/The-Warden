@@ -84,6 +84,7 @@ export function AvatarUpload({ currentAvatarUrl }: AvatarUploadProps) {
       <div className="relative group">
         <div className="w-20 h-20 rounded-full bg-elevated border-2 border-border/80 overflow-hidden flex items-center justify-center shadow-inner">
           {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarUrl}
               alt="User avatar"

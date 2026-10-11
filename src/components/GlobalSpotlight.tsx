@@ -1,26 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 export function GlobalSpotlight() {
-  const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
-  const [renderedPos, setRenderedPos] = useState({ x: -500, y: -500 });
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let mouseX = -500;
+    let mouseY = -500;
+    let currentX = -500;
+    let currentY = -500;
+    let animationFrameId: number;
+
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
-    let animationFrameId: number;
-    let currentX = -500;
-    let currentY = -500;
-
     const animate = () => {
-      currentX += (mousePos.x - currentX) * 0.1;
-      currentY += (mousePos.y - currentY) * 0.1;
-      setRenderedPos({ x: Math.round(currentX), y: Math.round(currentY) });
+      currentX += (mouseX - currentX) * 0.1;
+      currentY += (mouseY - currentY) * 0.1;
+
+      if (spotlightRef.current) {
+        spotlightRef.current.style.background = `radial-gradient(260px circle at ${Math.round(currentX)}px ${Math.round(currentY)}px, rgba(200, 169, 107, 0.12) 0%, transparent 100%)`;
+      }
       animationFrameId = requestAnimationFrame(animate);
     };
 
@@ -30,15 +35,16 @@ export function GlobalSpotlight() {
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [mousePos.x, mousePos.y]);
+  }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
       {/* 260px Soft Gold Spotlight Following Cursor Smoothly */}
       <div
+        ref={spotlightRef}
         className="absolute inset-0 transition-opacity duration-300 pointer-events-none"
         style={{
-          background: `radial-gradient(260px circle at ${renderedPos.x}px ${renderedPos.y}px, rgba(200, 169, 107, 0.12) 0%, transparent 100%)`,
+          background: "radial-gradient(260px circle at -500px -500px, rgba(200, 169, 107, 0.12) 0%, transparent 100%)",
         }}
       />
 

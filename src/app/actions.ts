@@ -261,14 +261,23 @@ export async function createCommitment(formData: FormData) {
 export async function updateCommitment(formData: FormData) {
   const { userId } = await requireAuth();
   const commitmentId = formData.get("commitmentId") as string;
-  const title = formData.get("title") as string;
-  const targetValue = Number(formData.get("targetValue"));
-  const unit = formData.get("unit") as string;
+  const title = (formData.get("title") as string)?.trim();
+  let targetValue = Number(formData.get("targetValue"));
+  let unit = (formData.get("unit") as string)?.trim() || "";
 
-  if (!title || title.trim() === "") throw new Error("Title is required");
+  if (!title) throw new Error("Title is required");
 
   const commitment = await db.commitment.findFirst({ where: { id: commitmentId, userId } });
   if (!commitment) throw new Error("Not found");
+
+  if (commitment.type === 'binary') {
+    targetValue = 1;
+    unit = 'check';
+  } else {
+    if (isNaN(targetValue) || targetValue <= 0) {
+      throw new Error("Target value must be greater than 0");
+    }
+  }
 
   await db.commitment.update({
     where: { id: commitmentId },
@@ -290,8 +299,10 @@ export async function toggleCommitmentActive(commitmentId: string) {
     data: { isActive: !commitment.isActive },
   });
 
+  await evaluateAndUpdateStreak(userId);
   revalidatePath('/');
   revalidatePath('/habits');
+  revalidatePath('/progress');
 }
 
 // 7. deleteCommitment
@@ -301,6 +312,7 @@ export async function deleteCommitment(commitmentId: string) {
   if (!commitment) return;
 
   await db.commitment.delete({ where: { id: commitmentId } });
+  await evaluateAndUpdateStreak(userId);
   revalidatePath('/');
   revalidatePath('/habits');
   revalidatePath('/progress');
@@ -426,13 +438,27 @@ export async function resetStreakAction() {
 // 14. updateUserSettings
 export async function updateUserSettings(formData: FormData) {
   const { userId } = await requireAuth();
-  const email = formData.get("email") as string;
-  const timezone = formData.get("timezone") as string;
+  const rawEmail = (formData.get("email") as string)?.trim().toLowerCase();
+  const timezone = (formData.get("timezone") as string)?.trim() || "UTC";
 
-  await db.user.update({
-    where: { id: userId },
-    data: { email, timezone },
-  });
+  if (rawEmail) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
+      throw new Error("Invalid email format");
+    }
+    const existing = await db.user.findUnique({ where: { email: rawEmail } });
+    if (existing && existing.id !== userId) {
+      throw new Error("Email is already registered with another account");
+    }
+    await db.user.update({
+      where: { id: userId },
+      data: { email: rawEmail, timezone },
+    });
+  } else {
+    await db.user.update({
+      where: { id: userId },
+      data: { timezone },
+    });
+  }
 
   revalidatePath('/settings');
 }
@@ -440,22 +466,65 @@ export async function updateUserSettings(formData: FormData) {
 // 15. exportUserData
 export async function exportUserData() {
   const { userId } = await requireAuth();
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      name: true,
+      timezone: true,
+      preferredTheme: true,
+      createdAt: true,
+    },
+  });
   const commitments = await db.commitment.findMany({ where: { userId } });
   const records = await db.dailyRecord.findMany({ where: { userId } });
+  const reflections = await db.dailyReflection.findMany({ where: { userId } });
+  const streak = await db.streakState.findUnique({ where: { userId } });
+  const transactions = await db.transaction.findMany({ where: { userId } });
+  const impulseLocks = await db.impulseLock.findMany({ where: { userId } });
+  const financialGoals = await db.financialGoal.findMany({ where: { userId } });
+  const bills = await db.bill.findMany({ where: { userId } });
+  const financeProfile = await db.financeProfile.findUnique({ where: { userId } });
 
-  return JSON.stringify({ commitments, records }, null, 2);
+  return JSON.stringify(
+    {
+      user,
+      commitments,
+      records,
+      reflections,
+      streak,
+      transactions,
+      impulseLocks,
+      financialGoals,
+      bills,
+      financeProfile,
+    },
+    null,
+    2
+  );
 }
 
 // 16. deleteMyData
 export async function deleteMyData() {
   const { userId } = await requireAuth();
   
-  await db.dailyRecord.deleteMany({ where: { userId } });
-  await db.commitment.deleteMany({ where: { userId } });
-  await db.streakState.delete({ where: { userId } }).catch(() => {});
-  await db.dailyReflection.deleteMany({ where: { userId } });
+  await db.$transaction([
+    db.dailyRecord.deleteMany({ where: { userId } }),
+    db.commitment.deleteMany({ where: { userId } }),
+    db.streakState.deleteMany({ where: { userId } }),
+    db.dailyReflection.deleteMany({ where: { userId } }),
+    db.transaction.deleteMany({ where: { userId } }),
+    db.impulseLock.deleteMany({ where: { userId } }),
+    db.financialGoal.deleteMany({ where: { userId } }),
+    db.bill.deleteMany({ where: { userId } }),
+    db.financeProfile.deleteMany({ where: { userId } }),
+  ]);
 
   revalidatePath('/');
+  revalidatePath('/habits');
+  revalidatePath('/progress');
+  revalidatePath('/finance');
+  revalidatePath('/settings');
 }
 
 // 17. saveReflection
@@ -561,11 +630,22 @@ export async function addTransaction(data: {
   description: string;
 }) {
   const { userId } = await requireAuth();
+
+  if (typeof data.amount !== "number" || isNaN(data.amount) || data.amount <= 0) {
+    throw new Error("Transaction amount must be a positive number");
+  }
+  if (!data.date || !/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    throw new Error("Valid date (YYYY-MM-DD) is required");
+  }
+  if (!data.description || !data.description.trim()) {
+    throw new Error("Transaction description is required");
+  }
+
   await db.transaction.create({
     data: {
       userId,
       amount: Math.abs(data.amount),
-      category: data.category || "other",
+      category: (data.category || "other").toLowerCase(),
       type: data.type || "expense",
       date: data.date,
       description: data.description.trim(),
@@ -663,29 +743,32 @@ export async function resolveImpulseLock(lockId: string, resolution: "killed" | 
   });
 
   if (!lock) throw new Error("Lock not found");
+  if (lock.status !== "cooling") return; // Guard against duplicate resolution
 
-  await db.impulseLock.update({
-    where: { id: lockId },
-    data: {
-      status: resolution,
-      resolvedAt: new Date(),
-    },
-  });
+  const today = new Date().toISOString().split("T")[0];
 
-  // If user decides to purchase after the cooling period, automatically log the expense!
-  if (resolution === "purchased") {
-    const today = new Date().toISOString().split("T")[0];
-    await db.transaction.create({
+  await db.$transaction(async (tx) => {
+    await tx.impulseLock.update({
+      where: { id: lockId },
       data: {
-        userId,
-        amount: lock.amount,
-        category: lock.category || "shopping",
-        type: "expense",
-        date: today,
-        description: `${lock.itemName} (Approved post-cooling)`,
+        status: resolution,
+        resolvedAt: new Date(),
       },
     });
-  }
+
+    if (resolution === "purchased") {
+      await tx.transaction.create({
+        data: {
+          userId,
+          amount: lock.amount,
+          category: lock.category || "shopping",
+          type: "expense",
+          date: today,
+          description: `${lock.itemName} (Approved post-cooling)`,
+        },
+      });
+    }
+  });
 
   revalidatePath("/finance");
 }
@@ -765,6 +848,17 @@ export async function addBill(data: {
   paid?: boolean;
 }) {
   const { userId } = await requireAuth();
+
+  if (!data.billName || !data.billName.trim()) {
+    throw new Error("Bill name is required");
+  }
+  if (typeof data.amount !== "number" || isNaN(data.amount) || data.amount <= 0) {
+    throw new Error("Bill amount must be a positive number");
+  }
+  if (!data.date || !/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    throw new Error("Valid bill date (YYYY-MM-DD) is required");
+  }
+
   const bill = await db.bill.create({
     data: {
       userId,

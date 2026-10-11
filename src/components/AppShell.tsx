@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useSyncExternalStore, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import Sidebar from "./Sidebar";
@@ -14,8 +14,25 @@ const Background3D = dynamic(() => import("./Background3D"), {
   loading: () => <div className="fixed inset-0 z-[-1] pointer-events-none" />
 });
 
+function useIsDesktop() {
+  const subscribe = useCallback((onStoreChange: () => void) => {
+    if (typeof window === "undefined") return () => {};
+    const mql = window.matchMedia("(min-width: 1024px)");
+    mql.addEventListener("change", onStoreChange);
+    return () => mql.removeEventListener("change", onStoreChange);
+  }, []);
+
+  return useSyncExternalStore(
+    subscribe,
+    () => (typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false),
+    () => false
+  );
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isDesktop = useIsDesktop();
+  const [manualSidebarState, setManualSidebarState] = useState<boolean | null>(null);
+  const sidebarOpen = manualSidebarState ?? isDesktop;
   const pathname = usePathname();
   const [currentTime, setCurrentTime] = useState("EST 09:41:22");
 
@@ -34,13 +51,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     updateClock();
     const timer = setInterval(updateClock, 1000);
     return () => clearInterval(timer);
-  }, []);
-
-  // Default sidebar to open on desktop (>= 1024px), closed on mobile (< 1024px)
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
-      setSidebarOpen(true);
-    }
   }, []);
 
   // Dynamic Sector Breadcrumb Title matching Screenshots 1-5
@@ -68,7 +78,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <header className="fixed top-0 left-0 right-0 h-16 md:h-16 bg-[#0E0E10]/90 backdrop-blur-xl border-b border-[#222227] flex items-center justify-between px-4 sm:px-6 lg:px-8 z-40 transition-colors select-none">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={() => setManualSidebarState(!sidebarOpen)}
             className="p-1.5 text-zinc-400 hover:text-white hover:bg-[#1A1A1E] transition-colors rounded-xl focus:outline-none cursor-pointer"
             aria-label="Toggle Sidebar"
           >
@@ -117,7 +127,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden transition-opacity" 
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setManualSidebarState(false)}
           aria-hidden="true"
         />
       )}

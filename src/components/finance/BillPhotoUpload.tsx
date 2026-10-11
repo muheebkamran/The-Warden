@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Upload, Camera, Sparkles, Check, X, Info, AlertCircle } from "lucide-react";
 import { addBill, ocrBill } from "@/app/actions";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -31,6 +31,15 @@ export function BillPhotoUpload({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Revoke object URL on unmount or URL replacement
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const processFile = async (selectedFile: File) => {
     if (!selectedFile.type.startsWith("image/")) {
       alert("Please upload an image file (JPEG, PNG, WEBP).");
@@ -38,6 +47,9 @@ export function BillPhotoUpload({
     }
 
     setFile(selectedFile);
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreviewUrl(objectUrl);
     setIsScanning(true);

@@ -14,7 +14,6 @@ import {
   TrendingUp,
   Wallet,
   CheckCircle2,
-  Calendar,
   Layers,
   Activity,
   Zap,

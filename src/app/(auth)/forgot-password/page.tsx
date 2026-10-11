@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import Background3D from "@/components/Background3D";
-import { Shield, Mail, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
+import { Mail, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
 import { WardenLogo } from "@/components/ui/WardenLogo";
 
 export default async function ForgotPasswordPage({

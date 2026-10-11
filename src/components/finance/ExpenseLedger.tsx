@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Calendar, ArrowDownRight, ArrowUpRight, Filter, Pencil, X, Utensils, Fuel, ShoppingBag, Film, Home, MoreHorizontal } from "lucide-react";
+import { Plus, Trash2, Calendar, ArrowDownRight, ArrowUpRight, Pencil, X } from "lucide-react";
 import { addTransaction, deleteTransaction, updateTransaction } from "@/app/actions";
 import { EmptyState } from "@/components/ui/EmptyState";
 

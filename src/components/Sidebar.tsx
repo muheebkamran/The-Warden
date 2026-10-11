@@ -10,7 +10,6 @@ import {
   IconWallet,
   IconSettings,
   IconLogout,
-  IconShieldCheck,
 } from "@tabler/icons-react";
 import { logout } from "@/app/actions";
 import { cn } from "@/lib/utils";

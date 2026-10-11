@@ -6,12 +6,8 @@ import {
   CheckCircle2, 
   Rocket, 
   Award, 
-  ChevronLeft, 
-  ChevronRight, 
   Download, 
   FileEdit, 
-  Flame, 
-  ShieldCheck, 
   Snowflake, 
   Lock, 
   Dumbbell, 
@@ -19,9 +15,6 @@ import {
   BookOpen, 
   Grid, 
   Calendar as CalendarIcon, 
-  TrendingUp, 
-  Activity,
-  Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/EmptyState";

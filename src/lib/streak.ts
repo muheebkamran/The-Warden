@@ -74,12 +74,18 @@ export async function recalculateStreak(userId: string): Promise<StreakEvalResul
       if (isToday) todayPassed = true;
     } else {
       if (!isToday) {
-        if (graceDayActive) {
+        if (currentStreak > 0) {
+          if (graceDayActive) {
+            currentStreak = 0;
+            graceDayActive = false;
+            streakBroken = true;
+          } else {
+            graceDayActive = true;
+            streakBroken = false;
+          }
+        } else {
           currentStreak = 0;
           graceDayActive = false;
-          streakBroken = true;
-        } else {
-          graceDayActive = true;
           streakBroken = false;
         }
       } else {

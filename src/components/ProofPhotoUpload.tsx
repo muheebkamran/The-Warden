@@ -174,6 +174,7 @@ export function ProofPhotoUpload({
               </button>
             </div>
             <div className="rounded overflow-hidden max-h-96 flex items-center justify-center bg-obsidian">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photoUrl}
                 alt="Habit proof"

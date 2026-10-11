@@ -7,20 +7,18 @@ import CommitmentModal from "@/components/CommitmentModal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getDateEditability } from "@/lib/dateEngine";
+import { getDateEditability, parseDateStr } from "@/lib/dateEngine";
 import { saveReflection, getReflection } from "@/app/actions";
 import { cn } from "@/lib/utils";
 import {
   Target,
   Flame,
   Plus,
-  Calendar,
   Check,
   CheckCircle2,
   FileText,
   Lock,
   BookOpen,
-  Hourglass,
   Quote,
   ArrowRight,
 } from "lucide-react";
@@ -90,11 +88,11 @@ export default function TodayDashboard({
       month: "long",
       day: "numeric",
     };
-    return new Date(dateString).toLocaleDateString("en-US", options);
+    return parseDateStr(dateString).toLocaleDateString("en-US", options);
   };
 
   const formatShortDay = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return parseDateStr(dateString).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });

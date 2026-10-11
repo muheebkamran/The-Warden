@@ -36,7 +36,7 @@ export async function processGoogleCallback(req: Request) {
   }
 
   const appUrl = getAppUrl(req);
-  const redirectUri = `${appUrl}${url.pathname}`;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${appUrl}${url.pathname}`;
 
   try {
     // 1. Exchange code for access & ID tokens

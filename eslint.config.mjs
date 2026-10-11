@@ -27,6 +27,8 @@ const eslintConfig = defineConfig([
     "skill-creator/**",
     "template/**",
     "theme-factory/**",
+    "scratch/**",
+    "scripts/**",
     "*.js",
   ]),
 ]);

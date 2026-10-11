@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import Background3D from "@/components/Background3D";
-import { Shield, KeyRound, AlertCircle, ArrowLeft } from "lucide-react";
+import { KeyRound, AlertCircle, ArrowLeft } from "lucide-react";
 import { WardenLogo } from "@/components/ui/WardenLogo";
 
 export default async function ResetPasswordPage({
