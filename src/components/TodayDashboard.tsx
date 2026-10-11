@@ -7,7 +7,7 @@ import CommitmentModal from "@/components/CommitmentModal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getDateEditability, parseDateStr } from "@/lib/dateEngine";
+import { getDateEditability, parseDateStr, formatDateStr } from "@/lib/dateEngine";
 import { saveReflection, getReflection } from "@/app/actions";
 import { cn } from "@/lib/utils";
 import {
@@ -152,9 +152,9 @@ export default function TodayDashboard({
   // Compute 7-day mini strip ending on today
   const last7Days = useMemo(() => {
     return Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(todayStr);
+      const d = parseDateStr(todayStr);
       d.setDate(d.getDate() - (6 - i));
-      const iso = d.toISOString().split("T")[0];
+      const iso = formatDateStr(d);
       const dayRecords = records.filter((r) => r.date === iso);
       const dayPositive = dayRecords.filter(
         (r) => r.status === "complete" || r.status === "showed_up"
@@ -504,8 +504,9 @@ export default function TodayDashboard({
                   (r) => r.commitmentId === commitment.id
                 );
                 return (
-                  <div key={commitment.id}>
+                  <div key={`${commitment.id}-${selectedDate}`}>
                     <CommitmentCard
+                      key={`${commitment.id}-${selectedDate}`}
                       commitment={commitment}
                       record={record}
                       dateStr={selectedDate}

@@ -15,7 +15,10 @@ export async function signToken(payload: { userId: string }): Promise<string> {
 export async function verifyToken(token: string): Promise<{ userId: string } | null> {
   try {
     const { payload } = await jwtVerify(token, key);
-    return payload as { userId: string };
+    if (!payload || typeof payload.userId !== "string" || !payload.userId.trim()) {
+      return null;
+    }
+    return { userId: payload.userId };
   } catch {
     return null;
   }

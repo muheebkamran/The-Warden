@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Upload, Camera, Sparkles, Check, X, Info, AlertCircle } from "lucide-react";
 import { addBill, ocrBill } from "@/app/actions";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { getTodayStr } from "@/lib/dateEngine";
 
 interface BillPhotoUploadProps {
   currency: string;
@@ -26,7 +27,7 @@ export function BillPhotoUpload({
   // Form fields
   const [billName, setBillName] = useState("");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(getTodayStr());
   const [paid, setPaid] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);

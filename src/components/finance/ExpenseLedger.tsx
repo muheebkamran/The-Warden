@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Plus, Trash2, Calendar, ArrowDownRight, ArrowUpRight, Pencil, X } from "lucide-react";
 import { addTransaction, deleteTransaction, updateTransaction } from "@/app/actions";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { getTodayStr } from "@/lib/dateEngine";
 
 interface TransactionItem {
   id: string;
@@ -31,7 +32,7 @@ const CATEGORIES = [
 ];
 
 export function ExpenseLedger({ transactions, currency }: ExpenseLedgerProps) {
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getTodayStr();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [amount, setAmount] = useState("");

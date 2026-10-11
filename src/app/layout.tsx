@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { getSession } from "@/lib/auth";
-import { db } from "@/lib/db";
 
 import { GlobalSpotlight } from "@/components/GlobalSpotlight";
 
@@ -94,30 +92,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  let initialTheme = "midnight-galaxy";
-
-  try {
-    const session = await getSession();
-    if (session?.userId) {
-      const user = await db.user.findUnique({
-        where: { id: session.userId },
-        select: { preferredTheme: true },
-      });
-      if (user?.preferredTheme) {
-        initialTheme = user.preferredTheme;
-      }
-    }
-  } catch {
-    // Fallback if not logged in
-  }
-
   return (
-    <html lang="en" data-theme={initialTheme} suppressHydrationWarning>
+    <html lang="en" data-theme="midnight-galaxy" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"

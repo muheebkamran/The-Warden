@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { assertDateAllowed } from "@/lib/dateEngine";
+import { assertDateAllowed, getTodayStr } from "@/lib/dateEngine";
 import { evaluateCommitment, CommitmentType } from "@/lib/evaluation";
 import { evaluateAndUpdateStreak, getStreakState, resetStreak } from "@/lib/streak";
 import { createSession, deleteSession, getSession } from "@/lib/auth";
@@ -81,21 +81,29 @@ export async function register(formData: FormData) {
 
   const passwordHash = await hashPassword(password);
 
-  const user = await db.user.create({
-    data: {
-      email,
-      name,
-      passwordHash,
-      commitments: {
-        create: [
-          { title: "Read 20 mins", type: "duration", targetValue: 20, unit: "min", frequency: "daily" },
-          { title: "Exercise", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
-          { title: "Drink 2L Water", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
-          { title: "No Junk Food", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
-        ]
+  let user;
+  try {
+    user = await db.user.create({
+      data: {
+        email,
+        name,
+        passwordHash,
+        commitments: {
+          create: [
+            { title: "Read 20 mins", type: "duration", targetValue: 20, unit: "min", frequency: "daily" },
+            { title: "Exercise", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+            { title: "Drink 2L Water", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+            { title: "No Junk Food", type: "binary", targetValue: 1, unit: "check", frequency: "daily" },
+          ]
+        }
       }
+    });
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && (error as { code: unknown }).code === "P2002") {
+      redirect("/register?error=" + encodeURIComponent("An account with this email already exists. Please log in."));
     }
-  });
+    throw error;
+  }
 
   // Dual-dispatch: Sovereign welcome email to customer + Live customer roster alert to admin
   await Promise.allSettled([
@@ -258,7 +266,9 @@ export async function createCommitment(formData: FormData) {
     targetValue = 1;
     unit = 'check';
   } else {
-    if (targetValue <= 0) throw new Error("Target value must be greater than 0");
+    if (!Number.isFinite(targetValue) || targetValue <= 0) {
+      throw new Error("Target value must be greater than 0");
+    }
   }
 
   await db.commitment.create({
@@ -345,6 +355,10 @@ export async function recordCommitment(formData: FormData) {
   const date = formData.get("date") as string;
   const actualValue = Number(formData.get("actualValue"));
   const note = formData.get("note") as string | null;
+
+  if (!Number.isFinite(actualValue) || actualValue < 0) {
+    throw new Error("Actual value must be a valid non-negative number");
+  }
 
   assertDateAllowed(date, 'Record commitment');
 
@@ -751,6 +765,14 @@ export async function createImpulseLock(data: {
   hoursDelay?: number;
 }) {
   const { userId } = await requireAuth();
+
+  if (!data.itemName || !data.itemName.trim()) {
+    throw new Error("Item name is required");
+  }
+  if (typeof data.amount !== "number" || !Number.isFinite(data.amount) || data.amount <= 0) {
+    throw new Error("Impulse lock amount must be a positive number");
+  }
+
   const delay = data.hoursDelay && data.hoursDelay > 0 ? data.hoursDelay : 48;
   const coolsAt = new Date(Date.now() + delay * 60 * 60 * 1000);
 
@@ -778,7 +800,7 @@ export async function resolveImpulseLock(lockId: string, resolution: "killed" | 
   if (!lock) throw new Error("Lock not found");
   if (lock.status !== "cooling") return; // Guard against duplicate resolution
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayStr();
 
   await db.$transaction(async (tx) => {
     await tx.impulseLock.update({
@@ -824,6 +846,14 @@ export async function createFinancialGoal(data: {
   targetDate?: string;
 }) {
   const { userId } = await requireAuth();
+
+  if (!data.title || !data.title.trim()) {
+    throw new Error("Goal title is required");
+  }
+  if (typeof data.targetAmount !== "number" || !Number.isFinite(data.targetAmount) || data.targetAmount <= 0) {
+    throw new Error("Goal target amount must be a positive number");
+  }
+
   const current = Math.max(0, data.currentAmount || 0);
   const target = Math.max(1, data.targetAmount);
 

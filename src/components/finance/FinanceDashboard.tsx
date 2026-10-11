@@ -43,6 +43,7 @@ import { ExpenseLedger } from "./ExpenseLedger";
 import { FortressGoals } from "./FortressGoals";
 import { ImpulseVault } from "./ImpulseVault";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { getTodayStr } from "@/lib/dateEngine";
 import {
   addTransaction,
   deleteTransaction,
@@ -271,7 +272,7 @@ export function FinanceDashboard({
   const savingsRate = totalIncome > 0 ? Math.max(0, Math.round((netSavings / totalIncome) * 100)) : 0;
 
   // Overview metrics
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getTodayStr();
   const todaySpent = transactions
     .filter((t) => t.date === todayStr && t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
@@ -329,7 +330,7 @@ export function FinanceDashboard({
     if (!expenseAmount || !expenseDesc) return;
     setIsSubmitting(true);
     try {
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayStr();
       const targetDate = today.startsWith(monthKey) ? today : `${monthKey}-15`;
 
       await addTransaction({

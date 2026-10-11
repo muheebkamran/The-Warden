@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { formatDateStr, parseDateStr } from "@/lib/dateEngine";
 
 interface Commitment {
   id: string;
@@ -199,7 +200,7 @@ export function ProgressView({
 
   // 4. Weekly Velocity Bar Chart: Current week Monday to Sunday
   const weeklyVelocityData = useMemo(() => {
-    const today = new Date(todayStr + "T00:00:00");
+    const today = parseDateStr(todayStr);
     const dayOfWeek = today.getDay();
     const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     const monday = new Date(today);
@@ -214,7 +215,7 @@ export function ProgressView({
     const days = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const iso = d.toISOString().split("T")[0];
+      const iso = formatDateStr(d);
       const isToday = iso === todayStr;
       const isFuture = iso > todayStr;
 
@@ -257,9 +258,9 @@ export function ProgressView({
     const totalCommitments = commitments.length;
 
     return Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(todayStr + "T00:00:00");
+      const d = parseDateStr(todayStr);
       d.setDate(d.getDate() - (6 - i));
-      const iso = d.toISOString().split("T")[0];
+      const iso = formatDateStr(d);
       const isToday = iso === todayStr;
 
       const dayRecords = allRecords.filter(r => r.date === iso);
@@ -305,7 +306,7 @@ export function ProgressView({
 
   // 6. 16-Week Dynamic Calendar Heatmap Grid (112 cells)
   const heatmapData = useMemo(() => {
-    const today = new Date(todayStr + "T00:00:00");
+    const today = parseDateStr(todayStr);
     const dayOfWeek = today.getDay();
     const diffToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
     const endSunday = new Date(today);
@@ -334,7 +335,7 @@ export function ProgressView({
     const cells = Array.from({ length: totalDays }).map((_, idx) => {
       const cellDate = new Date(startDate);
       cellDate.setDate(startDate.getDate() + idx);
-      const iso = cellDate.toISOString().split("T")[0];
+      const iso = formatDateStr(cellDate);
       const isToday = iso === todayStr;
       const isFuture = iso > todayStr;
 

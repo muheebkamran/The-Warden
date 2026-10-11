@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = "The-Warden — Sovereign Personal Accountability OS";
 export const size = {
   width: 1200,

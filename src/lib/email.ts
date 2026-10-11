@@ -229,7 +229,8 @@ export async function sendAdminCustomerRosterNotification(
   const userEmail = payload.userEmail.toLowerCase().trim();
   const userName = payload.userName ? payload.userName.trim() : null;
 
-  // Retrieve full customer roster from database
+  // Retrieve recent customer roster from database with total count
+  let totalUsers = 0;
   let allUsers: Array<{
     id: string;
     email: string;
@@ -239,18 +240,24 @@ export async function sendAdminCustomerRosterNotification(
   }> = [];
 
   try {
-    allUsers = await db.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        googleId: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const [count, users] = await Promise.all([
+      db.user.count(),
+      db.user.findMany({
+        take: 50,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          googleId: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+    ]);
+    totalUsers = count;
+    allUsers = users;
   } catch (dbErr) {
     console.error("Failed to query user roster for admin alert:", dbErr);
     // If DB query encounters an issue, fallback with current user entry
@@ -263,9 +270,8 @@ export async function sendAdminCustomerRosterNotification(
         createdAt: new Date(),
       },
     ];
+    totalUsers = 1;
   }
-
-  const totalUsers = allUsers.length;
 
   if (!apiKey) {
     console.warn(
