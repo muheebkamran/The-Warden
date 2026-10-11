@@ -1,0 +1,6 @@
+Contact: mailto:security@thewarden.online
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://thewarden.online/.well-known/security.txt
+Policy: https://thewarden.online/privacy
+Acknowledgments: https://thewarden.online/demo

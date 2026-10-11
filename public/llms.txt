@@ -1,0 +1,30 @@
+# The-Warden (https://thewarden.online)
+
+> Sovereign Personal Accountability Operating System & Financial Discipline Vault.
+
+## Overview
+The-Warden (also known as The Warden, The Warden OS) is an uncompromising personal accountability operating system engineered to enforce daily habit consistency, track unbroken fortress streaks, and protect personal financial capital. Built with zero advertisements, zero social vanity metrics, and air-gapped data sovereignty.
+
+## Core Capabilities
+- **Diurnal Habit Protocol:** Daily 24-hour accountability cycle eliminating backlog anxiety.
+- **Fortress Continuity & Streaks:** Unbroken streak telemetry powered by the 70% Defense Doctrine (maintain 70% habit completion to preserve active streak) and automatic Grace Day protection.
+- **Impulse Expense Vault:** 48-hour cooling lock on non-essential purchases with verified expense verdicts.
+- **Bill Telemetry & AI OCR:** Automated receipt and bill scanning with multi-model verification.
+- **Zero-Ad Sovereignty:** Zero user tracking, zero data brokering, and 100% data sovereignty.
+
+## Canonical URLs
+- Home: https://thewarden.online/
+- Interactive Architecture Demo: https://thewarden.online/demo
+- User Registration: https://thewarden.online/register
+- User Sign In: https://thewarden.online/login
+- Privacy Policy: https://thewarden.online/privacy
+- Terms of Service: https://thewarden.online/terms
+- XML Sitemap: https://thewarden.online/sitemap.xml
+- Robots Directive: https://thewarden.online/robots.txt
+
+## Entity Information
+- Name: The-Warden
+- Alternate Names: The Warden, The Warden OS, TheWarden
+- Author / Maintainer: Muheeb Kamran
+- Official Code Repository: https://github.com/muheebkamran/The-Warden
+- Primary Domain: https://thewarden.online

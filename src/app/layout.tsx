@@ -16,15 +16,20 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://thewarden.online"),
   title: {
-    default: "Personal Accountability OS — Daily Discipline | THE WARDEN",
-    template: "%s | THE WARDEN",
+    default: "The-Warden — Sovereign Personal Accountability OS & Habit Vault",
+    template: "%s | The-Warden",
   },
-  description: "Enforce daily habits and protect financial sovereignty with The Warden. Zero advertisements, zero vanity metrics. Built for high performers.",
-  applicationName: "The Warden",
-  authors: [{ name: "The Warden", url: "https://thewarden.online" }],
-  creator: "The Warden",
-  publisher: "The Warden",
+  description: "The-Warden is an uncompromising personal accountability OS engineered to enforce daily habits and protect financial sovereignty. Zero ads, unbroken streaks.",
+  applicationName: "The-Warden",
+  authors: [{ name: "The-Warden", url: "https://thewarden.online" }],
+  creator: "The-Warden",
+  publisher: "The-Warden",
   keywords: [
+    "The-Warden",
+    "The Warden",
+    "The Warden OS",
+    "The-Warden habit tracker",
+    "The Warden accountability",
     "personal accountability os",
     "sovereign habit tracker",
     "discipline tracking software",
@@ -119,24 +124,53 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "The Warden",
-              operatingSystem: "All (Web, iOS, Android PWA)",
-              applicationCategory: "ProductivityApplication",
-              description:
-                "Sovereign personal accountability operating system engineered to enforce daily habits and financial discipline with mathematical telemetry.",
-              url: "https://thewarden.online",
-              softwareVersion: "4.2",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              author: {
-                "@type": "Organization",
-                name: "The Warden",
-                url: "https://thewarden.online",
-              },
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": "https://thewarden.online/#website",
+                  "url": "https://thewarden.online",
+                  "name": "The-Warden",
+                  "alternateName": [
+                    "The Warden",
+                    "The Warden OS",
+                    "TheWarden",
+                    "The-Warden Accountability OS"
+                  ],
+                  "description":
+                    "Sovereign personal accountability operating system for daily habits and finances.",
+                  "publisher": {
+                    "@id": "https://thewarden.online/#organization"
+                  }
+                },
+                {
+                  "@type": "Organization",
+                  "@id": "https://thewarden.online/#organization",
+                  "name": "The-Warden",
+                  "legalName": "The-Warden",
+                  "url": "https://thewarden.online",
+                  "logo": "https://thewarden.online/logo.png",
+                  "sameAs": ["https://github.com/muheebkamran/The-Warden"]
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "@id": "https://thewarden.online/#software",
+                  "name": "The-Warden",
+                  "operatingSystem": "All (Web, iOS, Android PWA)",
+                  "applicationCategory": "ProductivityApplication",
+                  "description":
+                    "Sovereign personal accountability operating system engineered to enforce daily habits and financial discipline with mathematical telemetry.",
+                  "url": "https://thewarden.online",
+                  "softwareVersion": "4.2",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  },
+                  "author": {
+                    "@id": "https://thewarden.online/#organization"
+                  }
+                }
+              ]
             }),
           }}
         />

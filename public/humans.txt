@@ -1,0 +1,11 @@
+/* TEAM */
+Creator: Muheeb Kamran
+Role: Sovereign Systems Architect
+Website: https://thewarden.online
+GitHub: https://github.com/muheebkamran/The-Warden
+
+/* SITE */
+Standards: HTML5, CSS3, Next.js 16 (App Router), TypeScript, Tailwind CSS
+Software: The-Warden (Personal Accountability OS)
+Doctype: HTML5
+IDE: Antigravity

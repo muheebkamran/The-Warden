@@ -1,3 +1,5 @@
+export {};
+
 /**
  * The Warden — Meta Title & Description Audit Runner
  * Validates Google SERP character constraints, keyword presence, and CTR triggers across public routes.

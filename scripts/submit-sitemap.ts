@@ -1,3 +1,5 @@
+export {};
+
 /**
  * The Warden — Automated Search Engine Sitemap Submitter
  * Broadcasts sitemap.xml to Google, Bing, and IndexNow endpoints.

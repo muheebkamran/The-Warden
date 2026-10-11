@@ -14,6 +14,12 @@ export default function robots(): MetadataRoute.Robots {
           "/terms",
           "/logo.svg",
           "/logo.png",
+          "/llms.txt",
+          "/humans.txt",
+          "/BingSiteAuth.xml",
+          "/.well-known/*",
+          "/opengraph-image",
+          "/twitter-image",
         ],
         disallow: [
           "/dashboard",

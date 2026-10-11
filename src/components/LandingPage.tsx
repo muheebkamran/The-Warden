@@ -799,6 +799,15 @@ export default function LandingPage() {
         </div>
 
         <div className="space-y-4">
+          <div className="bg-[#121214] border border-[#2A2A2E] rounded-xl p-6 hover:border-[#FFFC00]/40 transition-colors">
+            <h3 className="text-base font-bold text-white mb-2">
+              What is The-Warden?
+            </h3>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              The-Warden is an independent personal accountability operating system engineered to eliminate task ambiguity, enforce daily habit consistency, and defend financial capital. Unlike casual habit trackers, The-Warden operates on mathematical telemetry with zero advertisements, zero vanity metrics, and air-gapped data sovereignty.
+            </p>
+          </div>
+
           <div className="bg-[#121214] border border-[#2A2A2E] rounded-xl p-6 hover:border-[#3E3E46] transition-colors">
             <h3 className="text-base font-bold text-white mb-2">
               Why 70% instead of 100% perfection?
@@ -825,7 +834,61 @@ export default function LandingPage() {
               Discipline is not compartmentalized. A human who executes morning routines but leaks capital through undisciplined impulse spending remains fragile. Aligning daily habits alongside monthly bills and discretionary outflows enforces total personal integrity.
             </p>
           </div>
+
+          <div className="bg-[#121214] border border-[#2A2A2E] rounded-xl p-6 hover:border-[#3E3E46] transition-colors">
+            <h3 className="text-base font-bold text-white mb-2">
+              Is The-Warden free to use?
+            </h3>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Yes. The-Warden is completely free to initialize, ad-free, with zero third-party trackers or data selling. You maintain full sovereign ownership of your accountability telemetry.
+            </p>
+          </div>
         </div>
+
+        {/* FAQPage Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "What is The-Warden?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "The-Warden is an independent personal accountability operating system engineered to eliminate task ambiguity, enforce daily habit consistency, and defend financial capital with zero ads.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Why 70% instead of 100% perfection?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "By defining 70% as the success floor, you cultivate resilient consistency that survives real-world chaos, avoiding the all-or-nothing trap.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How does the automatic Grace Day protect streaks?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "If acute disruption occurs, your active streak is preserved by 1 free automatic Grace Day. Only two consecutive missed days resets your streak.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is The-Warden free to use?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes. The-Warden is free to initialize, with zero advertisements and complete user data sovereignty.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
       </section>
 
       {/* ─── CALL TO ACTION SECTION ──────────────────────────────────────── */}
