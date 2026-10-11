@@ -1,9 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowLeft, Shield } from "lucide-react";
 
-export const metadata = {
-  title: "Privacy Policy | THE WARDEN",
-  description: "Privacy policy and data protection commitments for The Warden.",
+export const metadata: Metadata = {
+  title: "Privacy Policy & Sovereign Data Security Guarantees | THE WARDEN",
+  description:
+    "Read The Warden's privacy commitments. Air-gapped personal telemetry, zero third-party trackers, zero data brokering, and absolute user sovereignty.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {

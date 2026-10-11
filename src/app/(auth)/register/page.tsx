@@ -1,5 +1,6 @@
 import { register } from "@/app/actions";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -7,6 +8,15 @@ import Background3D from "@/components/Background3D";
 import { Shield, AlertCircle } from "lucide-react";
 import { GoogleSignIn } from "@/components/GoogleSignIn";
 import { WardenLogo } from "@/components/ui/WardenLogo";
+
+export const metadata: Metadata = {
+  title: "Initialize Your Sovereign Node & Habit Vault | THE WARDEN",
+  description:
+    "Create your sovereign account on The Warden. Build unbroken streaks, lock impulse expenses, and secure your daily accountability telemetry today.",
+  alternates: {
+    canonical: "/register",
+  },
+};
 
 export default async function RegisterPage({
   searchParams,

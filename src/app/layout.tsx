@@ -14,9 +14,63 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "THE WARDEN — Personal Accountability OS",
-  description: "Keep your word every day. Track habits and finances with zero distractions.",
+  metadataBase: new URL("https://thewarden.online"),
+  title: {
+    default: "Personal Accountability OS — Daily Discipline | THE WARDEN",
+    template: "%s | THE WARDEN",
+  },
+  description: "Enforce daily habits and protect financial sovereignty with The Warden. Zero advertisements, zero vanity metrics. Built for high performers.",
   applicationName: "The Warden",
+  authors: [{ name: "The Warden", url: "https://thewarden.online" }],
+  creator: "The Warden",
+  publisher: "The Warden",
+  keywords: [
+    "personal accountability os",
+    "sovereign habit tracker",
+    "discipline tracking software",
+    "unbroken streak tracker",
+    "financial accountability vault",
+    "impulse buying lock",
+    "ad free productivity app",
+    "daily diurnal protocol",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Personal Accountability OS — Daily Discipline | THE WARDEN",
+    description: "Enforce daily habits and protect financial sovereignty with The Warden. Zero advertisements, zero vanity metrics.",
+    url: "https://thewarden.online",
+    siteName: "The Warden",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "The Warden — Sovereign Personal Accountability OS",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Personal Accountability OS — Daily Discipline | THE WARDEN",
+    description: "Enforce daily habits and protect financial sovereignty with The Warden. Built for high performers.",
+    images: ["/logo.png"],
+    creator: "@thewardenos",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -29,6 +83,9 @@ export const metadata: Metadata = {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
     apple: "/logo.svg",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "google-site-verification-thewarden",
   },
 };
 
@@ -57,6 +114,32 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme={initialTheme} suppressHydrationWarning>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "The Warden",
+              operatingSystem: "All (Web, iOS, Android PWA)",
+              applicationCategory: "ProductivityApplication",
+              description:
+                "Sovereign personal accountability operating system engineered to enforce daily habits and financial discipline with mathematical telemetry.",
+              url: "https://thewarden.online",
+              softwareVersion: "4.2",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+              author: {
+                "@type": "Organization",
+                name: "The Warden",
+                url: "https://thewarden.online",
+              },
+            }),
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

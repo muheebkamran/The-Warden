@@ -208,7 +208,7 @@ export default function LandingPage() {
               CAPITAL.
             </h1>
             <p className="font-sans text-base sm:text-lg text-zinc-300 max-w-2xl leading-relaxed font-normal mt-2">
-              A unified command center engineered to eliminate friction, enforce daily consistency, and protect financial sovereignty. Not another habit tracker. Your personal fortress.
+              A sovereign personal accountability OS engineered to eliminate friction, enforce daily habit consistency, and protect financial sovereignty. Built with unbroken streak telemetry, impulse expense locking, and zero advertisements.
             </p>
           </div>
 
@@ -427,7 +427,7 @@ export default function LandingPage() {
             <div>
               <div className="inline-block px-3 py-1 rounded-full bg-black/60 border border-white/10 mb-3">
                 <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#FFFC00] font-black">
-                  01 // COMMAND CENTER
+                  01 // ACCOUNTABILITY COMMAND CENTER
                 </span>
               </div>
               <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl text-white font-black uppercase tracking-tight">
@@ -543,7 +543,7 @@ export default function LandingPage() {
               <div>
                 <div className="inline-block px-3 py-1 rounded-full bg-black/60 border border-white/10 mb-3">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#FF7A00] font-black">
-                    02 // HABIT ARCHITECTURE
+                    02 // SOVEREIGN HABIT TRACKER &amp; STREAKS
                   </span>
                 </div>
                 <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl text-white font-black leading-tight uppercase">
@@ -711,7 +711,7 @@ export default function LandingPage() {
             <div>
               <div className="inline-block px-3 py-1 rounded-full bg-black/60 border border-white/10 mb-3">
                 <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#00D664] font-black">
-                  03 // CAPITAL SOVEREIGNTY
+                  03 // FINANCIAL DISCIPLINE VAULT
                 </span>
               </div>
               <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl text-white font-black uppercase tracking-tight">

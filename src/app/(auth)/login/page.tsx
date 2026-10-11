@@ -1,5 +1,6 @@
 import { login } from "@/app/actions";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -7,6 +8,15 @@ import Background3D from "@/components/Background3D";
 import { Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import { GoogleSignIn } from "@/components/GoogleSignIn";
 import { WardenLogo } from "@/components/ui/WardenLogo";
+
+export const metadata: Metadata = {
+  title: "Sign In & Access Sovereign Telemetry Command | THE WARDEN",
+  description:
+    "Access your private accountability command center. Review daily diurnal habits, unbroken fortress streaks, and verified financial ledger records.",
+  alternates: {
+    canonical: "/login",
+  },
+};
 
 export default async function LoginPage({
   searchParams,

@@ -1,9 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowLeft, FileText } from "lucide-react";
 
-export const metadata = {
-  title: "Terms of Service | THE WARDEN",
-  description: "Terms and conditions of using The Warden.",
+export const metadata: Metadata = {
+  title: "Terms of Service & Sovereign Usage Protocols | THE WARDEN",
+  description:
+    "Review The Warden's terms of service and operator agreements. Transparent rules governing personal accountability software and data ownership.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsPage() {
