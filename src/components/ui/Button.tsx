@@ -21,13 +21,13 @@ export function Button({
 }: ButtonProps) {
   const variants = {
     primary:
-      "bg-[#FFFC00] text-black font-extrabold hover:bg-white hover:shadow-[0_0_20px_rgba(255,252,0,0.4)] active:scale-[0.98] transition-all",
+      "bg-[#FFFC00] text-black font-extrabold hover:bg-white hover:shadow-[0_0_20px_rgba(255,252,0,0.4)] active:scale-[0.96] transition-all",
     secondary:
-      "bg-[#18181B] border border-[#26262B] text-white hover:border-[#FFFC00]/60 hover:text-[#FFFC00] hover:bg-[#202024] active:scale-[0.98] transition-all",
+      "bg-[#18181B] border border-[#26262B] text-white hover:border-[#FFFC00]/60 hover:text-[#FFFC00] hover:bg-[#202024] active:scale-[0.96] transition-all",
     ghost:
-      "bg-transparent text-zinc-400 hover:text-white hover:bg-[#1A1A1E] active:scale-[0.98] transition-all",
+      "bg-transparent text-zinc-400 hover:text-white hover:bg-[#1A1A1E] active:scale-[0.96] transition-all",
     danger:
-      "bg-[#FF2D55]/10 border border-[#FF2D55]/30 text-[#FF2D55] hover:bg-[#FF2D55]/20 hover:border-[#FF2D55] active:scale-[0.98] transition-all",
+      "bg-[#FF2D55]/10 border border-[#FF2D55]/30 text-[#FF2D55] hover:bg-[#FF2D55]/20 hover:border-[#FF2D55] active:scale-[0.96] transition-all",
   };
 
   const sizes = {

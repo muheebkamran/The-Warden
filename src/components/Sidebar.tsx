@@ -4,16 +4,17 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  LayoutDashboard, 
-  CheckSquare, 
-  TrendingUp, 
-  Wallet, 
-  Settings, 
-  LogOut,
-  Lock
-} from "lucide-react";
+  IconLayoutDashboard,
+  IconChecklist,
+  IconChartLine,
+  IconWallet,
+  IconSettings,
+  IconLogout,
+  IconShieldCheck,
+} from "@tabler/icons-react";
 import { logout } from "@/app/actions";
 import { cn } from "@/lib/utils";
+import { WardenLogo } from "@/components/ui/WardenLogo";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -23,11 +24,11 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Habits", href: "/habits", icon: CheckSquare },
-    { name: "Progress", href: "/progress", icon: TrendingUp },
-    { name: "Finance", href: "/finance", icon: Wallet },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Dashboard", href: "/dashboard", icon: IconLayoutDashboard },
+    { name: "Habits", href: "/habits", icon: IconChecklist },
+    { name: "Progress", href: "/progress", icon: IconChartLine },
+    { name: "Finance", href: "/finance", icon: IconWallet },
+    { name: "Settings", href: "/settings", icon: IconSettings },
   ];
 
   return (
@@ -39,9 +40,7 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
     >
       {/* Brand Emblem Subheader */}
       <div className="p-4 flex items-center gap-3 border-b border-[#24242A]">
-        <div className="w-10 h-10 rounded-2xl bg-black border border-[#2E2E34] overflow-hidden flex items-center justify-center shadow-lg shadow-[#FFFC00]/20 select-none shrink-0">
-          <img src="/logo.png" alt="The Warden" className="w-full h-full object-contain" />
-        </div>
+        <WardenLogo size={38} glow />
         <div className="flex flex-col">
           <span className="font-extrabold text-sm tracking-wide text-white leading-none">THE WARDEN</span>
           <span className="font-mono text-[9px] uppercase tracking-widest text-[#FFFC00] mt-1 font-bold">
@@ -127,11 +126,11 @@ export default function Sidebar({ isOpen = true }: SidebarProps) {
           </div>
           <button
             onClick={() => logout()}
-            className="text-zinc-500 hover:text-[#FF2D55] transition-colors p-1.5 rounded-lg hover:bg-zinc-800 cursor-pointer"
+            className="text-zinc-500 hover:text-[#FF2D55] transition-colors p-1.5 rounded-lg hover:bg-zinc-800 cursor-pointer active:scale-95"
             title="Sign Out"
             aria-label="Sign Out"
           >
-            <LogOut size={16} />
+            <IconLogout size={16} stroke={1.75} />
           </button>
         </div>
       </div>

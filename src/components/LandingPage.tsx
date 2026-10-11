@@ -20,6 +20,7 @@ import {
   Zap,
   User,
 } from "lucide-react";
+import { WardenLogo } from "@/components/ui/WardenLogo";
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,8 +32,8 @@ export default function LandingPage() {
         {/* Brand Emblem */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-black border border-[#2E2E34] overflow-hidden flex items-center justify-center shadow-[0_0_20px_rgba(255,252,0,0.25)] group-hover:scale-105 active:scale-95 transition-transform duration-200 shrink-0">
-              <img src="/logo.png" alt="The Warden" className="w-full h-full object-contain" />
+            <div className="group-hover:scale-105 active:scale-95 transition-transform duration-200 shrink-0">
+              <WardenLogo size={40} glow />
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-base tracking-wide text-white uppercase leading-none">
@@ -864,9 +865,7 @@ export default function LandingPage() {
       <footer className="border-t border-[#2A2A2E] py-12 px-4 sm:px-8 lg:px-12 bg-[#000000] text-zinc-400 text-xs font-mono">
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-black border border-[#2E2E34] overflow-hidden flex items-center justify-center shadow-sm shrink-0">
-              <img src="/logo.png" alt="The Warden" className="w-full h-full object-contain" />
-            </div>
+            <WardenLogo size={32} />
             <span className="text-white font-bold text-sm tracking-wider uppercase">
               The Warden
             </span>

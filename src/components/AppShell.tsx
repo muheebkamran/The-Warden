@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import BottomBar from "./BottomBar";
 import { Menu, Clock, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WardenLogo } from "@/components/ui/WardenLogo";
 
 const Background3D = dynamic(() => import("./Background3D"), { 
   ssr: false,
@@ -75,9 +76,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-black border border-[#2E2E34] overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
-              <img src="/logo.png" alt="The Warden" className="w-full h-full object-contain" />
-            </div>
+            <WardenLogo size={24} />
             <span className="font-mono text-[10px] sm:text-[11px] font-bold tracking-widest text-zinc-400 uppercase truncate max-w-[280px] sm:max-w-none">
               {getSectorBreadcrumb()}
             </span>

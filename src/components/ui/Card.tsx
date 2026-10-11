@@ -18,7 +18,7 @@ export function Card({
       className={cn(
         "rounded-2xl bg-[#18181B] border border-[#26262B] p-5 sm:p-6 shadow-sm transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
         interactive &&
-          "cursor-pointer hover:border-[#FFFC00]/40 hover:-translate-y-0.5 hover:bg-[#1F1F23] hover:shadow-lg active:translate-y-0 active:scale-[0.99]",
+          "cursor-pointer hover:border-[#FFFC00]/40 hover:-translate-y-0.5 hover:bg-[#1F1F23] hover:shadow-[0_4px_20px_rgba(255,252,0,0.08)] active:translate-y-0 active:scale-[0.98]",
         animate && "animate-card-in",
         className
       )}

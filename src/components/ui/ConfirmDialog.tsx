@@ -42,20 +42,20 @@ export function ConfirmDialog({
       <div className="flex flex-col gap-5">
         <div className="flex items-start gap-3.5">
           {isDestructive ? (
-            <div className="p-2 rounded-md bg-[#b56b6b]/10 border border-[#b56b6b]/30 text-[#b56b6b] shrink-0 mt-0.5">
+            <div className="p-2 rounded-xl bg-[#FF2D55]/15 border border-[#FF2D55]/30 text-[#FF2D55] shrink-0 mt-0.5">
               <AlertTriangle className="w-5 h-5" aria-hidden="true" />
             </div>
           ) : (
-            <div className="p-2 rounded-md bg-[#c8a96b]/10 border border-[#c8a96b]/30 text-[#c8a96b] shrink-0 mt-0.5">
+            <div className="p-2 rounded-xl bg-[#FFFC00]/15 border border-[#FFFC00]/30 text-[#FFFC00] shrink-0 mt-0.5">
               <Info className="w-5 h-5" aria-hidden="true" />
             </div>
           )}
-          <div className="text-sm text-[#9a9a96] leading-relaxed flex-1">
+          <div className="text-sm text-zinc-300 leading-relaxed flex-1">
             {description}
           </div>
         </div>
 
-        <div className="flex justify-end items-center gap-3 pt-4 border-t border-[#292c32]">
+        <div className="flex justify-end items-center gap-3 pt-4 border-t border-[#26262B]">
           <Button
             type="button"
             variant="ghost"
