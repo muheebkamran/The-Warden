@@ -135,14 +135,28 @@ export async function evaluateAndUpdateStreak(
 }
 
 export async function getStreakState(userId: string) {
-  // Always recalculate to keep in sync
+  const todayStr = getTodayStr();
+
+  // Fast path: if streak was already computed for today, return cached record
+  const cached = await db.streakState.findUnique({ where: { userId } });
+  if (cached && cached.lastEvaluatedDate === todayStr) {
+    return {
+      userId,
+      currentStreak: cached.currentStreak,
+      longestStreak: cached.longestStreak,
+      graceDayActive: cached.graceDayActive,
+      lastEvaluatedDate: cached.lastEvaluatedDate,
+    };
+  }
+
+  // Recalculate and update cache when dirty or new day arrives
   const result = await recalculateStreak(userId);
   return {
     userId,
     currentStreak: result.currentStreak,
     longestStreak: result.longestStreak,
     graceDayActive: result.graceDayActive,
-    lastEvaluatedDate: getTodayStr(),
+    lastEvaluatedDate: todayStr,
   };
 }
 

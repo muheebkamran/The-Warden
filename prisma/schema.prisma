@@ -23,14 +23,17 @@ model User {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   commitments      Commitment[]
-  dailyRecords DailyRecord[]
+  dailyRecords     DailyRecord[]
   dailyReflections DailyReflection[]
-  streakState  StreakState?
-  financeProfile FinanceProfile?
-  transactions   Transaction[]
-  impulseLocks   ImpulseLock[]
-  financialGoals FinancialGoal[]
-  bills          Bill[]
+  streakState      StreakState?
+  financeProfile   FinanceProfile?
+  transactions     Transaction[]
+  impulseLocks     ImpulseLock[]
+  financialGoals   FinancialGoal[]
+  bills            Bill[]
+
+  @@index([resetToken])
+  @@index([createdAt])
 }
 
 // ─── Invites ───────────────────────────────────────────────────────────────────
@@ -60,6 +63,7 @@ model Commitment {
   dailyRecords  DailyRecord[]
 
   @@index([userId, isActive])
+  @@index([userId, createdAt])
 }
 
 // ─── Daily Records (per-commitment per-day snapshots) ──────────────────────────
@@ -83,6 +87,8 @@ model DailyRecord {
   @@unique([commitmentId, date])
   @@index([userId, date])
   @@index([userId])
+  @@index([date])
+  @@index([commitmentId])
 }
 
 // ─── Streak State Machine ──────────────────────────────────────────────────────
@@ -111,7 +117,9 @@ model DailyReflection {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, date])
+  @@index([userId])
 }
 
 // ─── Financial Discipline Chamber ──────────────────────────────────────────────
@@ -142,6 +150,8 @@ model Transaction {
 
   @@index([userId, date])
   @@index([userId, category])
+  @@index([userId, type])
+  @@index([userId, createdAt])
 }
 
 model ImpulseLock {
@@ -159,6 +169,8 @@ model ImpulseLock {
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, status])
+  @@index([userId, coolsAt])
+  @@index([coolsAt])
 }
 
 model FinancialGoal {
@@ -176,6 +188,7 @@ model FinancialGoal {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, isCompleted])
 }
 
 model Bill {
@@ -193,5 +206,5 @@ model Bill {
 
   @@index([userId, date])
   @@index([userId, paid])
+  @@index([userId, createdAt])
 }
-

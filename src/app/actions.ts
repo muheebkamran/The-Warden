@@ -486,25 +486,38 @@ export async function updateUserSettings(formData: FormData) {
 // 15. exportUserData
 export async function exportUserData() {
   const { userId } = await requireAuth();
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: {
-      email: true,
-      name: true,
-      timezone: true,
-      preferredTheme: true,
-      createdAt: true,
-    },
-  });
-  const commitments = await db.commitment.findMany({ where: { userId } });
-  const records = await db.dailyRecord.findMany({ where: { userId } });
-  const reflections = await db.dailyReflection.findMany({ where: { userId } });
-  const streak = await db.streakState.findUnique({ where: { userId } });
-  const transactions = await db.transaction.findMany({ where: { userId } });
-  const impulseLocks = await db.impulseLock.findMany({ where: { userId } });
-  const financialGoals = await db.financialGoal.findMany({ where: { userId } });
-  const bills = await db.bill.findMany({ where: { userId } });
-  const financeProfile = await db.financeProfile.findUnique({ where: { userId } });
+  const [
+    user,
+    commitments,
+    records,
+    reflections,
+    streak,
+    transactions,
+    impulseLocks,
+    financialGoals,
+    bills,
+    financeProfile,
+  ] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      select: {
+        email: true,
+        name: true,
+        timezone: true,
+        preferredTheme: true,
+        createdAt: true,
+      },
+    }),
+    db.commitment.findMany({ where: { userId } }),
+    db.dailyRecord.findMany({ where: { userId } }),
+    db.dailyReflection.findMany({ where: { userId } }),
+    db.streakState.findUnique({ where: { userId } }),
+    db.transaction.findMany({ where: { userId } }),
+    db.impulseLock.findMany({ where: { userId } }),
+    db.financialGoal.findMany({ where: { userId } }),
+    db.bill.findMany({ where: { userId } }),
+    db.financeProfile.findUnique({ where: { userId } }),
+  ]);
 
   return JSON.stringify(
     {

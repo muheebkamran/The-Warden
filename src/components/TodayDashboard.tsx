@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import CommitmentCard from "@/components/CommitmentCard";
 import CommitmentModal from "@/components/CommitmentModal";
@@ -70,14 +70,23 @@ export default function TodayDashboard({
   const cardsRef = useRef<HTMLDivElement>(null);
   const noteRef = useRef<HTMLDivElement>(null);
 
-  const activeCommitments = commitments.filter((c) => c.isActive);
+  const activeCommitments = useMemo(
+    () => commitments.filter((c) => c.isActive),
+    [commitments]
+  );
   const total = activeCommitments.length;
   const required = Math.ceil(0.70 * total);
 
-  const selectedRecords = records.filter((r) => r.date === selectedDate);
-  const positive = selectedRecords.filter(
-    (r) => r.status === "complete" || r.status === "showed_up"
-  ).length;
+  const selectedRecords = useMemo(
+    () => records.filter((r) => r.date === selectedDate),
+    [records, selectedDate]
+  );
+  const positive = useMemo(
+    () => selectedRecords.filter(
+      (r) => r.status === "complete" || r.status === "showed_up"
+    ).length,
+    [selectedRecords]
+  );
 
   const status = getDateEditability(selectedDate);
   const editable = status === "editable" || status === "limited";
@@ -141,25 +150,29 @@ export default function TodayDashboard({
   );
 
   // Compute 7-day mini strip ending on today
-  const last7Days = Array.from({ length: 7 }).map((_, i) => {
-    const d = new Date(todayStr);
-    d.setDate(d.getDate() - (6 - i));
-    const iso = d.toISOString().split("T")[0];
-    const dayRecords = records.filter((r) => r.date === iso);
-    const dayPositive = dayRecords.filter(
-      (r) => r.status === "complete" || r.status === "showed_up"
-    ).length;
-    const isPassed = total > 0 ? dayPositive >= Math.ceil(0.7 * total) : dayPositive > 0;
-    const isToday = iso === todayStr;
-    const dayLabel = ["S", "M", "T", "W", "T", "F", "S"][d.getDay()];
-    return { iso, dayLabel, isPassed, isToday };
-  });
+  const last7Days = useMemo(() => {
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(todayStr);
+      d.setDate(d.getDate() - (6 - i));
+      const iso = d.toISOString().split("T")[0];
+      const dayRecords = records.filter((r) => r.date === iso);
+      const dayPositive = dayRecords.filter(
+        (r) => r.status === "complete" || r.status === "showed_up"
+      ).length;
+      const isPassed = total > 0 ? dayPositive >= Math.ceil(0.7 * total) : dayPositive > 0;
+      const isToday = iso === todayStr;
+      const dayLabel = ["S", "M", "T", "W", "T", "F", "S"][d.getDay()];
+      return { iso, dayLabel, isPassed, isToday };
+    });
+  }, [todayStr, records, total]);
 
   // Filter commitments based on category filter
-  const filteredCommitments = activeCommitments.filter((c) => {
-    if (filterType === "all") return true;
-    return c.type.toLowerCase() === filterType.toLowerCase();
-  });
+  const filteredCommitments = useMemo(() => {
+    return activeCommitments.filter((c) => {
+      if (filterType === "all") return true;
+      return c.type.toLowerCase() === filterType.toLowerCase();
+    });
+  }, [activeCommitments, filterType]);
 
   const completionPct = total > 0 ? Math.round((positive / total) * 100) : 0;
   const targetThresholdPct =

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Plus, Trash2, Calendar, ArrowDownRight, ArrowUpRight, Pencil, X } from "lucide-react";
 import { addTransaction, deleteTransaction, updateTransaction } from "@/app/actions";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -113,21 +113,30 @@ export function ExpenseLedger({ transactions, currency }: ExpenseLedgerProps) {
     }
   };
 
-  const filtered = transactions.filter((t) => {
-    if (filterCategory === "all") return true;
-    return t.category.toLowerCase() === filterCategory.toLowerCase();
-  });
+  const [visibleDaysCount, setVisibleDaysCount] = useState(10);
 
-  // Group by date
-  const groupedByDate: { [date: string]: TransactionItem[] } = {};
-  filtered.forEach((t) => {
-    if (!groupedByDate[t.date]) {
-      groupedByDate[t.date] = [];
-    }
-    groupedByDate[t.date].push(t);
-  });
+  const { groupedByDate, sortedDates } = useMemo(() => {
+    const filtered = transactions.filter((t) => {
+      if (filterCategory === "all") return true;
+      return t.category.toLowerCase() === filterCategory.toLowerCase();
+    });
 
-  const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
+    const groups: { [date: string]: TransactionItem[] } = {};
+    filtered.forEach((t) => {
+      if (!groups[t.date]) {
+        groups[t.date] = [];
+      }
+      groups[t.date].push(t);
+    });
+
+    const sorted = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+    return { groupedByDate: groups, sortedDates: sorted };
+  }, [transactions, filterCategory]);
+
+  const visibleDates = useMemo(
+    () => sortedDates.slice(0, visibleDaysCount),
+    [sortedDates, visibleDaysCount]
+  );
 
   return (
     <div className="space-y-6">
@@ -319,7 +328,7 @@ export function ExpenseLedger({ transactions, currency }: ExpenseLedgerProps) {
         />
       ) : (
         <div className="space-y-4">
-          {sortedDates.map((dateStr) => {
+          {visibleDates.map((dateStr) => {
             const dayItems = groupedByDate[dateStr];
             const dayExpenseSum = dayItems
               .filter((i) => i.type === "expense")
@@ -412,6 +421,18 @@ export function ExpenseLedger({ transactions, currency }: ExpenseLedgerProps) {
               </div>
             );
           })}
+
+          {sortedDates.length > visibleDaysCount && (
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setVisibleDaysCount((prev) => prev + 15)}
+                className="px-5 py-2.5 rounded-xl bg-[#141416] border border-[#2E2E35] text-xs font-mono text-zinc-300 hover:text-white hover:border-[#FFFC00]/40 transition-all cursor-pointer"
+              >
+                LOAD MORE MOVEMENTS ({sortedDates.length - visibleDaysCount} remaining) &darr;
+              </button>
+            </div>
+          )}
         </div>
       )}
 

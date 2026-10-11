@@ -29,14 +29,9 @@ function useIsDesktop() {
   );
 }
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
-  const isDesktop = useIsDesktop();
-  const [manualSidebarState, setManualSidebarState] = useState<boolean | null>(null);
-  const sidebarOpen = manualSidebarState ?? isDesktop;
-  const pathname = usePathname();
-  const [currentTime, setCurrentTime] = useState("EST 09:41:22");
+const TerminalClock = React.memo(function TerminalClock() {
+  const [time, setTime] = useState("");
 
-  // Keep time updated
   useEffect(() => {
     function updateClock() {
       const now = new Date();
@@ -46,12 +41,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         minute: "2-digit", 
         second: "2-digit" 
       });
-      setCurrentTime(`EST ${timeStr}`);
+      setTime(`EST ${timeStr}`);
     }
     updateClock();
     const timer = setInterval(updateClock, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  return (
+    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#1C1C20] border border-[#2E2E35] rounded-full font-mono text-[11px] text-zinc-300 font-medium">
+      <Clock className="w-3.5 h-3.5 text-[#FFFC00]" />
+      <span>{time || "EST --:--:--"}</span>
+    </div>
+  );
+});
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  const isDesktop = useIsDesktop();
+  const [manualSidebarState, setManualSidebarState] = useState<boolean | null>(null);
+  const sidebarOpen = manualSidebarState ?? isDesktop;
+  const pathname = usePathname();
 
   // Dynamic Sector Breadcrumb Title matching Screenshots 1-5
   const getSectorBreadcrumb = () => {
@@ -96,10 +105,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Right Status Readouts: Clock, Alerts, Avatar */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* Digital Clock Pill */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#1C1C20] border border-[#2E2E35] rounded-full font-mono text-[11px] text-zinc-300 font-medium">
-            <Clock className="w-3.5 h-3.5 text-[#FFFC00]" />
-            <span>{currentTime}</span>
-          </div>
+          <TerminalClock />
 
           {/* Alert Notification Bell */}
           <button 

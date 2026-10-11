@@ -10,30 +10,43 @@ export function GlobalSpotlight() {
     let mouseY = -500;
     let currentX = -500;
     let currentY = -500;
+    let isMoving = false;
     let animationFrameId: number;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-
     const animate = () => {
-      currentX += (mouseX - currentX) * 0.1;
-      currentY += (mouseY - currentY) * 0.1;
+      const dx = mouseX - currentX;
+      const dy = mouseY - currentY;
+      currentX += dx * 0.15;
+      currentY += dy * 0.15;
 
       if (spotlightRef.current) {
         spotlightRef.current.style.background = `radial-gradient(260px circle at ${Math.round(currentX)}px ${Math.round(currentY)}px, rgba(200, 169, 107, 0.12) 0%, transparent 100%)`;
       }
-      animationFrameId = requestAnimationFrame(animate);
+
+      // If still moving, continue RAF; otherwise sleep to save CPU cycles
+      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
+        isMoving = false;
+      }
     };
 
-    animationFrameId = requestAnimationFrame(animate);
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (!isMoving) {
+        isMoving = true;
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
   }, []);
 

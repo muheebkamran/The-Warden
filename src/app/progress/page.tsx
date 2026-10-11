@@ -1,27 +1,28 @@
-import { db } from '@/lib/db';
-import AppShell from '@/components/AppShell';
-import { ProgressView } from '@/components/ProgressView';
-import { getTodayStr } from '@/lib/dateEngine';
-import { getStreakState } from '@/lib/streak';
-import { requireAuth } from '@/app/actions';
+import { db } from "@/lib/db";
+import AppShell from "@/components/AppShell";
+import { ProgressView } from "@/components/ProgressView";
+import { getTodayStr } from "@/lib/dateEngine";
+import { getStreakState } from "@/lib/streak";
+import { requireAuth } from "@/app/actions";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function ProgressPage() {
   const { userId } = await requireAuth();
-
-  const activeCommitments = await db.commitment.findMany({
-    where: { userId, isActive: true },
-    orderBy: { createdAt: 'asc' }
-  });
-
-  const allRecords = await db.dailyRecord.findMany({
-    where: { userId },
-    orderBy: { date: 'asc' }
-  });
-
-  const streakState = await getStreakState(userId);
   const todayStr = getTodayStr();
+
+  // Parallelize independent queries to eliminate sequential server waterfalls
+  const [activeCommitments, allRecords, streakState] = await Promise.all([
+    db.commitment.findMany({
+      where: { userId, isActive: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    db.dailyRecord.findMany({
+      where: { userId },
+      orderBy: { date: "asc" },
+    }),
+    getStreakState(userId),
+  ]);
 
   return (
     <AppShell>

@@ -19,8 +19,25 @@ import {
   X,
 } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-import { BillPhotoUpload } from "./BillPhotoUpload";
-import { SpendingTrendChart } from "./SpendingTrendChart";
+import dynamic from "next/dynamic";
+
+const SpendingTrendChart = dynamic(
+  () => import("./SpendingTrendChart").then((mod) => mod.SpendingTrendChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 rounded-xl bg-[#121316] border border-[#222227] animate-pulse flex items-center justify-center text-xs text-zinc-500 font-mono">
+        INITIALIZING SPENDING TELEMETRY...
+      </div>
+    ),
+  }
+);
+
+const BillPhotoUpload = dynamic(
+  () => import("./BillPhotoUpload").then((mod) => mod.BillPhotoUpload),
+  { ssr: false }
+);
+
 import { FinanceOverview } from "./FinanceOverview";
 import { ExpenseLedger } from "./ExpenseLedger";
 import { FortressGoals } from "./FortressGoals";
