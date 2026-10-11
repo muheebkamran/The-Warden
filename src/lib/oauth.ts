@@ -16,24 +16,64 @@ export function getAppUrl(req: Request): string {
   return "http://localhost:3000";
 }
 
+function getCookieFromRequest(req: Request, cookieName: string): string | null {
+  if ("cookies" in req && typeof (req as { cookies?: { get: (k: string) => { value?: string } | undefined } }).cookies?.get === "function") {
+    const val = (req as { cookies: { get: (k: string) => { value?: string } | undefined } }).cookies.get(cookieName)?.value;
+    if (val) return val;
+  }
+  const cookieHeader = req.headers.get("cookie");
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 export async function processGoogleCallback(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
   const error = url.searchParams.get("error");
 
+  const clearStateCookie = (res: NextResponse) => {
+    res.cookies.set("oauth_state", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+    });
+  };
+
   if (error || !code) {
-    return NextResponse.redirect(
+    const res = NextResponse.redirect(
       new URL("/login?error=" + encodeURIComponent("Google sign-in was cancelled or encountered an error."), req.url)
     );
+    clearStateCookie(res);
+    return res;
+  }
+
+  // Cryptographic CSRF state validation against HTTP-only cookie
+  const cookieState = getCookieFromRequest(req, "oauth_state");
+  if (!state || !cookieState || state !== cookieState) {
+    const res = NextResponse.redirect(
+      new URL(
+        "/login?error=" +
+          encodeURIComponent("Authentication state mismatch or session expired. Please sign in again."),
+        req.url
+      )
+    );
+    clearStateCookie(res);
+    return res;
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET;
 
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(
+    const res = NextResponse.redirect(
       new URL("/login?error=" + encodeURIComponent("Google OAuth credentials missing on server."), req.url)
     );
+    clearStateCookie(res);
+    return res;
   }
 
   const appUrl = getAppUrl(req);
@@ -56,9 +96,11 @@ export async function processGoogleCallback(req: Request) {
     if (!tokenRes.ok) {
       const errBody = await tokenRes.text();
       console.error("Google token exchange error:", errBody);
-      return NextResponse.redirect(
+      const res = NextResponse.redirect(
         new URL("/login?error=" + encodeURIComponent("Failed to exchange authentication code with Google."), req.url)
       );
+      clearStateCookie(res);
+      return res;
     }
 
     const tokenData = await tokenRes.json();
@@ -70,17 +112,21 @@ export async function processGoogleCallback(req: Request) {
     });
 
     if (!userinfoRes.ok) {
-      return NextResponse.redirect(
+      const res = NextResponse.redirect(
         new URL("/login?error=" + encodeURIComponent("Failed to fetch profile details from Google."), req.url)
       );
+      clearStateCookie(res);
+      return res;
     }
 
     const profile = await userinfoRes.json();
 
     if (!profile.email) {
-      return NextResponse.redirect(
+      const res = NextResponse.redirect(
         new URL("/login?error=" + encodeURIComponent("Google did not provide an email address."), req.url)
       );
+      clearStateCookie(res);
+      return res;
     }
 
     // 3. Find or create user in Neon DB
@@ -114,11 +160,16 @@ export async function processGoogleCallback(req: Request) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
+    // Invalidate state cookie immediately post-authentication
+    clearStateCookie(response);
+
     return response;
   } catch (err: unknown) {
     console.error("Google OAuth callback exception:", err);
-    return NextResponse.redirect(
+    const res = NextResponse.redirect(
       new URL("/login?error=" + encodeURIComponent("An unexpected error occurred during Google sign-in."), req.url)
     );
+    clearStateCookie(res);
+    return res;
   }
 }

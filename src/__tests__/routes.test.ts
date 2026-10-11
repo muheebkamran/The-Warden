@@ -1,7 +1,7 @@
 import { test, describe, before } from "node:test";
 import assert from "node:assert";
 import { NextRequest } from "next/server";
-import { middleware } from "../middleware";
+import { middleware } from "../proxy";
 import { signToken } from "../lib/auth";
 
 describe("Production Middleware Integration Tests", () => {

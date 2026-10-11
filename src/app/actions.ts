@@ -803,13 +803,23 @@ export async function resolveImpulseLock(lockId: string, resolution: "killed" | 
   const today = getTodayStr();
 
   await db.$transaction(async (tx) => {
-    await tx.impulseLock.update({
-      where: { id: lockId },
+    // Atomic conditional update guarantees exactly-once state transition under concurrency
+    const updateResult = await tx.impulseLock.updateMany({
+      where: {
+        id: lockId,
+        userId,
+        status: "cooling",
+      },
       data: {
         status: resolution,
         resolvedAt: new Date(),
       },
     });
+
+    // If another concurrent thread already resolved this lock, count is 0: abort immediately
+    if (updateResult.count === 0) {
+      return;
+    }
 
     if (resolution === "purchased") {
       await tx.transaction.create({

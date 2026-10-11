@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import AppShell from "@/components/AppShell";
 import TodayDashboard from "@/components/TodayDashboard";
-import { getTodayStr, getYesterdayStr } from "@/lib/dateEngine";
+import { getTodayStr, getYesterdayStr, formatDateStr } from "@/lib/dateEngine";
 import { getStreakState } from "@/lib/streak";
 import { requireAuth } from "@/app/actions";
 
@@ -12,19 +12,25 @@ export default async function DashboardPage() {
   const todayStr = getTodayStr();
   const yesterdayStr = getYesterdayStr();
 
-  const [commitments, allRecords, streakState] = await Promise.all([
+  // Calculate 30-day temporal boundary to prevent unbounded full-table scans
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffDate = formatDateStr(cutoff);
+
+  const [commitments, records, streakState] = await Promise.all([
     db.commitment.findMany({
       where: { userId },
       orderBy: { createdAt: 'asc' },
     }),
     db.dailyRecord.findMany({
-      where: { userId },
-      orderBy: { date: 'asc' }
+      where: {
+        userId,
+        date: { gte: cutoffDate },
+      },
+      orderBy: { date: 'asc' },
     }),
     getStreakState(userId),
   ]);
-
-  const records = allRecords;
 
   return (
     <AppShell>

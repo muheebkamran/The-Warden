@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "./lib/auth";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (
@@ -58,6 +58,9 @@ export async function middleware(req: NextRequest) {
 
   return NextResponse.next();
 }
+
+// Backwards-compatibility alias for legacy tooling and test runner
+export { proxy as middleware };
 
 export const config = {
   matcher: [

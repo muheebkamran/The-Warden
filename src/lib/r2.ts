@@ -35,12 +35,13 @@ export interface PresignedUrlResult {
 }
 
 /**
- * Generates a pre-signed PUT URL for direct client-to-R2 upload
+ * Generates a pre-signed PUT URL for direct client-to-R2 upload with multi-tenant namespace isolation
  */
 export async function getPresignedUploadUrl(
   folder: 'avatars' | 'proofs' | 'bills' | 'books' | 'uploads' | string,
   filename: string,
-  contentType: string
+  contentType: string,
+  userId?: string
 ): Promise<PresignedUrlResult> {
   // If R2 is not configured, do not issue an empty or fake URL
   if (!isR2Configured()) {
@@ -48,7 +49,8 @@ export async function getPresignedUploadUrl(
   }
 
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const uniqueKey = `${folder}/${Date.now()}-${sanitizedFilename}`;
+  const userNamespace = userId ? `${userId.replace(/[^a-zA-Z0-9_-]/g, '_')}/` : '';
+  const uniqueKey = `${folder}/${userNamespace}${Date.now()}-${sanitizedFilename}`;
 
   const s3 = getR2Client();
   const command = new PutObjectCommand({

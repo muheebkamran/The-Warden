@@ -209,6 +209,26 @@ const mockDb = {
       store.impulseLocks[idx] = { ...store.impulseLocks[idx], ...data };
       return store.impulseLocks[idx];
     },
+    updateMany: async ({
+      where,
+      data,
+    }: {
+      where: { id: string; userId?: string; status?: string };
+      data: Partial<ImpulseLockRecord>;
+    }) => {
+      let count = 0;
+      for (let i = 0; i < store.impulseLocks.length; i++) {
+        const item = store.impulseLocks[i];
+        const matchId = item.id === where.id;
+        const matchUser = where.userId ? item.userId === where.userId : true;
+        const matchStatus = where.status ? item.status === where.status : true;
+        if (matchId && matchUser && matchStatus) {
+          store.impulseLocks[i] = { ...item, ...data };
+          count++;
+        }
+      }
+      return { count };
+    },
     deleteMany: async ({
       where,
     }: {
@@ -705,6 +725,27 @@ describe("Production Finance Server Actions & Core Logic", () => {
       assert.strictEqual(store.impulseLocks[0].status, "killed");
       // Capital preserved! No transaction logged
       assert.strictEqual(store.transactions.length, 0);
+    });
+
+    test("should prevent double-charging on concurrent double-resolution race condition", async () => {
+      await createImpulseLock({
+        itemName: "Race Guard Mechanical Watch",
+        amount: 500.0,
+      });
+
+      const lock = store.impulseLocks[0];
+      assert.strictEqual(lock.status, "cooling");
+
+      // Simulate concurrent requests firing simultaneously
+      await Promise.all([
+        resolveImpulseLock(lock.id, "purchased"),
+        resolveImpulseLock(lock.id, "purchased"),
+      ]);
+
+      // Exactly ONE transaction must be logged despite concurrent double execution
+      assert.strictEqual(store.transactions.length, 1);
+      assert.strictEqual(store.transactions[0].amount, 500.0);
+      assert.strictEqual(store.impulseLocks[0].status, "purchased");
     });
   });
 
