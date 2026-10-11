@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { handleGoogleUser } from "@/app/actions";
 import { createSession, signToken } from "@/lib/auth";
+import { sendLoginWelcomeEmail, sendAdminCustomerRosterNotification } from "@/lib/email";
 
 export function getAppUrl(req: Request): string {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -93,6 +94,16 @@ export async function processGoogleCallback(req: Request) {
     // 4. Create session and redirect to dashboard
     await createSession(user.id);
     const token = await signToken({ userId: user.id });
+
+    // Dual-dispatch: Sovereign welcome email to customer + Live customer roster alert to admin
+    await Promise.allSettled([
+      sendLoginWelcomeEmail(user.email, user.name),
+      sendAdminCustomerRosterNotification({
+        userEmail: user.email,
+        userName: user.name,
+        authMethod: "google",
+      }),
+    ]);
 
     const response = NextResponse.redirect(new URL("/dashboard", req.url));
     response.cookies.set("session", token, {

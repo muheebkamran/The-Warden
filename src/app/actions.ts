@@ -9,7 +9,11 @@ import { createSession, deleteSession, getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 import { hashPassword, verifyPassword, generateResetToken, hashResetToken, isTokenExpired } from "@/lib/password";
-import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email";
+import {
+  sendPasswordResetEmail,
+  sendLoginWelcomeEmail,
+  sendAdminCustomerRosterNotification,
+} from "@/lib/email";
 
 // 1. requireAuth
 export async function requireAuth() {
@@ -42,6 +46,16 @@ export async function login(formData: FormData) {
   if (!isValid) {
     redirect("/login?error=" + encodeURIComponent("Invalid email or password."));
   }
+
+  // Dual-dispatch: Sovereign welcome email to customer + Live customer roster alert to admin
+  await Promise.allSettled([
+    sendLoginWelcomeEmail(user.email, user.name),
+    sendAdminCustomerRosterNotification({
+      userEmail: user.email,
+      userName: user.name,
+      authMethod: "credentials",
+    }),
+  ]);
 
   await createSession(user.id);
   redirect("/dashboard");
@@ -83,7 +97,15 @@ export async function register(formData: FormData) {
     }
   });
 
-  sendWelcomeEmail(email, name).catch(() => {});
+  // Dual-dispatch: Sovereign welcome email to customer + Live customer roster alert to admin
+  await Promise.allSettled([
+    sendLoginWelcomeEmail(email, name),
+    sendAdminCustomerRosterNotification({
+      userEmail: email,
+      userName: name,
+      authMethod: "signup",
+    }),
+  ]);
 
   await createSession(user.id);
   redirect("/dashboard");
@@ -193,8 +215,6 @@ export async function handleGoogleUser(googleUser: {
         },
       },
     });
-
-    sendWelcomeEmail(email, googleUser.name).catch(() => {});
   }
 
   return user;
